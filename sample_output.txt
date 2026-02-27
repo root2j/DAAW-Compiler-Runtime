@@ -1,0 +1,272 @@
+PYTHONPATH=src python -m daaw legacy
+
+============================================================
+  Workflow Plan: Legacy Pipeline
+  ID: 34ad62b2-0f52-4caf-837e-ea9428b67b68
+============================================================
+  Original questionnaire -> PM -> breakdown flow
+
+  Task 1: task_001
+    Name:     User Intake
+    Agent:    user_proxy
+    Deps:     (start)
+    Tools:    (none)
+    Criteria: (none)
+    Timeout:  300s | Retries: 2
+
+  Task 2: task_002
+    Name:     PM Refinement
+    Agent:    pm
+    Deps:     task_001
+    Tools:    (none)
+    Criteria: (none)
+    Timeout:  300s | Retries: 2
+
+  Task 3: task_003
+    Name:     Task Breakdown
+    Agent:    breakdown
+    Deps:     task_002
+    Tools:    (none)
+    Criteria: (none)
+    Timeout:  300s | Retries: 2
+
+  Total: 3 tasks
+============================================================
+
+  [START] task_001: User Intake
+
+============================================================
+  WORKFLOW AUTOMATION — Project Intake
+============================================================
+Answer the following questions to help us understand
+what you want to automate. Take your time.
+
+Question 1 of 7
+  What's the task or activity you want to automate?
+  Hint: e.g. 'when someone fills a form, send them a welcome email and add them to my CRM'
+
+  Your answer: when someone fills a form, send them a welcome email and add them to my CRM
+
+Question 2 of 7
+  What triggers this workflow?
+  Hint: e.g. a form submission, a scheduled time, an incoming email, a webhook, manually
+
+  Your answer: a form submission
+
+Question 3 of 7
+  What apps or services are involved?
+  Hint: e.g. Gmail, Slack, Google Sheets, Notion, Typeform — list all you can think of
+
+  Your answer: Gmail
+
+Question 4 of 7
+  What should happen at the end of the workflow? What does 'done' look like?
+  Hint: e.g. a notification is sent, a row is added, a file is created
+
+  Your answer: a notification
+
+Question 5 of 7
+  How often do you expect this workflow to run?
+  Hint: e.g. once a day, every time an event happens, hundreds of times a day
+
+  Your answer: everytime an event happens
+
+Question 6 of 7
+  Are there any conditions or special cases the workflow should handle?
+  Hint: e.g. 'only send the email if the country is India', 'skip if the row already exists' — type 'none' if not applicable
+
+  Your answer: none
+
+Question 7 of 7
+  Have you tried automating this before, or are you currently doing this manually? If manually, walk me through the steps you take.       
+  Hint: Be as detailed as possible — this helps us understand edge cases you might not think to mention
+
+  Your answer: no i didn't automate anything
+
+  [OK] task_001: User Intake (130.1s)
+  [START] task_002: PM Refinement
+
+============================================================
+PM AGENT — Clarification Phase
+============================================================
+
+[PM Agent]:
+Thank you for sharing the project intake answers. Based on the information provided, I have a good starting point for our project. However, I'd like to ask a few more clarifying questions to ensure I fully understand your requirements. Please feel free to elaborate.
+
+Here are my questions:
+
+1. Can you confirm if the form submission is happening on a website, or is it a separate application (e.g., Google Forms, Microsoft Forms, etc.)?
+2. Are there any specific requirements for the welcome email, such as a specific template or content that needs to be included?
+3. How would you like to handle any errors or failures that might occur during the workflow, such as a failed email send or a CRM update error?
+4. Is there a specific notification that needs to be sent at the end of the workflow, or is it simply a confirmation that the workflow has completed successfully?
+
+Please answer these questions, and I'll use the information to create a detailed project brief.
+
+[You]: google forms
+
+[PM Agent is generating the draft...]
+
+
+============================================================
+PM AGENT — Review & Refinement Phase
+============================================================
+
+[PM Agent — Draft]:
+**Project Overview**
+
+Project Name: Automated Welcome Email and CRM Integration
+
+Objective: Automate the process of sending a welcome email and adding new form submissions to a CRM (Customer Relationship Management) system after a user submits a Google Form.
+
+**Goals & Success Criteria**
+
+* The workflow should be triggered automatically whenever a new form submission is received.
+* The welcome email should be sent to the user immediately after form submission.
+* The user's information should be added to the CRM within a reasonable time frame (e.g., a few minutes).
+* The workflow should handle errors and exceptions gracefully, such as failed email sends or CRM update errors.
+
+**Key Features / Scope**
+
+* Integrate with Google Forms to trigger the workflow on new form submissions.
+* Send a welcome email to the user using Gmail.
+* Add the user's information to the CRM (integration details to be discussed).
+* Handle errors and exceptions, providing notifications and logging as necessary.
+
+**Out of Scope (Assumptions)**
+
+* The CRM integration will require additional setup and configuration, which is assumed to be completed separately.
+* The welcome email template and content are assumed to be created separately and will be used as-is.
+* The workflow will not handle any conditional logic or exceptions beyond those mentioned in the project objectives.
+
+**Open Questions / Risks**
+
+* The CRM integration will require additional setup and configuration, which may introduce risks or delays.
+* There may be requirements or limitations with the CRM system that need to be addressed.
+* The workflow's performance and scalability will need to be monitored and optimized as the project progresses.
+
+Please review this draft and let me know if you have any feedback or questions. I'll be happy to refine the project brief to better meet your needs.
+
+------------------------------------------------------------
+Do you approve this draft?
+  Type 'yes' to approve and move forward.
+  Or describe what you'd like to change.
+------------------------------------------------------------
+[You]: yes
+
+Draft approved! Moving to the next phase.
+
+  [OK] task_002: PM Refinement (46.5s)
+  [START] task_003: Task Breakdown
+
+============================================================
+TASK BREAKDOWN AGENT — Analyzing workflow...
+============================================================
+
+## Workflow Title: Automated Welcome Email and CRM Integration
+## Overview: This workflow automates the post-submission process for a Google Form. Upon a new submission, it will extract user data, send a personalized welcome email via Gmail, and integrate the user's information into a Customer Relationship Management (CRM) system.       
+## Trigger: New Google Form submission.
+
+## Subtask Breakdown
+
+### Phase 1: Trigger and Initial Data Extraction
+**Type:** Sequential
+**Depends on:** Nothing
+**Subtasks:**
+1.  **Listen for Google Form Submission Event:** The workflow system will be configured to actively listen for or receive webhook notifications for new form submissions from a specified Google Form.
+2.  **Extract and Standardize Form Submission Data:** Parse the incoming event payload to extract all relevant submitted fields. This includes, but is not limited to:
+    *   User's Full Name (or separate First Name, Last Name)
+    *   User's Email Address
+    *   Any other data points required for the welcome email personalization or CRM entry.
+**Output of this phase:** A structured data object containing all extracted form fields, with key fields like user's name and email address clearly identified.
+
+### Phase 2: Send Welcome Email
+**Type:** Sequential
+**Depends on:** Phase 1
+**Subtasks:**
+1.  **Prepare Welcome Email Content:**
+    *   Retrieve the pre-defined welcome email template.
+    *   Dynamically populate placeholders within the template using the user's name and any other relevant data extracted in Phase 1.     
+2.  **Initiate Email Send via Gmail:**
+    *   Make an API call to the Gmail service to send an email.
+    *   Specify the recipient's email address using the email extracted in Phase 1.
+    *   Specify the sender's email address (configured Gmail account).
+    *   Attach the prepared email subject and body content.
+3.  **Monitor Email Send Status:** Await the response from the Gmail service to confirm the email send operation's success or failure.    
+    *   **On Success:** Record the successful email dispatch.
+    *   **On Failure:** Capture the error details (e.g., invalid recipient, authentication issue) and flag for error handling.
+**Output of this phase:** Status of the email send operation (success/failure) and any associated error messages or success confirmations.
+
+### Phase 3: CRM Integration
+**Type:** Sequential
+**Depends on:** Phase 1
+**Subtasks:**
+1.  **Map Form Data to CRM Fields:** Transform the extracted form data from Phase 1 into the specific field names and data types required by the target CRM system's API (e.g., "Full Name" from form to "firstName" and "lastName" in CRM, "Email Address" to "email").
+2.  **Authenticate with CRM System:** Ensure that the API call to the CRM system includes valid authentication credentials (e.g., API key, OAuth token).
+3.  **Create/Update Contact Record in CRM:**
+    *   Make an API call to the CRM system to create a new contact record using the mapped user data.
+    *   Pass all necessary user information (name, email, etc.) to the CRM API.
+    *   **On Success:** Record the successful CRM entry, including any ID returned by the CRM.
+    *   **On Failure:** Capture the error details (e.g., API error, data validation failure) and flag for error handling.
+**Output of this phase:** Status of the CRM operation (success/failure), the CRM contact ID (if created), and any associated error messages or success confirmations.
+
+### Phase 4: Error Handling and Notifications
+**Type:** Grouped (triggered by failures in Phase 2 or Phase 3)
+**Depends on:** Phase 2 (failure path), Phase 3 (failure path)
+**Subtasks:**
+1.  **Identify Error Source and Context:** Determine precisely which operation failed (email send or CRM integration) and retrieve all available error messages and the original input data that caused the failure (e.g., user's email, full form submission).
+2.  **Log Detailed Error Information:** Record the specific error message, timestamp, affected user's data, and the originating phase of the error to a designated internal logging system or database.
+3.  **Send Internal Failure Notification:**
+    *   Compose a clear and concise notification message detailing the error (e.g., "Welcome email failed for [user_email]", "CRM contact creation failed for [user_name]").
+    *   Send this notification to a pre-defined internal channel (e.g., administrative email address, Slack channel, Microsoft Teams).    
+**Output of this phase:** Error logged, internal notification sent.
+
+## Conditional Logic & Edge Cases
+*   **Independent Failure Handling:** The workflow must be designed such that a failure in sending the welcome email (Phase 2) does not prevent the attempt to integrate with the CRM (Phase 3), and vice-versa. Both operations should proceed independently, with their respective failures routed to Phase 4.
+*   **Specific Error Routing:** Phase 4 must be able to differentiate between an email sending error and a CRM integration error to provide context-specific logging and notifications.
+*   **No Complex Business Logic:** As per the brief, there is no conditional logic beyond handling explicit operational failures. For example, there is no logic to check for existing CRM contacts before creation, or to send different emails based on form content.
+
+## Data Flow Summary
+1.  **Google Form Submission:** Initiates the workflow with raw form field data.
+2.  **Phase 1 (Trigger & Extraction):** Transforms raw form data into a standardized, structured JSON object containing user details (Name, Email, etc.). This object is passed to both Phase 2 and Phase 3.
+3.  **Phase 2 (Email Send):** Consumes user's Name and Email. Produces an email send status (success/failure) and potential error details.
+4.  **Phase 3 (CRM Integration):** Consumes all relevant user details from the structured data. Produces a CRM operation status (success/failure), potential CRM contact ID, and error details.
+5.  **Phase 4 (Error Handling):** Consumes error messages and relevant input data from any failures in Phase 2 or Phase 3. Produces a log entry and an internal notification.
+
+## Assumptions Made
+*   The Google Form is already created and configured to trigger the workflow upon submission (e.g., via webhooks or a polling mechanism).
+*   The welcome email template and its content, including any necessary placeholders for dynamic data, are pre-defined and readily accessible.
+*   The Gmail account used for sending emails is fully configured, authenticated, and has the necessary permissions.
+*   The CRM system's API endpoint, authentication method (e.g., API key, OAuth), and required fields for contact creation are known and accessible.
+*   The CRM integration setup and configuration (e.g., API keys, permissions, field definitions within the CRM itself) are completed separately and are out of scope for the *design* of this workflow.
+*   The mapping between Google Form fields and CRM fields will be explicitly defined and straightforward, requiring no complex transformations or lookups.
+*   The workflow does not need to handle scenarios like duplicate contact checks in the CRM; it is assumed to either always create a new contact or the CRM handles de-duplication internally.
+*   "Immediately" for email and "within a reasonable time frame" for CRM implies that these operations are expected to complete within seconds to a few minutes, without significant blocking delays.
+
+============================================================
+TASK BREAKDOWN COMPLETE
+============================================================
+  [OK] task_003: Task Breakdown (21.5s)
+
+============================================================
+  Execution Summary
+============================================================
+  Total: 3 | Success: 3 | Failure: 0
+
+  [OK] task_001 (130.1s)
+        Output: User's project intake answers:
+
+Q1. What's the task or activity you want to automate?
+A1. when someo...
+
+  [OK] task_002 (46.5s)
+        Output: **Project Overview**
+
+Project Name: Automated Welcome Email and CRM Integration
+
+Objective: Automate...
+
+  [OK] task_003 (21.4s)
+        Output: ## Workflow Title: Automated Welcome Email and CRM Integration
+## Overview: This workflow automates ...
+
+============================================================

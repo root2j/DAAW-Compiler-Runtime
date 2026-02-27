@@ -1,2 +1,5 @@
 venv/
 .env
+.daaw_store/
+.claude/
+plan.txt

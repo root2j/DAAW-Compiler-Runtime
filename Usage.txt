@@ -1,0 +1,101 @@
+---                                                                                                                                                  Setup
+                                                                                                                                                     
+  1. Install dependencies
+  pip install -r requirements.txt
+
+  2. Create a .env file in the project root with your API keys (at least one required):
+  GROQ_API_KEY=your_groq_key
+  GEMINI_API_KEY=your_gemini_key
+  OPENAI_API_KEY=your_openai_key
+  ANTHROPIC_API_KEY=your_anthropic_key
+
+  3. Set the Python path (needed every session, or add to your shell profile):
+  export PYTHONPATH=src
+
+  ---
+  Two Commands
+
+  legacy — The Original Pipeline
+
+  Runs the same questionnaire → PM → breakdown flow you had before, but through the new architecture:
+
+  python -m daaw legacy
+
+  What happens:
+  1. UserProxyAgent — walks you through 7 intake questions (what to automate, triggers, apps, etc.)
+  2. PMAgent — asks clarifying questions, generates a project draft, lets you refine it until you type yes
+  3. BreakdownAgent — takes the approved draft and breaks it into detailed subtasks
+
+  This uses Groq for the PM agent and Gemini for the breakdown agent (same as the original code). You need at least those two API keys.
+
+  ---
+  run — The Full Compiler-Runtime Pipeline
+
+  python -m daaw run --goal "Automate email classification" --provider groq
+
+  Flags:
+
+  ┌────────────┬────────────────────┬────────────────────────────────────────────────────────────────────────┐
+  │    Flag    │      Default       │                              Description                               │
+  ├────────────┼────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ --goal     │ (prompts you)      │ The workflow you want to build                                         │
+  ├────────────┼────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ --provider │ groq               │ LLM provider for the compiler/critic (groq, gemini, openai, anthropic) │
+  ├────────────┼────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ --model    │ (provider default) │ Override the model (e.g. llama-3.1-70b-versatile)                      │
+  └────────────┴────────────────────┴────────────────────────────────────────────────────────────────────────┘
+
+  What happens:
+  1. Compile — LLM generates a WorkflowSpec (a DAG of tasks) from your goal
+  2. Review — You see the plan and can:
+    - Type yes to approve
+    - Type abort to cancel
+    - Type feedback to refine (e.g. "add an error handling step")
+  3. Execute — Tasks run in parallel where possible, sequentially where dependencies require
+  4. Critique — Each task's output is evaluated against its success criteria; failures auto-retry
+  5. Summary — Final results with success/failure counts
+
+  Example session:
+  # Let it prompt you for the goal interactively
+  python -m daaw run --provider groq
+
+  # Provide goal directly
+  python -m daaw run --goal "When a new row is added to Google Sheets, send a Slack notification and log to Notion" --provider gemini
+
+  # Use OpenAI with a specific model
+  python -m daaw run --goal "Classify incoming emails" --provider openai --model gpt-4o
+
+  ---
+  Quick Test (No API Keys Needed)
+
+  Verify everything imports and the DAG engine works:
+
+  python -c "
+  import asyncio
+  from daaw.schemas.workflow import *
+  from daaw.engine.dag import DAG
+
+  spec = WorkflowSpec(
+      name='Test', description='test',
+      tasks=[
+          TaskSpec(id='a', name='A', description='d', agent=AgentSpec(role='pm')),
+          TaskSpec(id='b', name='B', description='d', agent=AgentSpec(role='pm')),
+          TaskSpec(id='c', name='C', description='d', agent=AgentSpec(role='pm'),
+                   dependencies=[DependencySpec(task_id='a'), DependencySpec(task_id='b')]),
+      ]
+  )
+  dag = DAG(spec)
+  print('Validation:', dag.validate())
+  print('Ready (should be a,b):', sorted(dag.get_ready_tasks()))
+  "
+
+  ---
+  Minimum Viable Test
+
+  If you only have a Groq API key, run:
+
+  python -m daaw legacy
+
+  This exercises the full architecture end-to-end (UserProxy → PM via Groq → Breakdown needs Gemini though).
+
+  If you have both Groq + Gemini keys, legacy runs the complete original pipeline. For run, just a single provider key is enough.
