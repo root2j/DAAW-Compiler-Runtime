@@ -66,6 +66,31 @@
   python -m daaw run --goal "Classify incoming emails" --provider openai --model gpt-4o
 
   ---
+  ui — Demo UI (No API Keys Needed)
+
+  Launches a Streamlit web app with interactive visualizations of the full pipeline:
+
+  python -m daaw ui
+  python -m daaw ui --port 8502
+
+  Or directly via Streamlit:
+
+  PYTHONPATH=src streamlit run src/daaw/ui/app.py
+
+  5 Tabs:
+  1. Architecture — system flow diagram and component cards
+  2. Compiler — compilation pipeline, task table, WorkflowSpec JSON
+  3. DAG Visualization — interactive Plotly graph of the workflow DAG
+  4. Execution Timeline — Gantt chart showing parallel task execution
+  5. Critic & Results — per-task pass/fail verdicts and output previews
+
+  Demo Mode loads a pre-built "E-commerce Order Processing Pipeline" (6 tasks, diamond DAG)
+  with realistic results — no API key required.
+
+  Live Mode (requires an API key) lets you type a goal and compile it into a WorkflowSpec
+  using any provider.
+
+  ---
   Quick Test (No API Keys Needed)
 
   Verify everything imports and the DAG engine works:

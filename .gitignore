@@ -3,3 +3,4 @@ venv/
 .daaw_store/
 .claude/
 plan.txt
+__pycache__/
