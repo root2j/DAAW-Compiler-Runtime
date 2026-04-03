@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daaw"
+version = "0.1.0"
+description = "DAAW Compiler-Runtime — workflow orchestration as a compilation problem"
+requires-python = ">=3.9"
+dependencies = [
+    "pydantic>=2.0",
+    "networkx>=3.0",
+    "tenacity>=8.0",
+    "python-dotenv>=1.0",
+    "groq>=1.0",
+    "google-genai>=1.0",
+    "openai>=1.0",
+    "anthropic>=0.34",
+    "httpx",
+    "aiohttp",
+]
+
+[project.optional-dependencies]
+ui = ["streamlit>=1.28", "plotly>=6.0"]
+dev = ["pytest", "pytest-asyncio"]
+
+[project.scripts]
+daaw = "daaw.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: tests that require external API keys",
+]

@@ -64,18 +64,35 @@ class DAGExecutor:
         dag.mark(task_id, TaskStatus.RUNNING)
         print(f"  [START] {task_id}: {task.name}")
 
+        # Enforce a minimum timeout: tool-using tasks need at least 300s
+        # (web searches are slow; LLM responses on complex tasks can take 2+ min)
+        effective_timeout = task.timeout_seconds
+        if task.agent.tools_allowed and effective_timeout < 300:
+            effective_timeout = 300
+        elif effective_timeout < 60:
+            effective_timeout = 60
+
         start = time.monotonic()
         try:
-            context = await prune_context(task, self._store)
+            dep_context = await prune_context(task, self._store)
             agent = self._factory.create(task_id, task.agent)
 
+            # Always include the task goal so the agent knows what to do.
+            # Dependency outputs are nested under "dependency_outputs" when present.
+            agent_input: dict = {
+                "task": task.description,
+                "success_criteria": task.success_criteria,
+            }
+            if dep_context:
+                agent_input["dependency_outputs"] = dep_context
+
             result = await asyncio.wait_for(
-                agent.run(context), timeout=task.timeout_seconds
+                agent.run(agent_input), timeout=effective_timeout
             )
         except asyncio.TimeoutError:
             result = AgentResult(
                 status="failure",
-                error_message=f"Task timed out after {task.timeout_seconds}s",
+                error_message=f"Task timed out after {effective_timeout}s (spec: {task.timeout_seconds}s)",
             )
         except Exception as e:
             result = AgentResult(status="failure", error_message=str(e))

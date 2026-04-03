@@ -76,39 +76,42 @@ class TestToolRegistry:
 
 
 class TestMockTools:
-    """Test the globally registered mock tools."""
+    """Test mock tool implementations directly (not via global registry).
+
+    We test the mock handler functions directly to avoid import-order races
+    with real_tools which may overwrite the same registry keys.
+    """
 
     def test_mock_tools_registered(self):
-        from daaw.tools.registry import tool_registry
-        import daaw.tools.mock_tools  # noqa: F401
-
-        assert tool_registry.get("web_search") is not None
-        assert tool_registry.get("file_write") is not None
-        assert tool_registry.get("file_read") is not None
+        # Import mock_tools and verify functions are available
+        import daaw.tools.mock_tools as mt
+        assert callable(mt.mock_web_search)
+        assert callable(mt.mock_file_write)
+        assert callable(mt.mock_file_read)
 
     def test_mock_web_search(self):
-        from daaw.tools.registry import tool_registry
+        from daaw.tools.mock_tools import mock_web_search
 
         result = asyncio.get_event_loop().run_until_complete(
-            tool_registry.execute("web_search", query="test query")
+            mock_web_search(query="test query")
         )
         assert "[MOCK]" in result
         assert "test query" in result
 
     def test_mock_file_write(self):
-        from daaw.tools.registry import tool_registry
+        from daaw.tools.mock_tools import mock_file_write
 
         result = asyncio.get_event_loop().run_until_complete(
-            tool_registry.execute("file_write", path="/tmp/test.txt", content="hello")
+            mock_file_write(path="/tmp/test.txt", content="hello")
         )
         assert "[MOCK]" in result
         assert "5 chars" in result
 
     def test_mock_file_read(self):
-        from daaw.tools.registry import tool_registry
+        from daaw.tools.mock_tools import mock_file_read
 
         result = asyncio.get_event_loop().run_until_complete(
-            tool_registry.execute("file_read", path="/tmp/test.txt")
+            mock_file_read(path="/tmp/test.txt")
         )
         assert "[MOCK]" in result
         assert "/tmp/test.txt" in result

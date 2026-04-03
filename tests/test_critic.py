@@ -54,9 +54,10 @@ class TestCritic:
             task_id="t1",
             agent_result=AgentResult(output="anything", status="success"),
         )
-        passed, patch = run(critic.evaluate(task, result))
+        passed, patch, reasoning = run(critic.evaluate(task, result))
         assert passed is True
         assert patch is None
+        assert reasoning  # should be a non-empty string
 
     def test_auto_retry_on_failure(self, critic):
         """Failed tasks get an auto-retry patch — no API call needed."""
@@ -65,7 +66,7 @@ class TestCritic:
             task_id="t1",
             agent_result=AgentResult(status="failure", error_message="crashed"),
         )
-        passed, patch = run(critic.evaluate(task, result))
+        passed, patch, reasoning = run(critic.evaluate(task, result))
         assert passed is False
         assert patch is not None
         assert patch.operations[0].action.value == "retry"
@@ -82,7 +83,7 @@ class TestCritic:
             ),
             elapsed_seconds=1.0,
         )
-        passed, patch = run(critic.evaluate(task, result))
+        passed, patch, reasoning = run(critic.evaluate(task, result))
         assert passed is True
 
     @skip_on_rate_limit
@@ -99,7 +100,7 @@ class TestCritic:
             ),
             elapsed_seconds=0.5,
         )
-        passed, patch = run(critic.evaluate(task, result))
+        passed, patch, reasoning = run(critic.evaluate(task, result))
         assert passed is False
 
 
@@ -113,7 +114,7 @@ class TestCriticPatch:
             agent_result=AgentResult(output="Just one item.", status="success"),
             elapsed_seconds=0.5,
         )
-        passed, patch = run(critic.evaluate(task, result))
+        passed, patch, reasoning = run(critic.evaluate(task, result))
         if not passed and patch is not None:
             assert len(patch.operations) > 0
             for op in patch.operations:

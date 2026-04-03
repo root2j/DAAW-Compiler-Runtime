@@ -11,11 +11,11 @@ from daaw.schemas.results import AgentResult, TaskResult
 #
 # Diamond DAG:
 #   task_001 (Receive Order)
-#       ├── task_002 (Validate Payment)
-#       └── task_003 (Check Inventory)
-#              ├── (both) ──► task_004 (Process Fulfillment)
-#                                 ├── task_005 (Send Confirmation)
-#                                 └── task_006 (Update Analytics)
+#       |-- task_002 (Validate Payment)
+#       \-- task_003 (Check Inventory)
+#              |-- (both) --> task_004 (Process Fulfillment)
+#                                 |-- task_005 (Send Confirmation)
+#                                 \-- task_006 (Update Analytics)
 # ---------------------------------------------------------------------------
 
 DEMO_WORKFLOW_SPEC = WorkflowSpec(
@@ -100,7 +100,7 @@ DEMO_WORKFLOW_SPEC = WorkflowSpec(
 
 
 # ---------------------------------------------------------------------------
-# Demo Results — realistic outputs and timings (all success)
+# Demo Results -- realistic outputs with tool call metadata
 # ---------------------------------------------------------------------------
 
 DEMO_RESULTS: dict[str, TaskResult] = {
@@ -134,7 +134,16 @@ DEMO_RESULTS: dict[str, TaskResult] = {
                 "fraud_score": 0.02,
             },
             status="success",
-            metadata={"model": "llama-3.3-70b-versatile"},
+            metadata={
+                "model": "llama-3.3-70b-versatile",
+                "tool_calls": [
+                    {
+                        "tool": "web_search",
+                        "args": {"query": "payment gateway authorize corporate_card_ending_4291"},
+                        "result": "Authorization successful. Transaction ID: TXN-9901-ABCD. Amount: $1,339.50 USD.",
+                    },
+                ],
+            },
         ),
         attempt=1,
         elapsed_seconds=1.8,
@@ -151,7 +160,16 @@ DEMO_RESULTS: dict[str, TaskResult] = {
                 "warehouse": "WH-WEST-01",
             },
             status="success",
-            metadata={"model": "llama-3.3-70b-versatile"},
+            metadata={
+                "model": "llama-3.3-70b-versatile",
+                "tool_calls": [
+                    {
+                        "tool": "file_read",
+                        "args": {"path": "inventory/current_stock.json"},
+                        "result": '{"WIDGET-A": 120, "GADGET-B": 45, "GIZMO-C": 0}',
+                    },
+                ],
+            },
         ),
         attempt=1,
         elapsed_seconds=1.5,
@@ -167,7 +185,21 @@ DEMO_RESULTS: dict[str, TaskResult] = {
                 "estimated_ship_date": "2025-06-15",
             },
             status="success",
-            metadata={"model": "llama-3.3-70b-versatile"},
+            metadata={
+                "model": "llama-3.3-70b-versatile",
+                "tool_calls": [
+                    {
+                        "tool": "file_write",
+                        "args": {"path": "labels/SHP-2025-XK42.json", "content": '{"carrier":"FedEx","tracking":"FX-7789012345"}'},
+                        "result": "Wrote 52 characters to labels/SHP-2025-XK42.json",
+                    },
+                    {
+                        "tool": "file_write",
+                        "args": {"path": "fulfillment/ORD-2025-8842.json", "content": '{"status":"processing","warehouse":"WH-WEST-01"}'},
+                        "result": "Wrote 49 characters to fulfillment/ORD-2025-8842.json",
+                    },
+                ],
+            },
         ),
         attempt=1,
         elapsed_seconds=3.1,
@@ -182,7 +214,16 @@ DEMO_RESULTS: dict[str, TaskResult] = {
                 "confirmation_id": "CONF-5567",
             },
             status="success",
-            metadata={"model": "llama-3.3-70b-versatile"},
+            metadata={
+                "model": "llama-3.3-70b-versatile",
+                "tool_calls": [
+                    {
+                        "tool": "web_search",
+                        "args": {"query": "FedEx tracking FX-7789012345 status"},
+                        "result": "Package FX-7789012345: Label created. Estimated delivery: June 18, 2025.",
+                    },
+                ],
+            },
         ),
         attempt=1,
         elapsed_seconds=0.9,
@@ -191,17 +232,24 @@ DEMO_RESULTS: dict[str, TaskResult] = {
         task_id="task_006",
         agent_result=AgentResult(
             output={
-                "metrics_recorded": True,
-                "revenue": 1339.50,
-                "items_sold": 70,
-                "fulfillment_time_hours": 2.4,
-                "customer_segment": "enterprise",
+                "metrics_recorded": False,
+                "error": "Database connection timeout after 3 retries",
+                "partial_data": {"revenue": 1339.50, "items_sold": 70},
             },
-            status="success",
-            metadata={"model": "gemini-2.5-flash"},
+            status="failure",
+            metadata={
+                "model": "gemini-2.5-flash",
+                "tool_calls": [
+                    {
+                        "tool": "file_write",
+                        "args": {"path": "analytics/daily_metrics.json", "content": '{"date":"2025-06-15","revenue":1339.50,"orders":1}'},
+                        "result": "[ERROR] Connection timeout: analytics DB unreachable at 10.0.1.42:5432",
+                    },
+                ],
+            },
         ),
-        attempt=1,
-        elapsed_seconds=1.2,
+        attempt=2,
+        elapsed_seconds=8.4,
     ),
 }
 
@@ -215,7 +263,7 @@ DEMO_CRITIC_VERDICTS: list[dict] = [
         "task_id": "task_001",
         "task_name": "Receive Order",
         "verdict": "PASS",
-        "reasoning": "Order details include items list, shipping address, and payment method — all required fields present.",
+        "reasoning": "Order details include items list, shipping address, and payment method -- all required fields present.",
         "patch": None,
     },
     {
@@ -236,7 +284,7 @@ DEMO_CRITIC_VERDICTS: list[dict] = [
         "task_id": "task_004",
         "task_name": "Process Fulfillment",
         "verdict": "PASS",
-        "reasoning": "Shipping label created (SHP-2025-XK42), carrier assigned (FedEx), warehouse confirmed.",
+        "reasoning": "Shipping label created (SHP-2025-XK42), carrier assigned (FedEx), warehouse confirmed. Two file_write tool calls completed successfully.",
         "patch": None,
     },
     {
@@ -249,9 +297,9 @@ DEMO_CRITIC_VERDICTS: list[dict] = [
     {
         "task_id": "task_006",
         "task_name": "Update Analytics",
-        "verdict": "PASS",
-        "reasoning": "All order metrics recorded: revenue ($1,339.50), items (70), fulfillment time, customer segment.",
-        "patch": None,
+        "verdict": "FAIL",
+        "reasoning": "metrics_recorded is False — database connection timed out. Partial data captured but analytics dashboard was not updated. Success criteria not met.",
+        "patch": "retry task_006 with fallback: write metrics to local file analytics/daily_metrics_fallback.json instead of database",
     },
 ]
 
@@ -261,18 +309,18 @@ DEMO_CRITIC_VERDICTS: list[dict] = [
 # ---------------------------------------------------------------------------
 
 DEMO_COMPILATION_LOG: list[str] = [
-    "[0.00s] Compiler initialized — provider: groq, model: llama-3.3-70b-versatile",
-    "[0.01s] Building system prompt with 6 agent roles, 3 tools",
+    "[0.00s] Compiler initialized -- provider: groq, model: llama-3.3-70b-versatile",
+    "[0.01s] Building system prompt with 6 agent roles, 4 tools",
     "[0.02s] Sending goal to LLM for workflow generation...",
     "[1.24s] LLM response received (2,847 tokens)",
     "[1.25s] Parsing JSON response...",
-    "[1.26s] JSON parsed successfully — 6 tasks found",
+    "[1.26s] JSON parsed successfully -- 6 tasks found",
     "[1.27s] Validating WorkflowSpec with Pydantic...",
-    "[1.28s] Validation passed — all task IDs unique, dependencies valid",
+    "[1.28s] Validation passed -- all task IDs unique, dependencies valid",
     "[1.29s] Building DAG from dependency graph...",
-    "[1.30s] DAG validated — no cycles detected (Kahn's algorithm)",
-    "[1.31s] Topological order: task_001 → task_002, task_003 → task_004 → task_005, task_006",
-    "[1.32s] Compilation complete — WorkflowSpec ready",
+    "[1.30s] DAG validated -- no cycles detected (Kahn's algorithm)",
+    "[1.31s] Topological order: task_001 -> task_002, task_003 -> task_004 -> task_005, task_006",
+    "[1.32s] Compilation complete -- WorkflowSpec ready",
 ]
 
 
@@ -291,8 +339,8 @@ DEMO_SYSTEM_STATS: dict = {
         "model": "llama-3.3-70b-versatile",
     },
     "tools": {
-        "registered": 3,
-        "names": ["web_search", "file_read", "file_write"],
+        "registered": 4,
+        "names": ["web_search", "file_read", "file_write", "shell_command"],
     },
     "schemas": {
         "count": 11,

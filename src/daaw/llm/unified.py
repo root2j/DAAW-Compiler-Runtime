@@ -39,6 +39,15 @@ class UnifiedLLMClient:
                 self._config.anthropic_api_key
             )
 
+        # OpenClaw gateway — available if OPENCLAW_GATEWAY_TOKEN is set
+        if self._config.openclaw_gateway_token:
+            from daaw.llm.providers.openclaw_provider import OpenClawProvider
+
+            self._providers["openclaw"] = OpenClawProvider(
+                gateway_url=self._config.openclaw_gateway_url,
+                token=self._config.openclaw_gateway_token,
+            )
+
     def available_providers(self) -> list[str]:
         return list(self._providers.keys())
 
@@ -51,6 +60,7 @@ class UnifiedLLMClient:
         temperature: float = 0.7,
         max_tokens: int = 2048,
         response_format: dict[str, Any] | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> LLMResponse:
         if provider not in self._providers:
             available = ", ".join(self._providers) or "(none)"
@@ -64,4 +74,5 @@ class UnifiedLLMClient:
             max_tokens=max_tokens,
             response_format=response_format,
             model=model,
+            tools=tools,
         )

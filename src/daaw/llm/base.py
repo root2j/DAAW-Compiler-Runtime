@@ -9,8 +9,17 @@ from typing import Any
 
 @dataclass
 class LLMMessage:
-    role: str  # "system" | "user" | "assistant"
+    role: str  # "system" | "user" | "assistant" | "tool"
     content: str
+    tool_call_id: str | None = None  # set when role == "tool"
+    tool_calls_raw: Any = None  # preserved from assistant msg for round-trip
+
+
+@dataclass
+class ToolCall:
+    id: str
+    name: str
+    arguments: dict[str, Any]
 
 
 @dataclass
@@ -19,6 +28,7 @@ class LLMResponse:
     model: str
     usage: dict[str, Any] = field(default_factory=dict)
     raw: Any = None
+    tool_calls: list[ToolCall] = field(default_factory=list)
 
 
 class LLMProvider(ABC):
@@ -33,6 +43,7 @@ class LLMProvider(ABC):
         max_tokens: int = 2048,
         response_format: dict[str, Any] | None = None,
         model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> LLMResponse: ...
 
     @abstractmethod

@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: daaw
+Version: 0.1.0
+Summary: DAAW Compiler-Runtime — workflow orchestration as a compilation problem
+Requires-Python: >=3.9
+Requires-Dist: pydantic>=2.0
+Requires-Dist: networkx>=3.0
+Requires-Dist: tenacity>=8.0
+Requires-Dist: python-dotenv>=1.0
+Requires-Dist: groq>=1.0
+Requires-Dist: google-genai>=1.0
+Requires-Dist: openai>=1.0
+Requires-Dist: anthropic>=0.34
+Requires-Dist: httpx
+Requires-Dist: aiohttp
+Provides-Extra: ui
+Requires-Dist: streamlit>=1.28; extra == "ui"
+Requires-Dist: plotly>=6.0; extra == "ui"
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"

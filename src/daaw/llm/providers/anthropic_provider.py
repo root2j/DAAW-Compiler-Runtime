@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse
+from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse, ToolCall
 
 DEFAULT_MODEL = "claude-sonnet-4-20250514"
 
@@ -26,15 +26,30 @@ class AnthropicProvider(LLMProvider):
         max_tokens: int = 2048,
         response_format: dict[str, Any] | None = None,
         model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> LLMResponse:
         model = model or DEFAULT_MODEL
 
         # Anthropic requires system separate from messages
         system_text = ""
-        api_messages: list[dict[str, str]] = []
+        api_messages: list[dict[str, Any]] = []
         for m in messages:
             if m.role == "system":
                 system_text += m.content + "\n"
+            elif m.role == "tool":
+                api_messages.append({
+                    "role": "user",
+                    "content": [{
+                        "type": "tool_result",
+                        "tool_use_id": m.tool_call_id,
+                        "content": m.content,
+                    }],
+                })
+            elif m.tool_calls_raw is not None:
+                api_messages.append({
+                    "role": "assistant",
+                    "content": m.tool_calls_raw,
+                })
             else:
                 api_messages.append({"role": m.role, "content": m.content})
 
@@ -54,9 +69,35 @@ class AnthropicProvider(LLMProvider):
         if system_text.strip():
             kwargs["system"] = system_text.strip()
 
+        # Convert OpenAI-style tools to Anthropic format
+        if tools:
+            anthropic_tools = []
+            for t in tools:
+                fn = t["function"]
+                anthropic_tools.append({
+                    "name": fn["name"],
+                    "description": fn["description"],
+                    "input_schema": fn["parameters"],
+                })
+            kwargs["tools"] = anthropic_tools
+
         resp = await self._client.messages.create(**kwargs)
 
-        content = resp.content[0].text.strip() if resp.content else ""
+        # Extract text and tool_use blocks
+        content_text = ""
+        tool_calls = []
+        raw_content_blocks = []
+        for block in resp.content:
+            raw_content_blocks.append(block)
+            if block.type == "text":
+                content_text += block.text
+            elif block.type == "tool_use":
+                tool_calls.append(ToolCall(
+                    id=block.id,
+                    name=block.name,
+                    arguments=block.input,
+                ))
+
         usage = {}
         if resp.usage:
             usage = {
@@ -64,8 +105,9 @@ class AnthropicProvider(LLMProvider):
                 "output_tokens": resp.usage.output_tokens,
             }
         return LLMResponse(
-            content=content,
+            content=content_text.strip(),
             model=resp.model,
             usage=usage,
             raw=resp,
+            tool_calls=tool_calls,
         )

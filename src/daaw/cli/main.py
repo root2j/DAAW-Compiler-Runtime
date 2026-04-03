@@ -14,8 +14,7 @@ import daaw.agents.builtin.planner_agent  # noqa: F401
 import daaw.agents.builtin.pm_agent  # noqa: F401
 import daaw.agents.builtin.user_proxy  # noqa: F401
 
-# ── Import mock tools to register them ──
-import daaw.tools.mock_tools  # noqa: F401
+# ── Tools are registered dynamically in main() based on --mock-tools flag ──
 
 from daaw.agents.factory import AgentFactory
 from daaw.cli.display import (
@@ -48,7 +47,7 @@ async def run_full_pipeline(
     llm = UnifiedLLMClient(config)
     store = ArtifactStore(config.artifact_store_dir)
     cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
-    factory = AgentFactory(llm, store)
+    factory = AgentFactory(llm, store, default_provider=provider)
     executor = DAGExecutor(factory, store, cb)
 
     print(f"\nAvailable LLM providers: {', '.join(llm.available_providers())}\n")
@@ -90,7 +89,7 @@ async def run_full_pipeline(
         if task.id not in results:
             continue
         result = results[task.id]
-        passed, patch = await critic.evaluate(task, result)
+        passed, patch, _reasoning = await critic.evaluate(task, result)
         display_critic_verdict(task.id, passed)
 
         if not passed and patch:
@@ -189,6 +188,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--goal", type=str, default="", help="Workflow goal")
     run_parser.add_argument("--provider", type=str, default="groq", help="LLM provider")
     run_parser.add_argument("--model", type=str, default=None, help="LLM model override")
+    run_parser.add_argument("--mock-tools", action="store_true", help="Use mock tools instead of real ones")
 
     # daaw legacy
     sub.add_parser("legacy", help="Original questionnaire -> PM -> breakdown pipeline")
@@ -200,14 +200,24 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _register_tools(use_mock: bool = False) -> None:
+    """Register tools based on mode."""
+    if use_mock:
+        import daaw.tools.mock_tools  # noqa: F401
+    else:
+        import daaw.tools.real_tools  # noqa: F401
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
     config = get_config()
 
     if args.command == "run":
+        _register_tools(use_mock=getattr(args, "mock_tools", False))
         asyncio.run(run_full_pipeline(args.goal, args.provider, args.model, config))
     elif args.command == "legacy":
+        _register_tools(use_mock=True)
         asyncio.run(run_legacy_pipeline(config))
     elif args.command == "ui":
         launch_ui(args.port)

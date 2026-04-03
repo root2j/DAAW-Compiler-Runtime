@@ -27,19 +27,31 @@ class GeminiProvider(LLMProvider):
         max_tokens: int = 2048,
         response_format: dict[str, Any] | None = None,
         model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> LLMResponse:
         from google.genai import types
 
         model = model or DEFAULT_MODEL
 
-        # Separate system instruction from contents
+        # Separate system instruction and build structured contents
         system_instruction = None
-        contents: list[str] = []
+        contents: list[types.Content] = []
         for m in messages:
             if m.role == "system":
                 system_instruction = m.content
             else:
-                contents.append(m.content)
+                gemini_role = "model" if m.role == "assistant" else "user"
+                contents.append(types.Content(
+                    role=gemini_role,
+                    parts=[types.Part.from_text(text=m.content)],
+                ))
+
+        # Gemini needs at least one content entry
+        if not contents:
+            contents.append(types.Content(
+                role="user",
+                parts=[types.Part.from_text(text="")],
+            ))
 
         config_kwargs: dict[str, Any] = {
             "temperature": temperature,
@@ -52,13 +64,10 @@ class GeminiProvider(LLMProvider):
 
         config = types.GenerateContentConfig(**config_kwargs)
 
-        # Combine user/assistant messages into a single content string for simple use
-        combined_content = "\n\n".join(contents)
-
         resp = await asyncio.to_thread(
             self._client.models.generate_content,
             model=model,
-            contents=combined_content,
+            contents=contents,
             config=config,
         )
 

@@ -31,14 +31,15 @@ class Critic:
 
     async def evaluate(
         self, task: TaskSpec, result: TaskResult
-    ) -> tuple[bool, WorkflowPatch | None]:
-        """Evaluate a task result. Returns (passed, patch_or_none)."""
+    ) -> tuple[bool, WorkflowPatch | None, str]:
+        """Evaluate a task result. Returns (passed, patch_or_none, reasoning)."""
         # Skip if no success criteria
         if not task.success_criteria:
-            return True, None
+            return True, None, "No success criteria defined — auto-pass."
 
         # Auto-generate retry patch for failures
         if result.agent_result.status == "failure":
+            reasoning = f"Task '{task.id}' failed — automatic retry."
             patch = WorkflowPatch(
                 operations=[
                     PatchOperation(
@@ -50,12 +51,20 @@ class Critic:
                         ),
                     )
                 ],
-                reasoning=f"Task '{task.id}' failed — automatic retry.",
+                reasoning=reasoning,
             )
-            return False, patch
+            return False, patch, reasoning
 
         # Ask LLM to evaluate
-        output_str = str(result.agent_result.output)[:4000]
+        MAX_OUTPUT_CHARS = 8000
+        raw_output = str(result.agent_result.output)
+        was_truncated = len(raw_output) > MAX_OUTPUT_CHARS
+        output_str = raw_output[:MAX_OUTPUT_CHARS]
+        truncation_note = (
+            f" (showing first {MAX_OUTPUT_CHARS} of {len(raw_output)} chars — output was truncated)"
+            if was_truncated
+            else ""
+        )
         eval_prompt = CRITIC_EVALUATION_PROMPT.format(
             task_id=task.id,
             task_name=task.name,
@@ -65,6 +74,7 @@ class Critic:
             attempt=result.attempt,
             elapsed=result.elapsed_seconds,
             task_output=output_str,
+            truncation_note=truncation_note,
         )
 
         messages = [
@@ -95,16 +105,17 @@ class Critic:
                 data = json.loads(resp.content)
                 verdict = data.get("verdict", "pass")
                 passed = verdict == "pass"
+                reasoning = data.get("reasoning", "(no reasoning provided)")
 
                 patch = None
                 if not passed and data.get("patch"):
                     patch = WorkflowPatch.model_validate(data["patch"])
 
-                return passed, patch
+                return passed, patch, reasoning
             except (json.JSONDecodeError, Exception) as e:
                 last_error = str(e)
                 messages.append(LLMMessage(role="assistant", content=resp.content))
 
         # Fail-open: if critic can't produce valid output, pass the task
         print(f"  [CRITIC] Could not parse verdict for {task.id} — fail-open (pass)")
-        return True, None
+        return True, None, "Critic could not parse a verdict — fail-open (pass)."

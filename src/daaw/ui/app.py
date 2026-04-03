@@ -1,9 +1,11 @@
-"""DAAW Compiler-Runtime — Pitch-Ready Demo UI."""
+"""DAAW Compiler-Runtime — Production-Ready Dashboard UI."""
 
 from __future__ import annotations
 
 import asyncio
+import html
 import json
+import traceback
 from datetime import datetime, timedelta
 
 import networkx as nx
@@ -30,29 +32,258 @@ from daaw.ui.demo_data import (
     DEMO_WORKFLOW_SPEC,
 )
 
+# Register real_tools at startup (real DuckDuckGo HTTP search).
+# Falls back to mock_tools if real_tools import fails.
+try:
+    import daaw.tools.real_tools  # noqa: F401
+except Exception:
+    try:
+        import daaw.tools.mock_tools  # noqa: F401
+    except Exception:
+        pass
+
 # ---------------------------------------------------------------------------
-# Color palette
+# Design tokens
 # ---------------------------------------------------------------------------
-COLORS = {
+C = {
     "primary": "#6C63FF",
+    "primary_dim": "#4B44CC",
+    "accent": "#A78BFA",
     "success": "#00D26A",
+    "success_dim": "#00A854",
     "failure": "#FF4B4B",
+    "failure_dim": "#CC3C3C",
     "running": "#00B4D8",
     "pending": "#6B7280",
     "retrying": "#FFA726",
+    "skipped": "#9CA3AF",
+    "human": "#F59E0B",
     "bg": "#0E1117",
-    "card": "#1A1D23",
+    "card": "#161B22",
+    "card_hover": "#1C2333",
+    "surface": "#21262D",
+    "border": "#30363D",
+    "text": "#E6EDF3",
+    "text_dim": "#8B949E",
+    "text_muted": "#6E7681",
 }
 
 STATUS_COLORS = {
-    "success": COLORS["success"],
-    "failure": COLORS["failure"],
-    "running": COLORS["running"],
-    "pending": COLORS["pending"],
-    "retrying": COLORS["retrying"],
-    "skipped": "#9CA3AF",
-    "needs_human": "#F59E0B",
+    "success": C["success"],
+    "failure": C["failure"],
+    "running": C["running"],
+    "pending": C["pending"],
+    "retrying": C["retrying"],
+    "skipped": C["skipped"],
+    "needs_human": C["human"],
 }
+
+STATUS_ICONS = {
+    "success": "&#10004;",
+    "failure": "&#10008;",
+    "running": "&#9679;",
+    "pending": "&#9675;",
+    "retrying": "&#8635;",
+    "skipped": "&#8212;",
+    "needs_human": "&#9888;",
+}
+
+# ---------------------------------------------------------------------------
+# Global CSS injection
+# ---------------------------------------------------------------------------
+_GLOBAL_CSS = f"""
+<style>
+    .card {{
+        background: {C['card']};
+        border: 1px solid {C['border']};
+        border-radius: 10px;
+        padding: 1.1rem;
+        margin-bottom: 0.75rem;
+        transition: border-color 0.2s;
+    }}
+    .card:hover {{
+        border-color: {C['primary']};
+    }}
+    .card-accent {{
+        border-left: 3px solid {C['primary']};
+    }}
+    .card-success {{
+        border-left: 3px solid {C['success']};
+    }}
+    .card-failure {{
+        border-left: 3px solid {C['failure']};
+    }}
+    .badge {{
+        display: inline-block;
+        padding: 0.15rem 0.55rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+    }}
+    .badge-success {{
+        background: {C['success_dim']};
+        color: #FFF;
+    }}
+    .badge-failure {{
+        background: {C['failure_dim']};
+        color: #FFF;
+    }}
+    .badge-primary {{
+        background: {C['primary_dim']};
+        color: #FFF;
+    }}
+    .badge-muted {{
+        background: {C['surface']};
+        color: {C['text_dim']};
+    }}
+    .section-title {{
+        color: {C['text']};
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }}
+    .dim {{
+        color: {C['text_dim']};
+        font-size: 0.82rem;
+    }}
+    .mono {{
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.82rem;
+        color: {C['accent']};
+    }}
+    .flow-step {{
+        background: {C['card']};
+        border: 1px solid {C['border']};
+        border-radius: 10px;
+        padding: 0.85rem;
+        text-align: center;
+        min-height: 110px;
+    }}
+    .flow-step-active {{
+        border-color: {C['primary']};
+        box-shadow: 0 0 8px {C['primary']}33;
+    }}
+    .tool-card {{
+        background: {C['surface']};
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-left: 2px solid {C['running']};
+    }}
+    .verdict-card {{
+        background: {C['card']};
+        border: 1px solid {C['border']};
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }}
+    .stat-value {{
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: {C['text']};
+        line-height: 1;
+    }}
+    .stat-label {{
+        font-size: 0.75rem;
+        color: {C['text_dim']};
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 0.25rem;
+    }}
+    .log-line {{
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        color: {C['text_dim']};
+    }}
+    .log-timestamp {{
+        color: {C['primary']};
+    }}
+    .pipeline-badge {{
+        display: inline-block;
+        padding: 0.2rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        vertical-align: middle;
+    }}
+    .task-card {{
+        background: {C['card']};
+        border: 1px solid {C['border']};
+        border-radius: 10px;
+        padding: 0.85rem;
+        margin-bottom: 0.5rem;
+        transition: border-color 0.2s;
+    }}
+    .task-card:hover {{
+        border-color: {C['primary']};
+    }}
+    .tool-pill {{
+        display: inline-block;
+        padding: 0.1rem 0.45rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        background: {C['surface']};
+        color: {C['running']};
+        margin-right: 0.3rem;
+        margin-bottom: 0.2rem;
+    }}
+    .dep-pill {{
+        display: inline-block;
+        padding: 0.1rem 0.45rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        background: {C['surface']};
+        color: {C['accent']};
+        margin-right: 0.3rem;
+    }}
+    .error-box {{
+        background: #1a0000;
+        border: 1px solid {C['failure']};
+        border-radius: 6px;
+        padding: 0.65rem 0.85rem;
+        margin-top: 0.5rem;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.8rem;
+        color: {C['failure']};
+    }}
+    .sidebar-section {{
+        background: {C['card']};
+        border: 1px solid {C['border']};
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }}
+</style>
+"""
+
+
+def _card(content: str, border_color: str | None = None, extra_class: str = ""):
+    cls = f"card {extra_class}"
+    style = f"border-left: 3px solid {border_color};" if border_color else ""
+    return f'<div class="{cls}" style="{style}">{content}</div>'
+
+
+def _badge(text: str, variant: str = "primary"):
+    return f'<span class="badge badge-{variant}">{_esc(text)}</span>'
+
+
+def _stat_card(value: str, label: str, color: str = C["text"]):
+    return f"""
+    <div class="card" style="text-align:center; padding:1rem;">
+        <div class="stat-value" style="color:{color};">{value}</div>
+        <div class="stat-label">{label}</div>
+    </div>
+    """
+
+
+def _esc(text: str) -> str:
+    return html.escape(str(text))
 
 
 # ---------------------------------------------------------------------------
@@ -62,11 +293,11 @@ def render_sidebar():
     with st.sidebar:
         st.markdown(
             f"""
-            <div style="text-align:center; padding: 1rem 0;">
-                <h1 style="color:{COLORS['primary']}; margin:0;">DAAW</h1>
-                <p style="color:#9CA3AF; margin:0; font-size:0.85rem;">
-                    Compiler-Runtime
-                </p>
+            <div style="text-align:center; padding:1.25rem 0 0.5rem;">
+                <div style="font-size:2.2rem; font-weight:800; color:{C['primary']};
+                            letter-spacing:-0.02em; line-height:1;">DAAW</div>
+                <div style="color:{C['text_dim']}; font-size:0.8rem; margin-top:0.25rem;
+                            letter-spacing:0.1em; text-transform:uppercase;">Compiler-Runtime</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -77,150 +308,253 @@ def render_sidebar():
             "Mode",
             ["Demo Mode", "Live Mode"],
             index=0,
-            help="Demo Mode uses pre-loaded data. Live Mode requires an API key.",
+            help="Demo uses pre-loaded data. Live requires an API key.",
+            horizontal=True,
         )
 
-        if mode == "Live Mode":
-            st.warning("Live Mode requires an LLM API key.", icon="⚡")
-            provider = st.selectbox(
-                "Provider", ["groq", "gemini", "openai", "anthropic"]
-            )
-            goal = st.text_area(
-                "Goal", placeholder="Describe your workflow goal...", height=100
-            )
-            compile_btn = st.button("Compile", type="primary", use_container_width=True)
+        use_mock_tools = True
+        compile_btn = False
+        execute_btn = False
+        provider = None
+        goal = None
 
-            # Show Execute button only when a spec has been compiled
-            has_spec = "live_spec" in st.session_state and st.session_state.live_spec is not None
-            has_results = "live_results" in st.session_state and st.session_state.live_results
-            execute_btn = st.button(
-                "Execute Workflow",
-                type="secondary",
-                use_container_width=True,
-                disabled=not has_spec or has_results,
-            )
-        else:
-            provider = None
-            goal = None
-            compile_btn = False
-            execute_btn = False
+        if mode == "Live Mode":
+            with st.expander("Live Mode Settings", expanded=True):
+                provider = st.selectbox(
+                    "LLM Provider",
+                    ["openclaw", "groq", "gemini", "openai", "anthropic"],
+                    help="'openclaw' uses your local OpenClaw gateway (Claude Sonnet). Others require API key env vars.",
+                )
+                goal = st.text_area(
+                    "Goal",
+                    placeholder="Describe your workflow goal...",
+                    height=100,
+                    help="Natural language description of the workflow to compile.",
+                )
+                use_mock_tools = st.checkbox(
+                    "Use mock tools",
+                    value=False,
+                    help="Use fake tool responses instead of real execution.",
+                )
+
+                compile_btn = st.button(
+                    "Compile Workflow",
+                    type="primary",
+                    use_container_width=True,
+                )
+
+                has_spec = "live_spec" in st.session_state and st.session_state.live_spec is not None
+                execute_btn = st.button(
+                    "Execute Workflow",
+                    type="secondary",
+                    use_container_width=True,
+                    disabled=not has_spec,
+                )
+
+                # Danger-styled reset button
+                if has_spec:
+                    st.divider()
+                    st.markdown(
+                        f'<div style="font-size:0.72rem; color:{C["text_muted"]}; margin-bottom:0.25rem;">'
+                        f'Pipeline loaded &mdash; {len(st.session_state.live_spec.tasks)} tasks</div>',
+                        unsafe_allow_html=True,
+                    )
+                    if st.button("Reset Pipeline", use_container_width=True, key="danger_reset"):
+                        st.session_state.live_spec = None
+                        st.session_state.live_results = {}
+                        st.session_state.live_verdicts = []
+                        st.session_state.live_log = []
+                        st.session_state.pipeline_stage = "idle"
+                        st.rerun()
 
         st.divider()
-        st.markdown("##### System Stats")
-        stats = DEMO_SYSTEM_STATS
-        col1, col2 = st.columns(2)
-        col1.metric("Agents", stats["agents"]["registered"])
-        col2.metric("Tools", stats["tools"]["registered"])
-        col1.metric("Providers", len(stats["providers"]["available"]))
-        col2.metric("Schemas", stats["schemas"]["count"])
 
-    return mode, provider, goal, compile_btn, execute_btn
+        # System stats — live if possible
+        stats = _get_live_system_stats()
+        st.markdown(
+            f"""
+            <div style="padding:0 0.25rem;">
+                <div style="color:{C['text_dim']}; font-size:0.72rem; text-transform:uppercase;
+                            letter-spacing:0.08em; margin-bottom:0.5rem;">System</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        c1, c2 = st.columns(2)
+        c1.metric("Agents", stats["agents"])
+        c2.metric("Tools", stats["tools"])
+        c1.metric("Providers", stats["providers"])
+        c2.metric("Schemas", stats["schemas"])
+
+        # OpenClaw gateway status indicator
+        try:
+            from daaw.integrations.openclaw import is_available as _oc_avail
+            oc_ok = _oc_avail()
+        except Exception:
+            oc_ok = False
+        st.markdown(
+            f'<div style="font-size:0.72rem; color:{C["text_muted"]}; margin-top:0.5rem;">'
+            f'OpenClaw Gateway: <span style="color:{C["success"] if oc_ok else C["failure"]};font-weight:600;">'
+            f'{"connected" if oc_ok else "offline"}</span></div>',
+            unsafe_allow_html=True,
+        )
+
+    return mode, provider, goal, compile_btn, execute_btn, use_mock_tools
+
+
+def _get_live_system_stats() -> dict:
+    try:
+        from daaw.agents.registry import AGENT_REGISTRY
+        from daaw.tools.registry import tool_registry
+        agents = len(AGENT_REGISTRY)
+        tools = len(tool_registry._tools)
+    except Exception:
+        agents = DEMO_SYSTEM_STATS["agents"]["registered"]
+        tools = DEMO_SYSTEM_STATS["tools"]["registered"]
+    try:
+        from daaw.config import get_config as _gc
+        from daaw.llm.unified import UnifiedLLMClient as _ULLM
+        providers = len(_ULLM(_gc()).available_providers())
+    except Exception:
+        providers = 4
+    return {
+        "agents": agents,
+        "tools": tools,
+        "providers": providers,
+        "schemas": 11,
+    }
 
 
 # ---------------------------------------------------------------------------
 # Tab 1: Architecture Overview
 # ---------------------------------------------------------------------------
 def render_architecture_tab():
-    st.markdown("### System Architecture")
-    st.caption("How the DAAW Compiler-Runtime transforms a user goal into executed results.")
+    st.markdown('<div class="section-title">System Architecture</div>', unsafe_allow_html=True)
+    st.caption("How DAAW transforms a fuzzy goal into deterministic parallel execution.")
 
-    # Architecture flow diagram
+    # --- Flow diagram ---
     fig = go.Figure()
 
-    # Nodes
     nodes = [
-        ("User Goal", 0, 2),
-        ("Compiler", 1, 2),
-        ("WorkflowSpec", 2, 2),
-        ("DAG Executor", 3, 2),
-        ("Results", 4, 2),
-        ("Critic", 4, 0.8),
-        ("Patches", 3, 0.8),
+        ("User Goal", 0, 2, C["accent"]),
+        ("Compiler", 1, 2, C["running"]),
+        ("WorkflowSpec", 2, 2, C["primary"]),
+        ("DAG Executor", 3, 2, C["running"]),
+        ("Results", 4, 2, C["success"]),
+        ("Critic", 4, 0.7, C["human"]),
+        ("Patches", 3, 0.7, C["retrying"]),
     ]
 
-    node_x = [n[1] for n in nodes]
-    node_y = [n[2] for n in nodes]
-    node_labels = [n[0] for n in nodes]
-    node_colors = [
-        COLORS["primary"],  # User Goal
-        COLORS["running"],  # Compiler
-        COLORS["primary"],  # WorkflowSpec
-        COLORS["running"],  # DAG Executor
-        COLORS["success"],  # Results
-        "#F59E0B",          # Critic
-        COLORS["retrying"], # Patches
-    ]
-
-    # Edges
     edges = [
-        (0, 1), (1, 2), (2, 3), (3, 4),  # main flow
-        (4, 5), (5, 6), (6, 3),           # critic feedback loop
+        (0, 1), (1, 2), (2, 3), (3, 4),
+        (4, 5), (5, 6), (6, 3),
     ]
+    edge_labels = {
+        (0, 1): "natural language",
+        (1, 2): "JSON DAG",
+        (2, 3): "execute",
+        (3, 4): "outputs",
+        (4, 5): "evaluate",
+        (5, 6): "patch ops",
+        (6, 3): "retry/insert",
+    }
 
     for src, dst in edges:
+        x0, y0 = nodes[src][1], nodes[src][2]
+        x1, y1 = nodes[dst][1], nodes[dst][2]
+        mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+        label = edge_labels.get((src, dst), "")
         fig.add_trace(go.Scatter(
-            x=[node_x[src], node_x[dst]],
-            y=[node_y[src], node_y[dst]],
+            x=[x0, x1], y=[y0, y1],
             mode="lines",
-            line=dict(color="#4B5563", width=2),
-            hoverinfo="skip",
-            showlegend=False,
+            line=dict(color=C["border"], width=2),
+            hoverinfo="skip", showlegend=False,
         ))
+        if label:
+            fig.add_annotation(
+                x=mx, y=my, text=f"<i>{label}</i>",
+                showarrow=False, font=dict(size=9, color=C["text_muted"]),
+                bgcolor=C["bg"], borderpad=2,
+            )
 
     fig.add_trace(go.Scatter(
-        x=node_x,
-        y=node_y,
+        x=[n[1] for n in nodes],
+        y=[n[2] for n in nodes],
         mode="markers+text",
-        marker=dict(size=40, color=node_colors, line=dict(color="#FAFAFA", width=1.5)),
-        text=node_labels,
+        marker=dict(
+            size=45,
+            color=[n[3] for n in nodes],
+            line=dict(color=C["text"], width=1.5),
+        ),
+        text=[n[0] for n in nodes],
         textposition="top center",
-        textfont=dict(size=13, color="#FAFAFA"),
+        textfont=dict(size=12, color=C["text"]),
         hoverinfo="text",
         hovertext=[
             "Natural language goal from the user",
-            "LLM-powered compilation: goal → DAG spec",
-            "Pydantic-validated workflow specification",
-            "Async parallel execution engine",
-            "Agent outputs with metadata",
-            "LLM evaluator: pass/fail per task",
-            "DAG mutations: retry, insert, remove",
+            "LLM compiles goal into a strict JSON execution graph",
+            "Pydantic-validated DAG: tasks, deps, agents, tools",
+            "Async parallel executor with circuit breaker",
+            "Agent outputs stored in artifact store",
+            "LLM evaluator checks outputs against success criteria",
+            "DAG mutations: retry, insert, remove, update_input",
         ],
         showlegend=False,
     ))
 
     fig.update_layout(
-        height=350,
-        margin=dict(l=20, r=20, t=20, b=20),
-        paper_bgcolor=COLORS["bg"],
-        plot_bgcolor=COLORS["bg"],
-        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        height=340,
+        margin=dict(l=20, r=20, t=10, b=10),
+        paper_bgcolor=C["bg"],
+        plot_bgcolor=C["bg"],
+        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False, range=[-0.5, 4.5]),
+        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False, range=[0, 3]),
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Component cards
-    st.markdown("### Core Components")
-    cards = [
-        ("Schemas", "11 Pydantic models", "WorkflowSpec, TaskSpec, AgentSpec, DependencySpec, AgentResult, TaskResult, TaskStatus, PatchOperation, WorkflowPatch", "src/daaw/schemas/"),
-        ("LLM Client", "4 providers", "Groq, Gemini, OpenAI, Anthropic — unified async interface with lazy init", "src/daaw/llm/"),
-        ("Agent Registry", "6 agents", "planner, pm, breakdown, critic, user_proxy, generic_llm — DI via AgentFactory", "src/daaw/agents/"),
-        ("Engine", "DAG + Executor", "DAG validation (Kahn's), async parallel execution, circuit breaker, context pruning", "src/daaw/engine/"),
-        ("Critic", "Evaluate + Patch", "LLM-based evaluation against success criteria, 4 patch actions: retry, insert, remove, update_input", "src/daaw/critic/"),
-        ("CLI", "2 commands", "run (full pipeline), legacy (hardcoded workflow) — interactive plan review", "src/daaw/cli/"),
+    # --- Layer architecture ---
+    st.markdown('<div class="section-title">Layer Architecture</div>', unsafe_allow_html=True)
+    layers = [
+        ("L0: Foundation", "LLM providers + Tool registry", C["text_muted"], "src/daaw/llm/, tools/"),
+        ("L1: Schema", "Pydantic v2 data contracts", C["text_muted"], "src/daaw/schemas/"),
+        ("L2: State", "Async artifact store", C["text_muted"], "src/daaw/store/"),
+        ("L3: Logic", "Agent factory + DAG executor", C["primary"], "src/daaw/agents/, engine/"),
+        ("L4: Intelligence", "Compiler + Critic", C["accent"], "src/daaw/compiler/, critic/"),
+        ("L5: Interface", "CLI + Streamlit UI", C["running"], "src/daaw/cli/, ui/"),
     ]
 
+    cols = st.columns(6)
+    for i, (name, desc, color, path) in enumerate(layers):
+        with cols[i]:
+            st.markdown(
+                f"""<div class="card" style="text-align:center; min-height:145px;
+                    border-top: 3px solid {color};">
+                    <div style="color:{color}; font-weight:700; font-size:0.82rem;">{name}</div>
+                    <div class="dim" style="margin:0.4rem 0;">{desc}</div>
+                    <div class="mono" style="font-size:0.7rem;">{path}</div>
+                </div>""",
+                unsafe_allow_html=True,
+            )
+
+    # --- Design patterns ---
+    st.markdown('<div class="section-title">Design Patterns</div>', unsafe_allow_html=True)
+    patterns = [
+        ("Factory", "AgentFactory creates agents from AgentSpec with DI"),
+        ("Registry", "@register_agent / @tool_registry.register decorators"),
+        ("Strategy", "LLM providers implement common interface"),
+        ("Circuit Breaker", "Per-task failure tracking, trips after threshold"),
+        ("Observer/Patch", "Critic generates WorkflowPatch ops on live DAG"),
+        ("Human-in-Loop", "UserProxy pauses execution for human input"),
+    ]
     cols = st.columns(3)
-    for i, (title, subtitle, desc, path) in enumerate(cards):
+    for i, (name, desc) in enumerate(patterns):
         with cols[i % 3]:
             st.markdown(
-                f"""
-                <div style="background:{COLORS['card']}; border-radius:8px; padding:1rem; margin-bottom:0.75rem; border-left: 3px solid {COLORS['primary']};">
-                    <strong style="color:{COLORS['primary']};">{title}</strong>
-                    <span style="color:#9CA3AF; font-size:0.8rem;"> — {subtitle}</span>
-                    <p style="color:#D1D5DB; font-size:0.85rem; margin:0.5rem 0 0.25rem;">{desc}</p>
-                    <code style="color:#6B7280; font-size:0.75rem;">{path}</code>
-                </div>
-                """,
+                _card(
+                    f'<strong style="color:{C["accent"]};">{name}</strong>'
+                    f'<div class="dim" style="margin-top:0.3rem;">{desc}</div>',
+                    border_color=C["primary"],
+                ),
                 unsafe_allow_html=True,
             )
 
@@ -228,104 +562,155 @@ def render_architecture_tab():
 # ---------------------------------------------------------------------------
 # Tab 2: Compiler
 # ---------------------------------------------------------------------------
-def render_compiler_tab(spec):
-    st.markdown("### Compilation Pipeline")
-    st.caption("Goal → LLM → JSON → Pydantic Validation → WorkflowSpec")
+def render_compiler_tab(spec, log_lines: list[str]):
+    st.markdown('<div class="section-title">Compilation Pipeline</div>', unsafe_allow_html=True)
+    st.caption("Goal -> LLM -> JSON -> Pydantic -> DAG Validation -> WorkflowSpec")
 
-    # Compilation steps
     steps = [
-        ("1. Goal Input", "Natural language goal from user or API"),
-        ("2. LLM Call", "System prompt with agent roles + tools → JSON response"),
-        ("3. JSON Parse", "Parse LLM response as JSON, retry on failure"),
-        ("4. Pydantic Validation", "Validate against WorkflowSpec schema"),
-        ("5. DAG Validation", "Check for cycles, invalid refs (Kahn's algorithm)"),
+        ("1. Goal Input", "Natural language from user", False),
+        ("2. LLM Call", "System prompt + agent roles + tools", True),
+        ("3. JSON Parse", "Parse response, retry on failure", True),
+        ("4. Pydantic", "Validate against WorkflowSpec", False),
+        ("5. DAG Check", "Cycle detection (Kahn's)", False),
     ]
 
     cols = st.columns(5)
-    for i, (step, desc) in enumerate(steps):
+    for i, (step, desc, is_active) in enumerate(steps):
+        cls = "flow-step flow-step-active" if is_active else "flow-step"
         with cols[i]:
             st.markdown(
-                f"""
-                <div style="background:{COLORS['card']}; border-radius:8px; padding:0.75rem; text-align:center; min-height:120px;">
-                    <div style="color:{COLORS['primary']}; font-weight:bold; font-size:0.9rem;">{step}</div>
-                    <p style="color:#D1D5DB; font-size:0.78rem; margin-top:0.5rem;">{desc}</p>
-                </div>
-                """,
+                f"""<div class="{cls}">
+                    <div style="color:{C['primary']}; font-weight:700; font-size:0.85rem;">{step}</div>
+                    <div class="dim" style="margin-top:0.4rem;">{desc}</div>
+                </div>""",
                 unsafe_allow_html=True,
             )
+    # Connecting arrows between steps
+    st.markdown(
+        f'<div style="text-align:center; color:{C["text_muted"]}; font-size:0.8rem; '
+        f'margin:-0.5rem 0 1rem;">{"&nbsp;&nbsp;&rarr;&nbsp;&nbsp;" * 4}</div>',
+        unsafe_allow_html=True,
+    )
 
+    # --- Workflow header ---
+    col1, col2, col3 = st.columns([3, 1, 1])
+    with col1:
+        st.markdown(
+            f'<div style="font-size:1.1rem; font-weight:600; color:{C["text"]};">'
+            f'{_esc(spec.name)}</div>'
+            f'<div class="dim">{_esc(spec.description)}</div>',
+            unsafe_allow_html=True,
+        )
+    with col2:
+        st.markdown(
+            _stat_card(str(len(spec.tasks)), "Tasks", C["primary"]),
+            unsafe_allow_html=True,
+        )
+    with col3:
+        deps_count = sum(len(t.dependencies) for t in spec.tasks)
+        st.markdown(
+            _stat_card(str(deps_count), "Dependencies", C["accent"]),
+            unsafe_allow_html=True,
+        )
+
+    # --- Task cards ---
     st.markdown("---")
-
-    # Task table
-    st.markdown("### Compiled Tasks")
-    task_rows = []
+    st.markdown('<div class="section-title">Tasks</div>', unsafe_allow_html=True)
     for t in spec.tasks:
-        deps = ", ".join(d.task_id for d in t.dependencies) or "—"
-        task_rows.append({
-            "ID": t.id,
-            "Name": t.name,
-            "Agent": t.agent.role,
-            "Dependencies": deps,
-            "Criteria": t.success_criteria[:60] + ("..." if len(t.success_criteria) > 60 else ""),
-            "Timeout": f"{t.timeout_seconds}s",
-        })
-    st.dataframe(task_rows, use_container_width=True, hide_index=True)
+        deps = [d.task_id for d in t.dependencies]
+        tools = t.agent.tools_allowed
+        criteria = t.success_criteria
+        if len(criteria) > 120:
+            criteria = criteria[:117] + "..."
 
-    # WorkflowSpec JSON
-    with st.expander("Full WorkflowSpec JSON"):
-        st.json(json.loads(spec.model_dump_json()))
+        deps_html = (
+            "".join(f'<span class="dep-pill">{_esc(d)}</span>' for d in deps)
+            if deps
+            else f'<span class="dim">none</span>'
+        )
+        tools_html = (
+            "".join(f'<span class="tool-pill">{_esc(tool)}</span>' for tool in tools)
+            if tools
+            else f'<span class="dim">none</span>'
+        )
 
-    # Compilation log
-    st.markdown("### Compilation Log")
-    log_text = "\n".join(DEMO_COMPILATION_LOG)
-    st.code(log_text, language="text")
+        st.markdown(
+            f"""<div class="task-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="mono">{_esc(t.id)}</span>
+                        <strong style="color:{C['text']}; margin-left:0.5rem;">{_esc(t.name)}</strong>
+                    </div>
+                    <div>
+                        {_badge(t.agent.role, "primary")}
+                        <span class="badge badge-muted" style="margin-left:0.3rem;">{t.timeout_seconds}s</span>
+                    </div>
+                </div>
+                <div style="margin-top:0.4rem;">
+                    <span class="dim">Tools:</span> {tools_html}
+                    <span class="dim" style="margin-left:0.75rem;">Deps:</span> {deps_html}
+                </div>
+                <div class="dim" style="margin-top:0.3rem;">{_esc(criteria)}</div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+    # --- WorkflowSpec JSON ---
+    col_j, col_l = st.columns(2)
+    with col_j:
+        with st.expander("WorkflowSpec JSON", expanded=False):
+            st.json(json.loads(spec.model_dump_json()))
+    with col_l:
+        with st.expander("Compilation Log", expanded=False):
+            log_html = ""
+            for line in log_lines:
+                # Highlight timestamp
+                if line.startswith("["):
+                    bracket_end = line.index("]") + 1
+                    ts = line[:bracket_end]
+                    rest = line[bracket_end:]
+                    log_html += f'<div class="log-line"><span class="log-timestamp">{_esc(ts)}</span>{_esc(rest)}</div>'
+                else:
+                    log_html += f'<div class="log-line">{_esc(line)}</div>'
+            st.markdown(log_html, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
 # Tab 3: DAG Visualization
 # ---------------------------------------------------------------------------
 def render_dag_tab(spec, results):
-    st.markdown("### Workflow DAG")
-    st.caption("Interactive graph — hover on nodes for details, scroll to zoom.")
+    st.markdown('<div class="section-title">Workflow DAG</div>', unsafe_allow_html=True)
+    st.caption("Interactive graph — hover for details, node size reflects execution time.")
 
-    # Build networkx graph
     G = nx.DiGraph()
     for task in spec.tasks:
         G.add_node(task.id, name=task.name, agent=task.agent.role)
         for dep in task.dependencies:
             G.add_edge(dep.task_id, task.id)
 
-    # Compute topological layers for multipartite layout
+    # Topological layering
     topo_order = list(nx.topological_sort(G))
     layers: dict[str, int] = {}
     for node in topo_order:
         preds = list(G.predecessors(node))
-        if not preds:
-            layers[node] = 0
-        else:
-            layers[node] = max(layers[p] for p in preds) + 1
+        layers[node] = (max(layers[p] for p in preds) + 1) if preds else 0
 
-    # Assign positions: x = layer, y = spread within layer
     layer_groups: dict[int, list[str]] = {}
     for node, layer in layers.items():
         layer_groups.setdefault(layer, []).append(node)
 
     pos: dict[str, tuple[float, float]] = {}
-    for layer, nodes in layer_groups.items():
-        n = len(nodes)
-        for i, node in enumerate(nodes):
-            y = (i - (n - 1) / 2) * 1.5  # spread vertically
-            pos[node] = (layer * 2.0, y)
+    for layer, nodes_in_layer in layer_groups.items():
+        n = len(nodes_in_layer)
+        for i, node in enumerate(nodes_in_layer):
+            y = (i - (n - 1) / 2) * 1.8
+            pos[node] = (layer * 2.5, y)
 
-    # Status for each task
     statuses = {}
     for tid in spec.task_ids():
-        if tid in results:
-            statuses[tid] = results[tid].agent_result.status
-        else:
-            statuses[tid] = "pending"
+        statuses[tid] = results[tid].agent_result.status if tid in results else "pending"
 
-    # Edge traces
+    # Edge traces with curved paths
     edge_x, edge_y = [], []
     for src, dst in G.edges():
         x0, y0 = pos[src]
@@ -336,56 +721,52 @@ def render_dag_tab(spec, results):
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
         mode="lines",
-        line=dict(color="#4B5563", width=2),
+        line=dict(color=C["border"], width=2),
         hoverinfo="skip",
         showlegend=False,
     )
 
-    # Arrow annotations
     annotations = []
     for src, dst in G.edges():
         x0, y0 = pos[src]
         x1, y1 = pos[dst]
         annotations.append(dict(
-            ax=x0, ay=y0,
-            x=x1, y=y1,
+            ax=x0, ay=y0, x=x1, y=y1,
             xref="x", yref="y", axref="x", ayref="y",
-            showarrow=True,
-            arrowhead=3,
-            arrowsize=1.5,
-            arrowwidth=2,
-            arrowcolor="#4B5563",
-            opacity=0.7,
+            showarrow=True, arrowhead=3, arrowsize=1.5,
+            arrowwidth=2, arrowcolor=C["border"], opacity=0.7,
         ))
 
     # Node trace
-    node_x = [pos[tid][0] for tid in spec.task_ids()]
-    node_y = [pos[tid][1] for tid in spec.task_ids()]
+    max_elapsed = max((results[tid].elapsed_seconds for tid in results), default=1.0) or 1.0
+    node_x, node_y, node_sizes, node_colors, hover_texts = [], [], [], [], []
 
-    node_colors = [STATUS_COLORS.get(statuses[tid], COLORS["pending"]) for tid in spec.task_ids()]
-
-    # Node size proportional to elapsed time
-    max_elapsed = max((results[tid].elapsed_seconds for tid in results), default=1.0)
-    node_sizes = []
     for tid in spec.task_ids():
+        task = spec.get_task(tid)
+        x, y = pos[tid]
+        node_x.append(x)
+        node_y.append(y)
+
+        status = statuses[tid]
+        node_colors.append(STATUS_COLORS.get(status, C["pending"]))
+
         if tid in results:
-            size = 25 + (results[tid].elapsed_seconds / max_elapsed) * 30
+            size = 28 + (results[tid].elapsed_seconds / max_elapsed) * 28
         else:
-            size = 25
+            size = 28
         node_sizes.append(size)
 
-    # Hover text
-    hover_texts = []
-    for task in spec.tasks:
+        elapsed = results[tid].elapsed_seconds if tid in results else 0
         deps = ", ".join(d.task_id for d in task.dependencies) or "none"
-        elapsed = results[task.id].elapsed_seconds if task.id in results else 0
-        status = statuses[task.id].upper()
+        tools = ", ".join(task.agent.tools_allowed) or "none"
+        tool_count = len((results[tid].agent_result.metadata or {}).get("tool_calls", [])) if tid in results else 0
         hover_texts.append(
-            f"<b>{task.name}</b> ({task.id})<br>"
-            f"Agent: {task.agent.role}<br>"
-            f"Status: {status}<br>"
-            f"Dependencies: {deps}<br>"
-            f"Criteria: {task.success_criteria[:80]}<br>"
+            f"<b>{_esc(task.name)}</b> ({_esc(tid)})<br>"
+            f"Agent: {_esc(task.agent.role)}<br>"
+            f"Status: {STATUS_ICONS.get(status, '')} {_esc(status.upper())}<br>"
+            f"Dependencies: {_esc(deps)}<br>"
+            f"Tools allowed: {_esc(tools)}<br>"
+            f"Tool calls made: {tool_count}<br>"
             f"Elapsed: {elapsed:.1f}s"
         )
 
@@ -395,97 +776,191 @@ def render_dag_tab(spec, results):
         marker=dict(
             size=node_sizes,
             color=node_colors,
-            line=dict(color="#FAFAFA", width=1.5),
+            line=dict(color=C["text"], width=1.5),
+            opacity=0.9,
         ),
         text=[spec.get_task(tid).name for tid in spec.task_ids()],
         textposition="top center",
-        textfont=dict(size=11, color="#FAFAFA"),
+        textfont=dict(size=11, color=C["text"]),
         hovertext=hover_texts,
         hoverinfo="text",
         showlegend=False,
     )
 
     fig = go.Figure(data=[edge_trace, node_trace])
+
+    # Status legend
+    for status_name, color in [("SUCCESS", C["success"]), ("PENDING", C["pending"]),
+                                ("FAILURE", C["failure"]), ("RUNNING", C["running"]),
+                                ("RETRYING", C["retrying"])]:
+        fig.add_trace(go.Scatter(
+            x=[None], y=[None], mode="markers",
+            marker=dict(size=10, color=color),
+            name=status_name, showlegend=True,
+        ))
+
     fig.update_layout(
-        height=450,
-        margin=dict(l=30, r=30, t=30, b=30),
-        paper_bgcolor=COLORS["bg"],
-        plot_bgcolor=COLORS["bg"],
+        height=480,
+        margin=dict(l=30, r=30, t=20, b=30),
+        paper_bgcolor=C["bg"],
+        plot_bgcolor=C["bg"],
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         annotations=annotations,
+        legend=dict(
+            orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5,
+            font=dict(color=C["text"], size=11),
+            bgcolor="rgba(0,0,0,0)",
+        ),
     )
-
-    # Legend
-    for status, color in [("SUCCESS", COLORS["success"]), ("RUNNING", COLORS["running"]),
-                           ("PENDING", COLORS["pending"]), ("FAILURE", COLORS["failure"]),
-                           ("RETRYING", COLORS["retrying"])]:
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="markers",
-            marker=dict(size=10, color=color),
-            name=status,
-            showlegend=True,
-        ))
-
-    fig.update_layout(legend=dict(
-        orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5,
-        font=dict(color="#FAFAFA", size=11),
-        bgcolor="rgba(0,0,0,0)",
-    ))
-
     st.plotly_chart(fig, use_container_width=True)
 
-    # Task detail panel
-    st.markdown("### Task Details")
+    # --- Task detail panel ---
+    st.markdown('<div class="section-title">Task Inspector</div>', unsafe_allow_html=True)
     selected = st.selectbox(
-        "Select a task",
+        "Select task",
         spec.task_ids(),
-        format_func=lambda tid: f"{tid} — {spec.get_task(tid).name}",
+        format_func=lambda tid: f"{tid} -- {spec.get_task(tid).name}",
     )
     if selected:
-        task = spec.get_task(selected)
-        result = results.get(selected)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown(f"**Name:** {task.name}")
-            st.markdown(f"**Agent:** `{task.agent.role}`")
-            st.markdown(f"**Timeout:** {task.timeout_seconds}s")
-            st.markdown(f"**Max Retries:** {task.max_retries}")
-            deps = ", ".join(f"`{d.task_id}`" for d in task.dependencies) or "None"
-            st.markdown(f"**Dependencies:** {deps}")
-        with col2:
-            st.markdown(f"**Success Criteria:** {task.success_criteria}")
-            if result:
-                st.markdown(f"**Status:** {result.agent_result.status.upper()}")
-                st.markdown(f"**Elapsed:** {result.elapsed_seconds:.1f}s")
-                st.markdown(f"**Attempt:** {result.attempt}")
+        _render_task_detail(spec, results, selected)
+
+
+def _render_task_detail(spec, results, task_id: str):
+    task = spec.get_task(task_id)
+    result = results.get(task_id)
+    status = result.agent_result.status if result else "pending"
+    status_color = STATUS_COLORS.get(status, C["pending"])
+
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
+        st.markdown(
+            _card(
+                f'<div style="display:flex; justify-content:space-between; align-items:center;">'
+                f'<strong style="color:{C["text"]};">{_esc(task.name)}</strong>'
+                f'{_badge(status.upper(), "success" if status == "success" else "failure" if status == "failure" else "muted")}'
+                f'</div>'
+                f'<div class="dim" style="margin-top:0.5rem;">{_esc(task.description)}</div>',
+                border_color=status_color,
+            ),
+            unsafe_allow_html=True,
+        )
+    with col2:
+        deps = ", ".join(f"<code>{d.task_id}</code>" for d in task.dependencies) or "None"
+        tools = ", ".join(f"<code>{t}</code>" for t in task.agent.tools_allowed) or "None"
+        st.markdown(
+            _card(
+                f'<div class="dim"><strong>Agent:</strong> <code>{task.agent.role}</code></div>'
+                f'<div class="dim"><strong>Dependencies:</strong> {deps}</div>'
+                f'<div class="dim"><strong>Tools:</strong> {tools}</div>'
+                f'<div class="dim"><strong>Timeout:</strong> {task.timeout_seconds}s &nbsp;|&nbsp; '
+                f'<strong>Max Retries:</strong> {task.max_retries}</div>',
+            ),
+            unsafe_allow_html=True,
+        )
+    with col3:
         if result:
-            with st.expander("Task Output"):
-                st.json(result.agent_result.output)
+            elapsed = result.elapsed_seconds
+            attempt = result.attempt
+            st.markdown(
+                _stat_card(f"{elapsed:.1f}s", "Elapsed", status_color),
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f'<div style="text-align:center;" class="dim">Attempt {attempt}</div>',
+                unsafe_allow_html=True,
+            )
+
+    if not result:
+        st.info("Task has not been executed yet.")
+        return
+
+    # Success criteria
+    if task.success_criteria:
+        st.markdown(
+            f'<div class="dim" style="margin-bottom:0.5rem;">'
+            f'<strong>Success Criteria:</strong> {_esc(task.success_criteria)}</div>',
+            unsafe_allow_html=True,
+        )
+
+    # Output + Tool calls side by side
+    col_out, col_tools = st.columns([3, 2])
+    with col_out:
+        with st.expander("Task Output", expanded=True):
+            output = result.agent_result.output
+            if isinstance(output, (dict, list)):
+                st.json(output)
+            else:
+                st.code(str(output), language="text")
+
+    with col_tools:
+        tool_calls = (result.agent_result.metadata or {}).get("tool_calls", [])
+        with st.expander(f"Tool Calls ({len(tool_calls)})", expanded=bool(tool_calls)):
+            if not tool_calls:
+                st.markdown(f'<div class="dim">No tool calls recorded.</div>', unsafe_allow_html=True)
+            else:
+                for i, tc in enumerate(tool_calls, 1):
+                    tool_name = tc.get("tool", "unknown")
+                    args = tc.get("args", {})
+                    res = str(tc.get("result", ""))
+                    if len(res) > 250:
+                        res = res[:247] + "..."
+                    st.markdown(
+                        f"""<div class="tool-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="color:{C['running']};">#{i} {_esc(tool_name)}</strong>
+                                {_badge(tool_name, "primary")}
+                            </div>
+                            <div class="dim" style="margin-top:0.3rem;">
+                                Args: <code>{_esc(json.dumps(args))}</code>
+                            </div>
+                            <div style="color:{C['text_dim']}; font-size:0.8rem; margin-top:0.3rem;
+                                        background:{C['bg']}; padding:0.4rem 0.5rem; border-radius:4px;
+                                        font-family:monospace;">
+                                {_esc(res)}
+                            </div>
+                        </div>""",
+                        unsafe_allow_html=True,
+                    )
 
 
 # ---------------------------------------------------------------------------
 # Tab 4: Execution Timeline
 # ---------------------------------------------------------------------------
 def render_timeline_tab(spec, results):
-    st.markdown("### Execution Timeline")
-    st.caption("Gantt chart showing parallel task execution.")
+    st.markdown('<div class="section-title">Execution Timeline</div>', unsafe_allow_html=True)
+    st.caption("Gantt chart showing parallel task execution and performance metrics.")
 
-    # Compute start/finish times from dependency order and elapsed times
-    task_starts: dict[str, float] = {}
-    topo = _topo_sort(spec)
+    if not results:
+        st.info("No execution results available. Compile and execute a workflow to see the timeline.")
+        return
 
-    for tid in topo:
-        task = spec.get_task(tid)
-        dep_ends = []
-        for dep in task.dependencies:
-            dep_id = dep.task_id
-            if dep_id in task_starts and dep_id in results:
-                dep_ends.append(task_starts[dep_id] + results[dep_id].elapsed_seconds)
-        task_starts[tid] = max(dep_ends) if dep_ends else 0.0
+    task_starts = _compute_task_starts(spec, results)
 
-    # Build dataframe for plotly timeline
+    # --- Metrics row ---
+    total_elapsed = sum(r.elapsed_seconds for r in results.values())
+    wall_clock = max(
+        task_starts.get(tid, 0) + results[tid].elapsed_seconds
+        for tid in results
+    )
+    success_count = sum(1 for r in results.values() if r.agent_result.status == "success")
+    fail_count = sum(1 for r in results.values() if r.agent_result.status == "failure")
+    total_tool_calls = sum(
+        len((r.agent_result.metadata or {}).get("tool_calls", []))
+        for r in results.values()
+    )
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.markdown(_stat_card(f"{wall_clock:.1f}s", "Wall Clock", C["primary"]), unsafe_allow_html=True)
+    speedup = f"{total_elapsed / wall_clock:.1f}x" if wall_clock > 0 else "---"
+    c2.markdown(_stat_card(speedup, "Parallel Speedup", C["accent"]), unsafe_allow_html=True)
+    c3.markdown(_stat_card(f"{success_count}/{len(results)}", "Success Rate", C["success"]), unsafe_allow_html=True)
+    c4.markdown(_stat_card(str(fail_count), "Failures", C["failure"] if fail_count else C["text_dim"]), unsafe_allow_html=True)
+    c5.markdown(_stat_card(str(total_tool_calls), "Tool Calls", C["running"]), unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # --- Gantt chart ---
     base_time = datetime(2025, 6, 15, 10, 0, 0)
     timeline_data = []
     for task in spec.tasks:
@@ -495,25 +970,23 @@ def render_timeline_tab(spec, results):
             continue
         start = task_starts.get(tid, 0.0)
         finish = start + result.elapsed_seconds
+        tool_count = len((result.agent_result.metadata or {}).get("tool_calls", []))
         timeline_data.append({
-            "Task": f"{task.name}",
+            "Task": task.name,
             "Start": base_time + timedelta(seconds=start),
             "Finish": base_time + timedelta(seconds=finish),
             "Status": result.agent_result.status.upper(),
             "Agent": task.agent.role,
             "Elapsed": f"{result.elapsed_seconds:.1f}s",
+            "Tools": tool_count,
         })
 
     color_map = {
-        "SUCCESS": COLORS["success"],
-        "FAILURE": COLORS["failure"],
-        "RUNNING": COLORS["running"],
-        "PENDING": COLORS["pending"],
+        "SUCCESS": C["success"],
+        "FAILURE": C["failure"],
+        "RUNNING": C["running"],
+        "PENDING": C["pending"],
     }
-
-    if not timeline_data:
-        st.info("No execution results available. Run the workflow to see the timeline.")
-        return
 
     df = pd.DataFrame(timeline_data)
     fig = px.timeline(
@@ -523,62 +996,39 @@ def render_timeline_tab(spec, results):
         y="Task",
         color="Status",
         color_discrete_map=color_map,
-        hover_data=["Agent", "Elapsed"],
+        hover_data=["Agent", "Elapsed", "Tools"],
     )
     fig.update_layout(
-        height=350,
-        margin=dict(l=20, r=20, t=20, b=20),
-        paper_bgcolor=COLORS["bg"],
-        plot_bgcolor=COLORS["bg"],
-        xaxis=dict(
-            title="Time",
-            gridcolor="#1F2937",
-            color="#FAFAFA",
-        ),
-        yaxis=dict(
-            title="",
-            autorange="reversed",
-            color="#FAFAFA",
-        ),
+        height=max(250, len(timeline_data) * 50),
+        margin=dict(l=20, r=20, t=10, b=20),
+        paper_bgcolor=C["bg"],
+        plot_bgcolor=C["bg"],
+        xaxis=dict(title="", gridcolor="#1F2937", color=C["text"]),
+        yaxis=dict(title="", autorange="reversed", color=C["text"]),
         legend=dict(
-            orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5,
-            font=dict(color="#FAFAFA"),
-            bgcolor="rgba(0,0,0,0)",
+            orientation="h", yanchor="bottom", y=-0.35, xanchor="center", x=0.5,
+            font=dict(color=C["text"]), bgcolor="rgba(0,0,0,0)",
         ),
-        font=dict(color="#FAFAFA"),
+        font=dict(color=C["text"]),
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Execution metrics
-    st.markdown("### Execution Metrics")
-    total_elapsed = sum(r.elapsed_seconds for r in results.values())
-    # Parallel wall-clock time = max finish time
-    wall_clock = max(
-        task_starts.get(tid, 0) + results[tid].elapsed_seconds
-        for tid in results
-    )
-    success_count = sum(1 for r in results.values() if r.agent_result.status == "success")
-
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Wall-Clock Time", f"{wall_clock:.1f}s")
-    c2.metric("Parallel Speedup", f"{total_elapsed / wall_clock:.1f}x" if wall_clock > 0 else "—")
-    c3.metric("Success Rate", f"{success_count}/{len(results)}")
-    c4.metric("Tasks/min", f"{len(results) / (wall_clock / 60):.1f}" if wall_clock > 0 else "—")
-
-    # Per-task breakdown table
-    st.markdown("### Per-Task Breakdown")
+    # --- Per-task table ---
+    st.markdown('<div class="section-title">Per-Task Breakdown</div>', unsafe_allow_html=True)
     rows = []
     for task in spec.tasks:
         result = results.get(task.id)
         if not result:
             continue
+        tool_count = len((result.agent_result.metadata or {}).get("tool_calls", []))
         rows.append({
             "Task": task.name,
             "Agent": task.agent.role,
             "Status": result.agent_result.status.upper(),
-            "Elapsed": f"{result.elapsed_seconds:.1f}s",
-            "Attempt": result.attempt,
             "Start": f"{task_starts.get(task.id, 0):.1f}s",
+            "Elapsed": f"{result.elapsed_seconds:.1f}s",
+            "Tool Calls": tool_count,
+            "Attempt": result.attempt,
         })
     st.dataframe(rows, use_container_width=True, hide_index=True)
 
@@ -587,64 +1037,187 @@ def render_timeline_tab(spec, results):
 # Tab 5: Critic & Results
 # ---------------------------------------------------------------------------
 def render_critic_tab(spec, results, verdicts):
-    st.markdown("### Critic Evaluation")
-    st.caption("LLM-based evaluation of each task against its success criteria.")
+    st.markdown('<div class="section-title">Critic Evaluation</div>', unsafe_allow_html=True)
+    st.caption("LLM-based evaluation of each task output against its success criteria.")
 
-    # Summary metrics
+    if not verdicts:
+        st.info("No critic verdicts available. Execute the workflow first.")
+        return
+
+    # --- Summary ---
     pass_count = sum(1 for v in verdicts if v["verdict"] == "PASS")
     fail_count = sum(1 for v in verdicts if v["verdict"] == "FAIL")
     total = len(verdicts)
+    pass_rate = f"{pass_count / total * 100:.0f}%" if total else "---"
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Passed", pass_count)
-    c2.metric("Failed", fail_count)
-    c3.metric("Total", total)
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(_stat_card(str(pass_count), "Passed", C["success"]), unsafe_allow_html=True)
+    c2.markdown(_stat_card(str(fail_count), "Failed", C["failure"] if fail_count else C["text_dim"]), unsafe_allow_html=True)
+    c3.markdown(_stat_card(str(total), "Total", C["primary"]), unsafe_allow_html=True)
+    c4.markdown(_stat_card(pass_rate, "Pass Rate", C["success"] if pass_count == total else C["human"]), unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # Per-task verdict cards
+    # --- Verdict cards ---
     for verdict in verdicts:
         tid = verdict["task_id"]
-        task = spec.get_task(tid)
-        result = results.get(tid)
         is_pass = verdict["verdict"] == "PASS"
-        badge_color = COLORS["success"] if is_pass else COLORS["failure"]
-        badge_text = verdict["verdict"]
+        # Strip any stray HTML tags the LLM may have included in reasoning
+        import re as _re
+        verdict = dict(verdict)
+        verdict["reasoning"] = _re.sub(r"<[^>]+>", "", verdict.get("reasoning", "")).strip()
+        border = C["success"] if is_pass else C["failure"]
+        badge_variant = "success" if is_pass else "failure"
+
+        patch_html = ""
+        if verdict.get("patch"):
+            patch_html = (
+                f'<div style="margin-top:0.5rem; padding:0.5rem; background:{C["surface"]}; '
+                f'border-radius:6px; border-left:2px solid {C["retrying"]};">'
+                f'<div class="dim"><strong style="color:{C["retrying"]};">Patch:</strong> '
+                f'{_esc(str(verdict["patch"]))}</div></div>'
+            )
 
         st.markdown(
-            f"""
-            <div style="background:{COLORS['card']}; border-radius:8px; padding:1rem; margin-bottom:0.75rem;
-                        border-left: 3px solid {badge_color};">
+            f"""<div class="verdict-card" style="border-left:3px solid {border};">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong style="color:#FAFAFA;">{tid}: {verdict['task_name']}</strong>
-                    <span style="background:{badge_color}; color:#FAFAFA; padding:0.15rem 0.6rem;
-                                 border-radius:4px; font-size:0.8rem; font-weight:bold;">{badge_text}</span>
+                    <div>
+                        <strong style="color:{C['text']};">{_esc(tid)}</strong>
+                        <span class="dim">&nbsp;&mdash;&nbsp;{_esc(verdict['task_name'])}</span>
+                    </div>
+                    {_badge(verdict['verdict'], badge_variant)}
                 </div>
-                <p style="color:#D1D5DB; font-size:0.85rem; margin:0.5rem 0 0;">{verdict['reasoning']}</p>
-            </div>
-            """,
+                <div class="dim" style="margin-top:0.5rem;">{_esc(verdict['reasoning'])}</div>
+                {patch_html}
+            </div>""",
             unsafe_allow_html=True,
         )
 
-        if verdict.get("patch"):
-            st.warning(f"Patch: {verdict['patch']}", icon="🔧")
+        # Show error details for failed tasks
+        if not is_pass:
+            result = results.get(tid)
+            if result and result.agent_result.status == "failure":
+                error_msg = result.agent_result.error_message
+                output = result.agent_result.output
+                if not error_msg and isinstance(output, dict) and "error" in output:
+                    error_msg = str(output["error"])
+                if error_msg:
+                    st.markdown(
+                        f'<div class="error-box" style="margin-top:-0.5rem; margin-bottom:0.75rem;">'
+                        f'<strong>Error:</strong> {_esc(error_msg)}</div>',
+                        unsafe_allow_html=True,
+                    )
 
-    # Final outputs
+    # --- Task outputs ---
     st.markdown("---")
-    st.markdown("### Task Outputs")
+    st.markdown('<div class="section-title">Task Outputs</div>', unsafe_allow_html=True)
     for task in spec.tasks:
         result = results.get(task.id)
         if not result:
             continue
-        with st.expander(f"{task.id}: {task.name} — output"):
-            st.json(result.agent_result.output)
+        status = result.agent_result.status
+        icon = STATUS_ICONS.get(status, "")
+        with st.expander(f"{icon} {task.id}: {task.name}"):
+            output = result.agent_result.output
+            if isinstance(output, (dict, list)):
+                st.json(output)
+            else:
+                st.code(str(output), language="text")
+
+
+# ---------------------------------------------------------------------------
+# Tab 6: Tools
+# ---------------------------------------------------------------------------
+def render_tools_tab(spec, results):
+    st.markdown('<div class="section-title">Tool Registry & Usage</div>', unsafe_allow_html=True)
+    st.caption("Registered tools and their usage across the workflow.")
+
+    # --- Registered tools ---
+    try:
+        from daaw.tools.registry import tool_registry
+        registered = tool_registry._tools
+    except Exception:
+        registered = {}
+
+    if registered:
+        st.markdown("**Registered Tools**")
+        cols = st.columns(min(len(registered), 4))
+        for i, (name, tool_def) in enumerate(registered.items()):
+            with cols[i % len(cols)]:
+                params = tool_def.parameters.get("properties", {})
+                param_list = ", ".join(
+                    f'{k}: {v.get("type", "any")}' for k, v in params.items()
+                )
+                required = tool_def.parameters.get("required", [])
+                st.markdown(
+                    _card(
+                        f'<strong style="color:{C["running"]};">{_esc(name)}</strong>'
+                        f'<div class="dim" style="margin:0.3rem 0;">{_esc(tool_def.description)}</div>'
+                        f'<div class="mono" style="font-size:0.72rem;">({_esc(param_list)})</div>'
+                        f'<div class="dim" style="margin-top:0.2rem;">Required: {", ".join(required) or "none"}</div>',
+                        border_color=C["running"],
+                    ),
+                    unsafe_allow_html=True,
+                )
+    else:
+        st.info("No tools registered. Import real_tools or mock_tools to see available tools.")
+
+    st.markdown("---")
+
+    # --- Tool usage across tasks ---
+    st.markdown("**Tool Usage by Task**")
+    if not results:
+        st.info("Execute a workflow to see tool usage statistics.")
+        return
+
+    usage_data = []
+    for task in spec.tasks:
+        result = results.get(task.id)
+        if not result:
+            continue
+        tool_calls = (result.agent_result.metadata or {}).get("tool_calls", [])
+        for tc in tool_calls:
+            usage_data.append({
+                "Task": task.name,
+                "Tool": tc.get("tool", "unknown"),
+                "Arguments": json.dumps(tc.get("args", {})),
+                "Result Preview": str(tc.get("result", ""))[:120],
+            })
+
+    if usage_data:
+        st.dataframe(usage_data, use_container_width=True, hide_index=True)
+
+        # Tool call distribution chart
+        tool_counts = {}
+        for d in usage_data:
+            tool_counts[d["Tool"]] = tool_counts.get(d["Tool"], 0) + 1
+
+        fig = go.Figure(data=[go.Bar(
+            x=list(tool_counts.keys()),
+            y=list(tool_counts.values()),
+            marker_color=C["running"],
+            text=list(tool_counts.values()),
+            textposition="auto",
+        )])
+        fig.update_layout(
+            title=dict(text="Tool Call Distribution", font=dict(color=C["text"], size=14)),
+            height=300,
+            margin=dict(l=20, r=20, t=40, b=20),
+            paper_bgcolor=C["bg"],
+            plot_bgcolor=C["bg"],
+            xaxis=dict(color=C["text"], gridcolor=C["border"]),
+            yaxis=dict(color=C["text"], gridcolor=C["border"], title="Calls"),
+            font=dict(color=C["text"]),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No tool calls were made during execution.")
 
 
 # ---------------------------------------------------------------------------
 # Live Mode: compile, execute, evaluate
 # ---------------------------------------------------------------------------
 def _run_async(coro):
-    """Run an async coroutine from sync context, even if an event loop exists."""
     loop = asyncio.new_event_loop()
     try:
         return loop.run_until_complete(coro)
@@ -653,7 +1226,6 @@ def _run_async(coro):
 
 
 def _get_live_infra(provider: str):
-    """Shared setup for live mode — returns (config, llm) or None on failure."""
     from daaw.config import get_config
     from daaw.llm.unified import UnifiedLLMClient
 
@@ -662,8 +1234,9 @@ def _get_live_infra(provider: str):
 
     available = llm.available_providers()
     if provider not in available:
+        hint = "Set OPENCLAW_GATEWAY_TOKEN env var." if provider == "openclaw" else f"Set the {provider.upper()}_API_KEY env var."
         st.error(
-            f"Provider '{provider}' not available. Set the API key env var. "
+            f"Provider '{provider}' not available. {hint} "
             f"Available: {available}"
         )
         return None
@@ -671,7 +1244,6 @@ def _get_live_infra(provider: str):
 
 
 def _patch_user_proxy_for_ui(spec):
-    """Replace user_proxy agents with generic_llm so execution doesn't block on input()."""
     for task in spec.tasks:
         if task.agent.role == "user_proxy":
             task.agent = task.agent.model_copy(update={
@@ -684,35 +1256,59 @@ def _patch_user_proxy_for_ui(spec):
             })
 
 
-def run_live_compile(provider: str, goal: str):
-    """Compile a user goal into a WorkflowSpec."""
+def run_live_compile(provider: str, goal: str) -> tuple:
+    log = []
     try:
         from daaw.compiler.compiler import Compiler
+        import time
+
+        t0 = time.monotonic()
+        log.append(f"[{0:.2f}s] Compiler initialized -- provider: {provider}")
 
         infra = _get_live_infra(provider)
         if infra is None:
-            return None
+            return None, log
         config, llm = infra
 
+        log.append(f"[{time.monotonic() - t0:.2f}s] Sending goal to LLM...")
         compiler = Compiler(llm, config, provider=provider)
         spec = _run_async(compiler.compile(goal))
-        return spec
+        log.append(f"[{time.monotonic() - t0:.2f}s] LLM response received")
+        log.append(f"[{time.monotonic() - t0:.2f}s] WorkflowSpec validated -- {len(spec.tasks)} tasks")
+
+        from daaw.engine.dag import DAG
+        dag = DAG(spec)
+        errors = dag.validate()
+        if errors:
+            log.append(f"[{time.monotonic() - t0:.2f}s] DAG validation FAILED: {errors}")
+        else:
+            log.append(f"[{time.monotonic() - t0:.2f}s] DAG validated -- no cycles detected")
+
+        log.append(f"[{time.monotonic() - t0:.2f}s] Compilation complete")
+        return spec, log
     except Exception as e:
+        log.append(f"[ERROR] Compilation failed: {e}")
         st.error(f"Compilation failed: {e}")
-        return None
+        return None, log
 
 
-def run_live_execute(spec, provider: str):
-    """Execute a compiled WorkflowSpec and return (results, verdicts)."""
+def run_live_execute(spec, provider: str, use_mock: bool = False):
     try:
-        # Import agent registrations so the factory can find them
         import daaw.agents.builtin.breakdown_agent  # noqa: F401
         import daaw.agents.builtin.critic_agent  # noqa: F401
         import daaw.agents.builtin.generic_llm_agent  # noqa: F401
         import daaw.agents.builtin.planner_agent  # noqa: F401
         import daaw.agents.builtin.pm_agent  # noqa: F401
         import daaw.agents.builtin.user_proxy  # noqa: F401
-        import daaw.tools.mock_tools  # noqa: F401
+
+        if use_mock:
+            import daaw.tools.mock_tools  # noqa: F401
+        else:
+            try:
+                import daaw.tools.real_tools  # noqa: F401
+            except ImportError:
+                import daaw.tools.mock_tools  # noqa: F401
+
         from daaw.agents.factory import AgentFactory
         from daaw.critic.critic import Critic
         from daaw.engine.circuit_breaker import CircuitBreaker
@@ -724,38 +1320,34 @@ def run_live_execute(spec, provider: str):
             return None, None
         config, llm = infra
 
-        # Swap user_proxy → generic_llm so execution doesn't block on input()
         _patch_user_proxy_for_ui(spec)
 
         store = ArtifactStore(config.artifact_store_dir)
         cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
-        factory = AgentFactory(llm, store)
+        factory = AgentFactory(llm, store, default_provider=provider)
         executor = DAGExecutor(factory, store, cb)
 
-        # Execute
         results = _run_async(executor.execute(spec))
 
-        # Critique each task
         critic = Critic(llm, config, provider=provider)
         verdicts = []
         for task in spec.tasks:
             if task.id not in results:
                 continue
             result = results[task.id]
-            passed, patch = _run_async(critic.evaluate(task, result))
+            passed, patch, reasoning = _run_async(critic.evaluate(task, result))
             verdicts.append({
                 "task_id": task.id,
                 "task_name": task.name,
                 "verdict": "PASS" if passed else "FAIL",
-                "reasoning": patch.reasoning if patch else (
-                    "Task passed evaluation against success criteria."
-                ),
+                "reasoning": reasoning,
                 "patch": str(patch.operations) if patch else None,
             })
 
         return results, verdicts
     except Exception as e:
         st.error(f"Execution failed: {e}")
+        st.code(traceback.format_exc(), language="text")
         return None, None
 
 
@@ -763,7 +1355,6 @@ def run_live_execute(spec, provider: str):
 # Helpers
 # ---------------------------------------------------------------------------
 def _topo_sort(spec) -> list[str]:
-    """Topological sort of task IDs from the spec."""
     G = nx.DiGraph()
     for task in spec.tasks:
         G.add_node(task.id)
@@ -772,91 +1363,241 @@ def _topo_sort(spec) -> list[str]:
     return list(nx.topological_sort(G))
 
 
+def _compute_task_starts(spec, results) -> dict[str, float]:
+    topo = _topo_sort(spec)
+    task_starts: dict[str, float] = {}
+    for tid in topo:
+        task = spec.get_task(tid)
+        dep_ends = []
+        for dep in task.dependencies:
+            dep_id = dep.task_id
+            if dep_id in task_starts and dep_id in results:
+                dep_ends.append(task_starts[dep_id] + results[dep_id].elapsed_seconds)
+        task_starts[tid] = max(dep_ends) if dep_ends else 0.0
+    return task_starts
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 def main():
-    mode, provider, goal, compile_btn, execute_btn = render_sidebar()
+    st.markdown(_GLOBAL_CSS, unsafe_allow_html=True)
 
-    # --- Session state for Live Mode persistence across reruns ---
+    mode, provider, goal, compile_btn, execute_btn, use_mock_tools = render_sidebar()
+
+    # --- Session state ---
     if "live_spec" not in st.session_state:
         st.session_state.live_spec = None
     if "live_results" not in st.session_state:
         st.session_state.live_results = {}
     if "live_verdicts" not in st.session_state:
         st.session_state.live_verdicts = []
+    if "live_log" not in st.session_state:
+        st.session_state.live_log = []
+    if "compile_success_msg" not in st.session_state:
+        st.session_state.compile_success_msg = None
+    if "pipeline_stage" not in st.session_state:
+        st.session_state.pipeline_stage = "idle"
 
-    # Handle Live Mode actions
+    # --- Show deferred compile success message (after st.rerun) ---
+    if st.session_state.get("compile_success_msg"):
+        st.success(st.session_state.compile_success_msg)
+        st.session_state.compile_success_msg = None
+
+    # --- Handle Live Mode actions ---
     if mode == "Live Mode":
         if compile_btn and goal:
-            with st.spinner("Compiling workflow..."):
-                live_spec = run_live_compile(provider, goal)
+            st.session_state.pipeline_stage = "compiling"
+            with st.status("Compiling workflow...", expanded=True) as status:
+                status.write("Initializing compiler...")
+                live_spec, log = run_live_compile(provider, goal)
+                st.session_state.live_log = log
+                if live_spec:
+                    status.write(f"Validated {len(live_spec.tasks)} tasks")
+                    status.write("DAG validation passed")
+                    status.update(label=f"Compiled {len(live_spec.tasks)} tasks", state="complete")
+                else:
+                    status.update(label="Compilation failed", state="error")
             if live_spec:
                 st.session_state.live_spec = live_spec
                 st.session_state.live_results = {}
                 st.session_state.live_verdicts = []
-                st.success("Compilation successful! Click **Execute Workflow** to run it.")
+                st.session_state.pipeline_stage = "compiled"
+                st.session_state.compile_success_msg = (
+                    f"Compiled {len(live_spec.tasks)} tasks. Click **Execute Workflow** to run."
+                )
+                st.rerun()  # Re-render so sidebar evaluates has_spec=True -> execute button enabled
             else:
                 st.session_state.live_spec = None
+                st.session_state.pipeline_stage = "idle"
+                st.session_state.compile_success_msg = None
 
         if execute_btn and st.session_state.live_spec is not None:
-            with st.spinner("Executing workflow & running critic..."):
+            st.session_state.pipeline_stage = "executing"
+            with st.status("Executing workflow...", expanded=True) as status:
+                status.write("Instantiating agents...")
+                status.write("Executing tasks in DAG order...")
                 results, verdicts = run_live_execute(
-                    st.session_state.live_spec, provider
+                    st.session_state.live_spec, provider, use_mock_tools
                 )
+                if results is not None:
+                    success_count = sum(1 for r in results.values() if r.agent_result.status == "success")
+                    status.write(f"Executed {len(results)} tasks ({success_count} succeeded)")
+                    status.write("Critic evaluation complete")
+                    status.update(
+                        label=f"Done: {success_count}/{len(results)} tasks succeeded",
+                        state="complete",
+                    )
+                else:
+                    status.update(label="Execution failed", state="error")
             if results is not None:
                 st.session_state.live_results = results
                 st.session_state.live_verdicts = verdicts or []
-                st.success("Execution complete!")
+                st.session_state.pipeline_stage = "done"
 
-    # Determine active data
+                # Telegram notification via OpenClaw (best-effort)
+                try:
+                    import asyncio as _asyncio
+                    from daaw.integrations.openclaw import notify_workflow_complete as _notify
+                    _success = sum(1 for r in results.values() if r.agent_result.status == "success")
+                    _elapsed = sum(r.elapsed_seconds for r in results.values())
+                    _loop = _asyncio.new_event_loop()
+                    _sent = _loop.run_until_complete(_notify(
+                        workflow_name=st.session_state.live_spec.name,
+                        total=len(results),
+                        passed=_success,
+                        failed=len(results) - _success,
+                        elapsed=_elapsed,
+                    ))
+                    _loop.close()
+                    if _sent:
+                        st.toast("Telegram notification sent via OpenClaw 📨", icon="✅")
+                except Exception:
+                    pass  # Notification is best-effort
+            else:
+                st.session_state.pipeline_stage = "compiled"
+
+    # --- Determine active data ---
     if mode == "Live Mode" and st.session_state.live_spec is not None:
         spec = st.session_state.live_spec
         results = st.session_state.live_results
         verdicts = st.session_state.live_verdicts
+        log_lines = st.session_state.live_log
     else:
         spec = DEMO_WORKFLOW_SPEC
         results = DEMO_RESULTS
         verdicts = DEMO_CRITIC_VERDICTS
+        log_lines = DEMO_COMPILATION_LOG
 
-    # Title
+    # --- Header with pipeline stage badge ---
+    stage = st.session_state.get("pipeline_stage", "idle")
+    stage_colors = {
+        "idle": C["text_muted"],
+        "compiling": C["running"],
+        "compiled": C["accent"],
+        "executing": C["running"],
+        "done": C["success"],
+    }
+    badge_color = stage_colors.get(stage, C["text_muted"])
+    stage_label = stage if mode == "Live Mode" else "demo"
+    badge_bg = C["primary_dim"] if mode == "Demo Mode" else badge_color
+
     st.markdown(
-        f"""
-        <h2 style="color:{COLORS['primary']}; margin-bottom:0;">
-            DAAW Compiler-Runtime
-        </h2>
-        <p style="color:#9CA3AF; margin-top:0;">
-            Directed Acyclic Agent Workflow — Compile, Execute, Evaluate
-        </p>
-        """,
+        f"""<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.25rem;">
+            <h2 style="color:{C['primary']}; margin:0;">DAAW Compiler-Runtime</h2>
+            <span class="dim">Directed Acyclic Agent Workflow</span>
+            <span class="pipeline-badge" style="background:{badge_bg}; color:#fff;">{_esc(stage_label)}</span>
+        </div>""",
         unsafe_allow_html=True,
     )
 
+    # --- Mode banners ---
     if mode == "Demo Mode":
-        st.info(
-            f"**Demo Mode** — Showing: *{spec.name}* (pre-loaded data, no API key needed)",
-            icon="🎯",
+        st.markdown(
+            f'<div style="background:{C["card"]}; border:1px solid {C["border"]}; border-left:3px solid {C["accent"]}; '
+            f'border-radius:8px; padding:0.7rem 1rem; margin-bottom:0.75rem;">'
+            f'<strong style="color:{C["accent"]};">Demo Mode</strong> '
+            f'<span class="dim">Showing pre-loaded data for <em>{_esc(spec.name)}</em>. '
+            f'Switch to <strong>Live Mode</strong> in the sidebar to compile and execute your own workflows.</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+    elif st.session_state.live_spec and st.session_state.live_results:
+        success = sum(1 for r in results.values() if r.agent_result.status == "success")
+        total = len(results)
+        color = C["success"] if success == total else C["human"]
+        st.markdown(
+            f'<div style="background:{C["card"]}; border:1px solid {C["border"]}; border-radius:8px; '
+            f'padding:0.6rem 1rem; margin-bottom:0.5rem;">'
+            f'<strong style="color:{color};">Live Results:</strong> '
+            f'<span class="dim">{_esc(spec.name)} &mdash; {success}/{total} tasks passed</span></div>',
+            unsafe_allow_html=True,
         )
 
-    # Tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    # --- Export row ---
+    st.markdown("---")
+    col_e1, col_e2, col_e3 = st.columns([2, 2, 1])
+    with col_e1:
+        spec_json = spec.model_dump_json(indent=2)
+        st.download_button(
+            "Download WorkflowSpec JSON",
+            data=spec_json,
+            file_name="workflow_spec.json",
+            mime="application/json",
+            use_container_width=True,
+        )
+    with col_e2:
+        if results:
+            results_export = {
+                tid: {
+                    "status": r.agent_result.status,
+                    "output": r.agent_result.output,
+                    "elapsed": r.elapsed_seconds,
+                }
+                for tid, r in results.items()
+            }
+            st.download_button(
+                "Download Results JSON",
+                data=json.dumps(results_export, indent=2),
+                file_name="results.json",
+                mime="application/json",
+                use_container_width=True,
+            )
+        else:
+            st.caption("Execute workflow to export results.")
+    with col_e3:
+        if verdicts:
+            verdicts_json = json.dumps(verdicts, indent=2)
+            st.download_button(
+                "Download Verdicts",
+                data=verdicts_json,
+                file_name="verdicts.json",
+                mime="application/json",
+                use_container_width=True,
+            )
+
+    # --- Tabs ---
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "Architecture",
         "Compiler",
         "DAG Visualization",
         "Execution Timeline",
         "Critic & Results",
+        "Tools",
     ])
 
     with tab1:
         render_architecture_tab()
     with tab2:
-        render_compiler_tab(spec)
+        render_compiler_tab(spec, log_lines)
     with tab3:
         render_dag_tab(spec, results)
     with tab4:
         render_timeline_tab(spec, results)
     with tab5:
         render_critic_tab(spec, results, verdicts)
+    with tab6:
+        render_tools_tab(spec, results)
 
 
 if __name__ == "__main__":

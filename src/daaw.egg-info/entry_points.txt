@@ -1,0 +1,2 @@
+[console_scripts]
+daaw = daaw.cli.main:main

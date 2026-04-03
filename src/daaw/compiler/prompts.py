@@ -39,7 +39,11 @@ Rules:
 - The workflow must be a DAG — no circular dependencies
 - Use the most specific agent role available for each task
 - Keep tasks focused — one responsibility per task
-- Set realistic timeout_seconds based on task complexity
+- Set realistic timeout_seconds based on task complexity:
+  * Tasks with web_search tools: minimum 300 seconds (web searches are slow)
+  * Tasks with file I/O only: 120 seconds is fine
+  * Tasks with multiple dependencies and large outputs: 300-600 seconds
+  * Never set timeout_seconds below 120
 - Set success_criteria for every task so the Critic can evaluate outputs
 """
 

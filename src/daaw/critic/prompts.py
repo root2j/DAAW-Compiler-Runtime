@@ -32,6 +32,9 @@ Rules:
 - For "remove": explain why the task is no longer needed
 - For "update_input": specify which keys to change and their new values
 - If the task passed, set patch to null
+- Do NOT assume output is truncated unless it visibly ends mid-sentence or mid-structure
+- Judge only what is present; do not penalise for missing content you imagine might exist
+- reasoning must be plain text only — no HTML, no markdown, no XML tags
 """
 
 CRITIC_EVALUATION_PROMPT = """\
@@ -46,7 +49,7 @@ Status: {status}
 Attempt: {attempt}
 Elapsed: {elapsed:.1f}s
 
-Task Output (truncated to 4000 chars):
+Task Output{truncation_note}:
 {task_output}
 
 Respond with your JSON verdict.
