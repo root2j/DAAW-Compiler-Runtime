@@ -80,7 +80,7 @@ python -m daaw legacy
 | `python -m daaw ui` | Streamlit dashboard with interactive visualizations |
 | `python -m daaw demo` | Under-the-Hood demo UI with step-by-step pipeline walkthrough |
 
-See [Usage.md](Usage.md) for detailed command documentation and examples.
+See [Usage.md](Usage.md) for detailed command documentation and [INSTALL.md](INSTALL.md) for the Linux/macOS setup guide.
 
 ## Architecture
 
