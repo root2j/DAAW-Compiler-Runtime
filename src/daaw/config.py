@@ -25,9 +25,13 @@ class AppConfig:
     gemini_api_key: str = ""
     openai_api_key: str = ""
     anthropic_api_key: str = ""
-    # OpenClaw gateway integration
-    openclaw_gateway_url: str = "http://127.0.0.1:18789"
-    openclaw_gateway_token: str = ""
+    # Generic OpenAI-compatible gateway (LiteLLM, Ollama, vLLM, etc.)
+    gateway_url: str = ""
+    gateway_token: str = ""
+    gateway_model: str = "default"
+    # Webhook notifications (Discord, Slack, or generic HTTP)
+    notify_webhook_url: str = ""
+    notify_webhook_type: str = "generic"
     artifact_store_dir: str = ".daaw_store"
     max_critic_retries: int = 3
     max_planner_retries: int = 3
@@ -46,8 +50,21 @@ def get_config() -> AppConfig:
             gemini_api_key=os.environ.get("GEMINI_API_KEY", ""),
             openai_api_key=os.environ.get("OPENAI_API_KEY", ""),
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
-            openclaw_gateway_url=os.environ.get("OPENCLAW_GATEWAY_URL", "http://127.0.0.1:18789"),
-            openclaw_gateway_token=os.environ.get("OPENCLAW_GATEWAY_TOKEN", ""),
+            gateway_url=os.environ.get("GATEWAY_URL", ""),
+            gateway_token=os.environ.get("GATEWAY_TOKEN", ""),
+            gateway_model=os.environ.get("GATEWAY_MODEL", "default"),
+            notify_webhook_url=os.environ.get("NOTIFY_WEBHOOK_URL", ""),
+            notify_webhook_type=os.environ.get("NOTIFY_WEBHOOK_TYPE", "generic"),
             artifact_store_dir=os.environ.get("DAAW_STORE_DIR", ".daaw_store"),
         )
     return _config
+
+
+def reset_config() -> None:
+    """Clear the cached config so the next get_config() re-reads env vars.
+
+    Useful for long-lived processes (Streamlit) after .env changes.
+    """
+    global _config
+    _config = None
+    load_dotenv(override=True)

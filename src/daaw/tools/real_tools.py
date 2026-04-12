@@ -34,16 +34,17 @@ async def real_web_search(query: str) -> str:
     import httpx
 
     url = "https://html.duckduckgo.com/html/"
-    async with httpx.AsyncClient(timeout=15.0) as client:
-        resp = await client.post(url, data={"q": query})
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    }
+    async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+        resp = await client.post(url, data={"q": query}, headers=headers)
         resp.raise_for_status()
 
-    # Extract text snippets from the HTML response
     text = resp.text
     results = []
-    # Simple extraction of result snippets
     import re
-    snippets = re.findall(r'class="result__snippet">(.*?)</a>', text, re.DOTALL)
+    snippets = re.findall(r'<a class="result__snippet"[^>]*>(.*?)</a>', text, re.DOTALL)
     for i, snippet in enumerate(snippets[:5], 1):
         clean = re.sub(r"<.*?>", "", snippet).strip()
         if clean:

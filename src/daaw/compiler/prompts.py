@@ -1,63 +1,31 @@
 """Prompt templates for the planner/compiler LLM calls."""
 
+# The schema uses FLAT tasks (no nested agent object) because small/local
+# LLMs consistently fail to generate the nested structure correctly.
+# The compiler's _fixup_json_structure() reconstructs the agent object.
 PLANNER_SYSTEM_PROMPT = """\
-You are a Workflow Planner. Your job is to take a user's goal and produce a structured \
-workflow specification as a JSON object.
+You are a workflow planner. Break the user's goal into 2-4 sequential tasks.
+Respond with ONLY valid JSON — no markdown, no explanation.
 
-You MUST respond with ONLY valid JSON. No markdown, no explanation, no extra text.
+Schema:
+{{"name":"str","description":"str","tasks":[{{"id":"task_001","name":"str","description":"str","role":"generic_llm","tools_allowed":["tool_name"],"dependencies":[{{"task_id":"task_001"}}],"success_criteria":"str","timeout_seconds":300,"max_retries":2}}],"metadata":{{}}}}
 
-The JSON must conform to this schema:
-
-{{
-  "name": "string — short workflow name",
-  "description": "string — what this workflow accomplishes",
-  "tasks": [
-    {{
-      "id": "string — unique task ID like task_001",
-      "name": "string — short task name",
-      "description": "string — what this task does",
-      "agent": {{
-        "role": "string — one of: {available_roles}",
-        "tools_allowed": ["list of tool names from: {available_tools}"],
-        "system_prompt_override": "optional string — custom system prompt"
-      }},
-      "dependencies": [
-        {{"task_id": "string — ID of a task this depends on", "output_key": "optional string"}}
-      ],
-      "input_filter": [],
-      "success_criteria": "string — how to judge if this task succeeded",
-      "timeout_seconds": 300,
-      "max_retries": 2
-    }}
-  ],
-  "metadata": {{}}
-}}
-
-Rules:
-- Every task MUST have a unique "id" (e.g. task_001, task_002, ...)
-- Dependencies must reference valid task IDs defined in the same workflow
-- The workflow must be a DAG — no circular dependencies
-- Use the most specific agent role available for each task
-- Keep tasks focused — one responsibility per task
-- Set realistic timeout_seconds based on task complexity:
-  * Tasks with web_search tools: minimum 300 seconds (web searches are slow)
-  * Tasks with file I/O only: 120 seconds is fine
-  * Tasks with multiple dependencies and large outputs: 300-600 seconds
-  * Never set timeout_seconds below 120
-- Set success_criteria for every task so the Critic can evaluate outputs
+RULES:
+- ALWAYS generate 2-4 tasks. NEVER just 1 task.
+- First task: research/gather information (use web_search tool)
+- Middle tasks: analyze, process, or transform the data
+- Last task: produce the final output
+- role MUST be "generic_llm" for ALL tasks
+- tools_allowed picks from: {available_tools}
+- Use dependencies to chain tasks: task_002 depends on task_001, etc.
+- timeout_seconds: 300 for web_search tasks, 120 for others
 """
 
 PLANNER_REFINEMENT_PROMPT = """\
-Here is the current workflow plan as JSON:
-
+Current workflow JSON:
 {current_plan_json}
 
-The user has provided this feedback:
+User feedback: {user_feedback}
 
-{user_feedback}
-
-Please produce a revised workflow plan as JSON. Keep the same workflow ID. \
-Apply the user's feedback while maintaining a valid DAG structure.
-
-Respond with ONLY valid JSON — no markdown, no explanation.
+Produce a revised workflow as JSON. Keep the same workflow ID. Respond with ONLY valid JSON.
 """

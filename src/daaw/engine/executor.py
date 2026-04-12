@@ -24,11 +24,13 @@ class DAGExecutor:
         factory: AgentFactory,
         store: ArtifactStore,
         circuit_breaker: CircuitBreaker | None = None,
+        max_concurrent: int | None = None,
     ):
         self._factory = factory
         self._store = store
         self._cb = circuit_breaker or CircuitBreaker()
         self._results: dict[str, TaskResult] = {}
+        self._max_concurrent = max_concurrent
 
     async def execute(self, spec: WorkflowSpec) -> dict[str, TaskResult]:
         """Run all tasks respecting dependencies. Returns results dict."""
@@ -52,9 +54,23 @@ class DAGExecutor:
             if not ready and not dag.has_failures():
                 raise RuntimeError("Deadlock: no ready tasks and no failures")
 
-            await asyncio.gather(
-                *[self._run_task(dag, spec.get_task(tid)) for tid in ready]
-            )
+            if self._max_concurrent == 1:
+                # Sequential execution — for local LLMs that can't handle
+                # concurrent requests (LM Studio, Ollama single-GPU, etc.)
+                for tid in ready:
+                    await self._run_task(dag, spec.get_task(tid))
+            elif self._max_concurrent and self._max_concurrent > 1:
+                sem = asyncio.Semaphore(self._max_concurrent)
+
+                async def _guarded(tid: str) -> None:
+                    async with sem:
+                        await self._run_task(dag, spec.get_task(tid))
+
+                await asyncio.gather(*[_guarded(tid) for tid in ready])
+            else:
+                await asyncio.gather(
+                    *[self._run_task(dag, spec.get_task(tid)) for tid in ready]
+                )
 
         return self._results
 
@@ -64,13 +80,15 @@ class DAGExecutor:
         dag.mark(task_id, TaskStatus.RUNNING)
         print(f"  [START] {task_id}: {task.name}")
 
-        # Enforce a minimum timeout: tool-using tasks need at least 300s
-        # (web searches are slow; LLM responses on complex tasks can take 2+ min)
+        # Enforce minimum timeouts.
+        # Local models (max_concurrent=1) are much slower than cloud APIs
+        # and need generous timeouts to avoid premature kills.
         effective_timeout = task.timeout_seconds
-        if task.agent.tools_allowed and effective_timeout < 300:
-            effective_timeout = 300
-        elif effective_timeout < 60:
-            effective_timeout = 60
+        is_local = self._max_concurrent == 1
+        if task.agent.tools_allowed:
+            effective_timeout = max(effective_timeout, 600 if is_local else 300)
+        else:
+            effective_timeout = max(effective_timeout, 300 if is_local else 60)
 
         start = time.monotonic()
         try:

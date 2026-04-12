@@ -39,13 +39,14 @@ class UnifiedLLMClient:
                 self._config.anthropic_api_key
             )
 
-        # OpenClaw gateway — available if OPENCLAW_GATEWAY_TOKEN is set
-        if self._config.openclaw_gateway_token:
-            from daaw.llm.providers.openclaw_provider import OpenClawProvider
+        # Generic OpenAI-compatible gateway (LiteLLM, Ollama, vLLM, etc.)
+        if self._config.gateway_url:
+            from daaw.llm.providers.gateway_provider import GatewayProvider
 
-            self._providers["openclaw"] = OpenClawProvider(
-                gateway_url=self._config.openclaw_gateway_url,
-                token=self._config.openclaw_gateway_token,
+            self._providers["gateway"] = GatewayProvider(
+                gateway_url=self._config.gateway_url,
+                token=self._config.gateway_token,
+                default_model=self._config.gateway_model,
             )
 
     def available_providers(self) -> list[str]:

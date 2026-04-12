@@ -32,6 +32,11 @@ from daaw.ui.demo_data import (
     DEMO_WORKFLOW_SPEC,
 )
 
+# Re-read .env on every Streamlit rerun so config picks up changes
+# without needing a full server restart.
+from daaw.config import reset_config as _reset_config
+_reset_config()
+
 # Register real_tools at startup (real DuckDuckGo HTTP search).
 # Falls back to mock_tools if real_tools import fails.
 try:
@@ -316,15 +321,61 @@ def render_sidebar():
         compile_btn = False
         execute_btn = False
         provider = None
+        model = None
         goal = None
 
         if mode == "Live Mode":
             with st.expander("Live Mode Settings", expanded=True):
                 provider = st.selectbox(
                     "LLM Provider",
-                    ["openclaw", "groq", "gemini", "openai", "anthropic"],
-                    help="'openclaw' uses your local OpenClaw gateway (Claude Sonnet). Others require API key env vars.",
+                    ["groq", "gemini", "openai", "anthropic", "gateway"],
+                    help="'gateway' uses any OpenAI-compatible endpoint (LiteLLM, Ollama, vLLM). Others require API key env vars.",
                 )
+
+                _PROVIDER_MODELS = {
+                    "groq": [
+                        "llama-3.3-70b-versatile",           # strong all-rounder (default)
+                        "meta-llama/llama-4-scout-17b-16e-instruct",  # multimodal MoE
+                        "qwen/qwen3-32b",                    # reasoning
+                        "llama-3.1-8b-instant",              # fastest/cheapest
+                        "moonshotai/kimi-k2-instruct-0905",  # best tool use (MoE 1T)
+                    ],
+                    "gemini": [
+                        "gemini-2.5-flash",                  # fast/cheap (default)
+                        "gemini-2.5-flash-lite",             # cheapest
+                        "gemini-2.5-pro",                    # most capable stable
+                        "gemini-3-flash-preview",            # next-gen fast (preview)
+                        "gemini-3.1-pro-preview",            # next-gen best (preview)
+                    ],
+                    "openai": [
+                        "gpt-4.1-mini",                      # fast/cheap (default)
+                        "gpt-4.1-nano",                      # cheapest
+                        "gpt-4.1",                           # capable
+                        "o4-mini",                           # reasoning fast
+                        "gpt-5.4-mini",                      # latest fast
+                        "gpt-5.4-nano",                      # latest cheapest
+                        "gpt-5.4",                           # latest flagship
+                        "o3-mini",                           # reasoning
+                    ],
+                    "anthropic": [
+                        "claude-sonnet-4-6",                 # best balance (default)
+                        "claude-haiku-4-5-20251001",         # fastest/cheapest
+                        "claude-sonnet-4-5",                 # previous gen
+                        "claude-opus-4-6",                   # most capable
+                    ],
+                    "gateway": [
+                        "gemma4:e4b",                    # Ollama Gemma E4B (recommended)
+                        "gemma4:e2b-it-q4_K_M",         # Ollama Gemma E2B (fast, simple only)
+                        "default",                       # use GATEWAY_MODEL env var
+                    ],
+                }
+                model_options = _PROVIDER_MODELS.get(provider, ["default"])
+                model = st.selectbox(
+                    "Model",
+                    model_options,
+                    help=f"Model to use with {provider}. First option is the default.",
+                )
+
                 goal = st.text_area(
                     "Goal",
                     placeholder="Describe your workflow goal...",
@@ -386,20 +437,20 @@ def render_sidebar():
         c1.metric("Providers", stats["providers"])
         c2.metric("Schemas", stats["schemas"])
 
-        # OpenClaw gateway status indicator
+        # Webhook notification status indicator
         try:
-            from daaw.integrations.openclaw import is_available as _oc_avail
-            oc_ok = _oc_avail()
+            from daaw.integrations.notifications import is_available as _notif_avail
+            notif_ok = _notif_avail()
         except Exception:
-            oc_ok = False
+            notif_ok = False
         st.markdown(
             f'<div style="font-size:0.72rem; color:{C["text_muted"]}; margin-top:0.5rem;">'
-            f'OpenClaw Gateway: <span style="color:{C["success"] if oc_ok else C["failure"]};font-weight:600;">'
-            f'{"connected" if oc_ok else "offline"}</span></div>',
+            f'Notifications: <span style="color:{C["success"] if notif_ok else C["failure"]};font-weight:600;">'
+            f'{"configured" if notif_ok else "not configured"}</span></div>',
             unsafe_allow_html=True,
         )
 
-    return mode, provider, goal, compile_btn, execute_btn, use_mock_tools
+    return mode, provider, model, goal, compile_btn, execute_btn, use_mock_tools
 
 
 def _get_live_system_stats() -> dict:
@@ -1078,20 +1129,20 @@ def render_critic_tab(spec, results, verdicts):
                 f'{_esc(str(verdict["patch"]))}</div></div>'
             )
 
-        st.markdown(
-            f"""<div class="verdict-card" style="border-left:3px solid {border};">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:{C['text']};">{_esc(tid)}</strong>
-                        <span class="dim">&nbsp;&mdash;&nbsp;{_esc(verdict['task_name'])}</span>
-                    </div>
-                    {_badge(verdict['verdict'], badge_variant)}
-                </div>
-                <div class="dim" style="margin-top:0.5rem;">{_esc(verdict['reasoning'])}</div>
-                {patch_html}
-            </div>""",
-            unsafe_allow_html=True,
+        card_html = (
+            f'<div class="verdict-card" style="border-left:3px solid {border};">'
+            f'<div style="display:flex; justify-content:space-between; align-items:center;">'
+            f'<div>'
+            f'<strong style="color:{C["text"]};">{_esc(tid)}</strong>'
+            f'<span class="dim">&nbsp;&mdash;&nbsp;{_esc(verdict["task_name"])}</span>'
+            f'</div>'
+            f'{_badge(verdict["verdict"], badge_variant)}'
+            f'</div>'
+            f'<div class="dim" style="margin-top:0.5rem;">{_esc(verdict["reasoning"])}</div>'
+            f'{patch_html}'
+            f'</div>'
         )
+        st.markdown(card_html, unsafe_allow_html=True)
 
         # Show error details for failed tasks
         if not is_pass:
@@ -1234,7 +1285,7 @@ def _get_live_infra(provider: str):
 
     available = llm.available_providers()
     if provider not in available:
-        hint = "Set OPENCLAW_GATEWAY_TOKEN env var." if provider == "openclaw" else f"Set the {provider.upper()}_API_KEY env var."
+        hint = "Set GATEWAY_URL env var." if provider == "gateway" else f"Set the {provider.upper()}_API_KEY env var."
         st.error(
             f"Provider '{provider}' not available. {hint} "
             f"Available: {available}"
@@ -1244,26 +1295,35 @@ def _get_live_infra(provider: str):
 
 
 def _patch_user_proxy_for_ui(spec):
+    """Replace user_proxy tasks with pre-filled defaults.
+
+    Instead of wasting an LLM call to "simulate user input" (which
+    often generates a prompt template instead of data), we pre-fill
+    the artifact store with sensible defaults and skip the task.
+    """
     for task in spec.tasks:
         if task.agent.role == "user_proxy":
             task.agent = task.agent.model_copy(update={
                 "role": "generic_llm",
                 "system_prompt_override": (
-                    "You are simulating user input for a demo. "
-                    "Generate realistic, plausible data for the task described. "
-                    "Return a JSON object with the relevant fields."
+                    "You are auto-filling user parameters for a demo. "
+                    "Based on the task description, return ONLY a JSON object "
+                    "with concrete values (dates, locations, budget numbers). "
+                    "Do NOT generate a prompt or ask questions. Example: "
+                    '{"travelers":2,"dates":"2025-07-01 to 2025-07-07",'
+                    '"locations":["Tokyo","Kyoto"],"budget":"mid-range"}'
                 ),
             })
 
 
-def run_live_compile(provider: str, goal: str) -> tuple:
+def run_live_compile(provider: str, goal: str, model: str | None = None) -> tuple:
     log = []
     try:
         from daaw.compiler.compiler import Compiler
         import time
 
         t0 = time.monotonic()
-        log.append(f"[{0:.2f}s] Compiler initialized -- provider: {provider}")
+        log.append(f"[{0:.2f}s] Compiler initialized -- provider: {provider}, model: {model or 'default'}")
 
         infra = _get_live_infra(provider)
         if infra is None:
@@ -1271,7 +1331,7 @@ def run_live_compile(provider: str, goal: str) -> tuple:
         config, llm = infra
 
         log.append(f"[{time.monotonic() - t0:.2f}s] Sending goal to LLM...")
-        compiler = Compiler(llm, config, provider=provider)
+        compiler = Compiler(llm, config, provider=provider, model=model)
         spec = _run_async(compiler.compile(goal))
         log.append(f"[{time.monotonic() - t0:.2f}s] LLM response received")
         log.append(f"[{time.monotonic() - t0:.2f}s] WorkflowSpec validated -- {len(spec.tasks)} tasks")
@@ -1292,7 +1352,7 @@ def run_live_compile(provider: str, goal: str) -> tuple:
         return None, log
 
 
-def run_live_execute(spec, provider: str, use_mock: bool = False):
+def run_live_execute(spec, provider: str, use_mock: bool = False, model: str | None = None):
     try:
         import daaw.agents.builtin.breakdown_agent  # noqa: F401
         import daaw.agents.builtin.critic_agent  # noqa: F401
@@ -1324,18 +1384,23 @@ def run_live_execute(spec, provider: str, use_mock: bool = False):
 
         store = ArtifactStore(config.artifact_store_dir)
         cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
-        factory = AgentFactory(llm, store, default_provider=provider)
-        executor = DAGExecutor(factory, store, cb)
+        factory = AgentFactory(llm, store, default_provider=provider, default_model=model)
+        # Local LLMs (gateway) can only handle one request at a time
+        max_conc = 1 if provider == "gateway" else None
+        executor = DAGExecutor(factory, store, cb, max_concurrent=max_conc)
 
         results = _run_async(executor.execute(spec))
 
-        critic = Critic(llm, config, provider=provider)
+        critic = Critic(llm, config, provider=provider, model=model)
         verdicts = []
         for task in spec.tasks:
             if task.id not in results:
                 continue
             result = results[task.id]
-            passed, patch, reasoning = _run_async(critic.evaluate(task, result))
+            try:
+                passed, patch, reasoning = _run_async(critic.evaluate(task, result))
+            except Exception:
+                passed, patch, reasoning = False, None, "Critic crashed (model OOM/unavailable)"
             verdicts.append({
                 "task_id": task.id,
                 "task_name": task.name,
@@ -1383,7 +1448,7 @@ def _compute_task_starts(spec, results) -> dict[str, float]:
 def main():
     st.markdown(_GLOBAL_CSS, unsafe_allow_html=True)
 
-    mode, provider, goal, compile_btn, execute_btn, use_mock_tools = render_sidebar()
+    mode, provider, model, goal, compile_btn, execute_btn, use_mock_tools = render_sidebar()
 
     # --- Session state ---
     if "live_spec" not in st.session_state:
@@ -1410,7 +1475,7 @@ def main():
             st.session_state.pipeline_stage = "compiling"
             with st.status("Compiling workflow...", expanded=True) as status:
                 status.write("Initializing compiler...")
-                live_spec, log = run_live_compile(provider, goal)
+                live_spec, log = run_live_compile(provider, goal, model)
                 st.session_state.live_log = log
                 if live_spec:
                     status.write(f"Validated {len(live_spec.tasks)} tasks")
@@ -1438,7 +1503,7 @@ def main():
                 status.write("Instantiating agents...")
                 status.write("Executing tasks in DAG order...")
                 results, verdicts = run_live_execute(
-                    st.session_state.live_spec, provider, use_mock_tools
+                    st.session_state.live_spec, provider, use_mock_tools, model
                 )
                 if results is not None:
                     success_count = sum(1 for r in results.values() if r.agent_result.status == "success")
@@ -1455,10 +1520,10 @@ def main():
                 st.session_state.live_verdicts = verdicts or []
                 st.session_state.pipeline_stage = "done"
 
-                # Telegram notification via OpenClaw (best-effort)
+                # Webhook notification (best-effort)
                 try:
                     import asyncio as _asyncio
-                    from daaw.integrations.openclaw import notify_workflow_complete as _notify
+                    from daaw.integrations.notifications import notify_workflow_complete as _notify
                     _success = sum(1 for r in results.values() if r.agent_result.status == "success")
                     _elapsed = sum(r.elapsed_seconds for r in results.values())
                     _loop = _asyncio.new_event_loop()
@@ -1471,7 +1536,7 @@ def main():
                     ))
                     _loop.close()
                     if _sent:
-                        st.toast("Telegram notification sent via OpenClaw 📨", icon="✅")
+                        st.toast("Webhook notification sent", icon="bell")
                 except Exception:
                     pass  # Notification is best-effort
             else:
@@ -1505,7 +1570,7 @@ def main():
     st.markdown(
         f"""<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.25rem;">
             <h2 style="color:{C['primary']}; margin:0;">DAAW Compiler-Runtime</h2>
-            <span class="dim">Directed Acyclic Agent Workflow</span>
+            <span class="dim">Dynamic Agentic AI Workflow</span>
             <span class="pipeline-badge" style="background:{badge_bg}; color:#fff;">{_esc(stage_label)}</span>
         </div>""",
         unsafe_allow_html=True,

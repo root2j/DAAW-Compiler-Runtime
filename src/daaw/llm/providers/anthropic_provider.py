@@ -6,7 +6,7 @@ from typing import Any
 
 from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse, ToolCall
 
-DEFAULT_MODEL = "claude-sonnet-4-20250514"
+DEFAULT_MODEL = "claude-sonnet-4-6"
 
 
 class AnthropicProvider(LLMProvider):

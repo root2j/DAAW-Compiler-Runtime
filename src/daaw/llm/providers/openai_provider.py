@@ -6,7 +6,7 @@ from typing import Any
 
 from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse, ToolCall
 
-DEFAULT_MODEL = "gpt-4o-mini"
+DEFAULT_MODEL = "gpt-4.1-mini"
 
 
 class OpenAIProvider(LLMProvider):

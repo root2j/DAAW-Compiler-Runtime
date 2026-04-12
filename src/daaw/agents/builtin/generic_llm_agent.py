@@ -26,30 +26,81 @@ DEFAULT_SYSTEM_PROMPT = (
     "make reasonable concrete assumptions and state them clearly in your output."
 )
 
-# Regex to detect Llama-style text tool calls: <function=name({...})></function>
-_TEXT_TOOL_CALL_RE = re.compile(
-    r'<function=(?P<name>\w+)\((?P<args>\{.*?\})\)</function>',
-    re.DOTALL,
-)
+# Patterns for text-based tool calls emitted by various local models.
+# Group 1: tool name.  Group 2: raw args (may be JSON or keyword-style).
+_TOOL_CALL_PATTERNS = [
+    # Llama / gateway-injected: <function=web_search({"query": "..."})></function>
+    re.compile(r'<function=(\w+)\((\{.*?\})\)>?</function>', re.DOTALL),
+    # Qwen/Gemma with JSON args: <|tool_call>call:web_search({"query":"..."})
+    re.compile(r'<\|tool_call>(?:call:)?(\w+)\((\{.*?\})\)', re.DOTALL),
+    # Gemma E4B keyword: <|tool_call>call:web_search(query: "...")<tool_call|>
+    re.compile(r'<\|tool_call>(?:call:)?(\w+)\(([^)]+)\)(?:<tool_call\|>)?', re.DOTALL),
+    # Gemma E2B compact: <call:web_search("query text")> or <call:web_search(query)>
+    re.compile(r'<call:(\w+)\(([^)]+)\)>', re.DOTALL),
+    # [tool_call: web_search({"query":"..."})]
+    re.compile(r'\[tool_call:\s*(\w+)\((\{.*?\})\)\]', re.DOTALL),
+    # Bare function-call: web_search({"query": "..."}) at start of line
+    re.compile(r'^(\w+)\((\{"[^"]+":.*?\})\)\s*$', re.MULTILINE),
+]
+
+
+def _parse_args(raw: str) -> dict:
+    """Parse tool call arguments from JSON or keyword-style format.
+
+    Handles:
+      - JSON: {"query": "goa"}
+      - Keyword: query: "goa beaches", limit: 5
+      - Mixed: query="goa", limit=5
+    """
+    raw = raw.strip()
+    # Try JSON first
+    if raw.startswith("{"):
+        try:
+            return _json.loads(raw)
+        except _json.JSONDecodeError:
+            pass
+
+    # Bare quoted string: "recent world events" → {"query": "recent world events"}
+    # Common from Gemma E2B: <call:web_search("query text")>
+    stripped = raw.strip('"\'')
+    if stripped and not any(c in raw for c in ":={"):
+        return {"query": stripped}
+
+    # Keyword-style: key: "value", key: value, key="value"
+    result = {}
+    for m in re.finditer(r'(\w+)\s*[:=]\s*(?:"([^"]*?)"|(\S+))', raw):
+        key = m.group(1)
+        val = m.group(2) if m.group(2) is not None else m.group(3)
+        if val.isdigit():
+            result[key] = int(val)
+        elif val.lower() in ("true", "false"):
+            result[key] = val.lower() == "true"
+        else:
+            result[key] = val
+    return result
 
 
 def _parse_text_tool_calls(content: str) -> list[dict] | None:
-    """Detect and parse Llama XML-style tool calls emitted as plain text.
+    """Detect and parse text-based tool calls from various LLM formats.
 
-    Returns a list of parsed tool call dicts, or None if none found.
+    Supports Llama XML, Qwen native, Gemma keyword-style, and bare
+    function-call formats.  Returns parsed tool call dicts, or None.
     """
-    matches = _TEXT_TOOL_CALL_RE.findall(content)
-    if not matches:
-        return None
-    result = []
-    for name, args_str in matches:
-        try:
-            args = _json.loads(args_str)
-        except _json.JSONDecodeError:
-            args = {}
-        result.append({"name": name, "arguments": args, "id": f"text_tc_{uuid.uuid4().hex[:8]}"})
-
-    return result or None
+    results = []
+    seen = set()
+    for pattern in _TOOL_CALL_PATTERNS:
+        for name, args_raw in pattern.findall(content):
+            key = (name, args_raw)
+            if key in seen:
+                continue
+            seen.add(key)
+            args = _parse_args(args_raw)
+            results.append({
+                "name": name,
+                "arguments": args,
+                "id": f"text_tc_{uuid.uuid4().hex[:8]}",
+            })
+    return results or None
 
 
 @register_agent("generic_llm")
@@ -120,9 +171,12 @@ class GenericLLMAgent(BaseAgent):
                     tool_calls_raw=_extract_raw_tool_calls(resp),
                 ))
             else:
-                # Text tool calls: strip the XML from content to avoid Groq 400,
+                # Text tool calls: strip all tool-call patterns from content,
                 # then append a clean assistant message.
-                clean_content = _TEXT_TOOL_CALL_RE.sub("", resp.content).strip()
+                clean_content = resp.content
+                for pat in _TOOL_CALL_PATTERNS:
+                    clean_content = pat.sub("", clean_content)
+                clean_content = clean_content.strip()
                 active_tool_calls = text_tcs  # type: ignore[assignment]
                 messages.append(LLMMessage(
                     role="assistant",

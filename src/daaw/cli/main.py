@@ -48,7 +48,9 @@ async def run_full_pipeline(
     store = ArtifactStore(config.artifact_store_dir)
     cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
     factory = AgentFactory(llm, store, default_provider=provider)
-    executor = DAGExecutor(factory, store, cb)
+    # Local LLMs (gateway) can only handle one request at a time
+    max_conc = 1 if provider == "gateway" else None
+    executor = DAGExecutor(factory, store, cb, max_concurrent=max_conc)
 
     print(f"\nAvailable LLM providers: {', '.join(llm.available_providers())}\n")
 
@@ -155,7 +157,7 @@ async def run_legacy_pipeline(config: AppConfig) -> None:
 
 
 def launch_ui(port: int = 8501) -> None:
-    """Launch the Streamlit demo UI."""
+    """Launch the Streamlit dashboard UI."""
     import subprocess
     from pathlib import Path
 
@@ -164,7 +166,24 @@ def launch_ui(port: int = 8501) -> None:
         print(f"UI app not found at {app_path}")
         sys.exit(1)
 
-    print(f"\nLaunching DAAW Demo UI on port {port}...")
+    print(f"\nLaunching DAAW Dashboard on port {port}...")
+    subprocess.run(
+        [sys.executable, "-m", "streamlit", "run", str(app_path),
+         "--server.port", str(port), "--server.headless", "true"],
+    )
+
+
+def launch_demo_ui(port: int = 8502) -> None:
+    """Launch the Under-the-Hood demonstration UI."""
+    import subprocess
+    from pathlib import Path
+
+    app_path = Path(__file__).resolve().parent.parent / "ui" / "demo_app.py"
+    if not app_path.exists():
+        print(f"Demo UI app not found at {app_path}")
+        sys.exit(1)
+
+    print(f"\nLaunching DAAW — Under the Hood on port {port}...")
     subprocess.run(
         [sys.executable, "-m", "streamlit", "run", str(app_path),
          "--server.port", str(port), "--server.headless", "true"],
@@ -194,8 +213,12 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("legacy", help="Original questionnaire -> PM -> breakdown pipeline")
 
     # daaw ui
-    ui_parser = sub.add_parser("ui", help="Launch the Streamlit demo UI")
+    ui_parser = sub.add_parser("ui", help="Launch the Streamlit dashboard UI")
     ui_parser.add_argument("--port", type=int, default=8501, help="Port to run on")
+
+    # daaw demo
+    demo_parser = sub.add_parser("demo", help="Launch the Under-the-Hood demonstration UI")
+    demo_parser.add_argument("--port", type=int, default=8502, help="Port to run on")
 
     return parser
 
@@ -221,6 +244,8 @@ def main() -> None:
         asyncio.run(run_legacy_pipeline(config))
     elif args.command == "ui":
         launch_ui(args.port)
+    elif args.command == "demo":
+        launch_demo_ui(args.port)
     else:
         parser.print_help()
         sys.exit(1)

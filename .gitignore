@@ -1,6 +1,10 @@
 venv/
 .env
 .daaw_store/
+.daaw_sandbox/
 .claude/
 plan.txt
 __pycache__/
+*.pyc
+Testinglogs/
+.pytest_cache/
