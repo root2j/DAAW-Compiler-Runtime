@@ -869,6 +869,56 @@ def render_metrics(spec, results: dict):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Gateway model compatibility probe
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def _render_gateway_probe_badge(model: str) -> None:
+    """Probe the currently-selected gateway model once per hour and show a
+    compatibility badge in the sidebar. Catches "my model can't produce
+    valid JSON" before it wastes a 40-second compile on retries."""
+    from daaw.config import get_config
+    from daaw.llm.model_probe import get_cached_probe, probe_model as _probe
+
+    gateway_url = get_config().gateway_url or "http://127.0.0.1:11434/v1"
+    cached = get_cached_probe(gateway_url, model)
+    key = f"probe_inflight_{gateway_url}_{model}"
+    if cached is None and not st.session_state.get(key):
+        st.session_state[key] = True
+        with st.spinner(f"Probing {model} for JSON compatibility..."):
+            try:
+                asyncio.new_event_loop().run_until_complete(
+                    _probe(gateway_url, model)
+                )
+            except Exception:
+                pass
+        st.session_state[key] = False
+        cached = get_cached_probe(gateway_url, model)
+
+    if cached is None:
+        return  # probe didn't resolve; skip rendering
+
+    if cached.is_usable:
+        st.markdown(
+            f'<div style="font-size:.7rem;color:{D["green"]};'
+            f'background:{D["green"]}11;border:1px solid {D["green"]}33;'
+            f'border-radius:6px;padding:.4rem .6rem;margin:.3rem 0">'
+            f'Model probe <strong>OK</strong> '
+            f'<span style="color:{D["text_muted"]}">({cached.elapsed_seconds}s, valid JSON)</span>'
+            f'</div>', unsafe_allow_html=True)
+    else:
+        st.markdown(
+            f'<div style="font-size:.72rem;color:{D["red"]};'
+            f'background:{D["red"]}11;border:1px solid {D["red"]}44;'
+            f'border-radius:6px;padding:.5rem .7rem;margin:.3rem 0">'
+            f'<strong>Model probe: {_esc(cached.badge)}</strong> — this model '
+            f'failed to emit valid JSON. The compiler will likely fail. '
+            f'Try <code>gemma4:e2b-it-q4_K_M</code> or a cloud provider.'
+            f'<div style="font-family:JetBrains Mono;font-size:.68rem;'
+            f'color:{D["text_muted"]};margin-top:.3rem">'
+            f'{_esc(cached.preview[:80])}</div>'
+            f'</div>', unsafe_allow_html=True)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # System Stats
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 def _sys_stats() -> dict:
@@ -950,8 +1000,10 @@ def render_sidebar():
                         "claude-opus-4-6",                    # most capable
                     ],
                     "gateway": [
-                        "gemma4:e4b",
-                        "gemma4:e2b-it-q4_K_M",
+                        # e2b is ~100% reliable on planner JSON workload,
+                        # e4b ~25% (see scripts/probe_local_models.py).
+                        "gemma4:e2b-it-q4_K_M",   # recommended default
+                        "gemma4:e4b",             # flaky JSON output
                         "default",
                     ],
                 }
@@ -962,6 +1014,7 @@ def render_sidebar():
                         f'border:1px solid {D["amber"]}33;border-radius:6px;padding:.4rem .6rem;margin:.3rem 0">'
                         f'Local LLM — tasks run <strong>sequentially</strong> (one at a time)</div>',
                         unsafe_allow_html=True)
+                    _render_gateway_probe_badge(model)
                 goal = st.text_area("Goal", placeholder="Describe your workflow goal…", height=80)
                 hitl_enabled = st.checkbox(
                     "Enable human-in-the-loop prompts",

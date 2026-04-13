@@ -303,6 +303,53 @@ def _safe_filename(name: str) -> str:
     return stem or "task"
 
 
+def _render_gateway_probe_badge(model: str) -> None:
+    """Show a cached compatibility badge under the gateway model selector.
+
+    First render triggers a single lightweight JSON probe; subsequent reruns
+    read from the in-memory cache so we don't hammer the gateway.
+    """
+    from daaw.config import get_config
+    from daaw.llm.model_probe import get_cached_probe, probe_model as _probe
+
+    gateway_url = get_config().gateway_url or "http://127.0.0.1:11434/v1"
+    cached = get_cached_probe(gateway_url, model)
+
+    # Track per-model "probe started" flag so Streamlit rerun loops don't
+    # retrigger in-flight work.
+    key = f"probe_inflight_{gateway_url}_{model}"
+    if cached is None:
+        if not st.session_state.get(key):
+            st.session_state[key] = True
+            with st.spinner(f"Probing {model} for JSON compatibility..."):
+                try:
+                    asyncio.new_event_loop().run_until_complete(
+                        _probe(gateway_url, model)
+                    )
+                except Exception:
+                    pass
+            st.session_state[key] = False
+            cached = get_cached_probe(gateway_url, model)
+
+    if cached is None:
+        st.caption("Model compatibility: (probe failed to run)")
+        return
+
+    if cached.is_usable:
+        st.caption(
+            f"Model probe: :green[OK] — valid JSON in {cached.elapsed_seconds}s"
+        )
+    else:
+        st.warning(
+            f"**Model probe: {cached.badge}** — this model failed to emit "
+            f"valid JSON in the compatibility test. The compiler will likely "
+            f"fail. Try `gemma4:e2b-it-q4_K_M` (recommended for local) or a "
+            f"cloud provider.\n\n"
+            f"Probe response preview: `{cached.preview[:100]}`",
+            icon="⚠",
+        )
+
+
 def _build_outputs_zip(spec, results) -> bytes:
     """Build a ZIP containing one JSON per task output plus a combined file.
 
@@ -411,8 +458,11 @@ def render_sidebar():
                         "claude-opus-4-6",                   # most capable
                     ],
                     "gateway": [
-                        "gemma4:e4b",                    # Ollama Gemma E4B (recommended)
-                        "gemma4:e2b-it-q4_K_M",         # Ollama Gemma E2B (fast, simple only)
+                        # e2b is ~100% reliable on the planner JSON workload,
+                        # e4b ~25%. Ranked by empirical success rate from
+                        # scripts/probe_local_models.py.
+                        "gemma4:e2b-it-q4_K_M",          # Ollama Gemma E2B (recommended)
+                        "gemma4:e4b",                    # Ollama Gemma E4B (flaky JSON output)
                         "default",                       # use GATEWAY_MODEL env var
                     ],
                 }
@@ -422,6 +472,10 @@ def render_sidebar():
                     model_options,
                     help=f"Model to use with {provider}. First option is the default.",
                 )
+
+                # Probe gateway models: warn if they can't produce valid JSON.
+                if provider == "gateway":
+                    _render_gateway_probe_badge(model)
 
                 goal = st.text_area(
                     "Goal",
