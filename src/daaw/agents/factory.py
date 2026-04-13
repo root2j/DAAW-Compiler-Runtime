@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from daaw.agents.base import BaseAgent
 from daaw.agents.registry import get_agent_class
+from daaw.interaction import InteractionHandler
 from daaw.llm.unified import UnifiedLLMClient
 from daaw.schemas.workflow import AgentSpec
 from daaw.store.artifact_store import ArtifactStore
@@ -18,11 +19,13 @@ class AgentFactory:
         store: ArtifactStore,
         default_provider: str | None = None,
         default_model: str | None = None,
+        interaction_handler: InteractionHandler | None = None,
     ):
         self._llm_client = llm_client
         self._store = store
         self._default_provider = default_provider
         self._default_model = default_model
+        self._interaction = interaction_handler
 
     def create(self, agent_id: str, agent_spec: AgentSpec) -> BaseAgent:
         cls = get_agent_class(agent_spec.role)
@@ -44,4 +47,5 @@ class AgentFactory:
             llm_client=self._llm_client,
             store=self._store,
             config=config,
+            interaction=self._interaction,
         )

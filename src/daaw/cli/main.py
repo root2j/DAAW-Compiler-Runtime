@@ -31,6 +31,7 @@ from daaw.critic.patch import apply_patch
 from daaw.engine.circuit_breaker import CircuitBreaker
 from daaw.engine.dag import DAG
 from daaw.engine.executor import DAGExecutor
+from daaw.interaction import StdinInteractionHandler
 from daaw.llm.unified import UnifiedLLMClient
 from daaw.schemas.workflow import AgentSpec, DependencySpec, TaskSpec, WorkflowSpec
 from daaw.store.artifact_store import ArtifactStore
@@ -47,7 +48,10 @@ async def run_full_pipeline(
     llm = UnifiedLLMClient(config)
     store = ArtifactStore(config.artifact_store_dir)
     cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
-    factory = AgentFactory(llm, store, default_provider=provider)
+    interaction = StdinInteractionHandler()
+    factory = AgentFactory(
+        llm, store, default_provider=provider, interaction_handler=interaction
+    )
     # Local LLMs (gateway) can only handle one request at a time
     max_conc = 1 if provider == "gateway" else None
     executor = DAGExecutor(factory, store, cb, max_concurrent=max_conc)
@@ -112,7 +116,8 @@ async def run_full_pipeline(
 async def run_legacy_pipeline(config: AppConfig) -> None:
     llm = UnifiedLLMClient(config)
     store = ArtifactStore(config.artifact_store_dir)
-    factory = AgentFactory(llm, store)
+    interaction = StdinInteractionHandler()
+    factory = AgentFactory(llm, store, interaction_handler=interaction)
 
     # Build a simple 3-task sequential workflow
     spec = WorkflowSpec(

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import Any
 
 from daaw.agents.base import BaseAgent
@@ -64,10 +63,15 @@ class PMAgent(BaseAgent):
             provider, messages, model=model, temperature=0.7, max_tokens=2048
         )
         agent_questions = resp.content
-        print(f"\n[PM Agent]:\n{agent_questions}\n")
         messages.append(LLMMessage(role="assistant", content=agent_questions))
 
-        user_answers = (await asyncio.to_thread(input, "[You]: ")).strip()
+        user_answers = (
+            await self.ask_user(
+                prompt=agent_questions,
+                hint="Answer the PM's clarifying questions.",
+                step_id="pm_clarifications",
+            )
+        ).strip()
         messages.append(LLMMessage(role="user", content=user_answers))
 
         # ── Draft generation
@@ -81,32 +85,29 @@ class PMAgent(BaseAgent):
             )
         )
 
-        print("\n[PM Agent is generating the draft...]\n")
         resp = await self.llm_client.chat(
             provider, messages, model=model, temperature=0.7, max_tokens=2048
         )
         current_draft = resp.content
 
         # ── Refinement loop
-        print("\n" + "=" * 60)
-        print("PM AGENT — Review & Refinement Phase")
-        print("=" * 60)
+        max_rounds = int(self.config.get("max_refinement_rounds", 5))
+        for _ in range(max_rounds):
+            user_input = (
+                await self.ask_user(
+                    prompt=current_draft,
+                    hint=(
+                        "Type 'yes' to approve, or describe what to change. "
+                        "Empty reply also approves."
+                    ),
+                    choices=["yes", "revise"],
+                    step_id="pm_approval",
+                )
+            ).strip()
 
-        while True:
-            print(f"\n[PM Agent — Draft]:\n{current_draft}\n")
-            print("-" * 60)
-            print("Do you approve this draft?")
-            print("  Type 'yes' to approve and move forward.")
-            print("  Or describe what you'd like to change.")
-            print("-" * 60)
-
-            user_input = (await asyncio.to_thread(input, "[You]: ")).strip()
-
-            if user_input.lower() in ("yes", "y"):
-                print("\nDraft approved! Moving to the next phase.\n")
+            if not user_input or user_input.lower() in ("yes", "y", "approve"):
                 return AgentResult(output=current_draft, status="success")
 
-            # Refinement — minimal context
             refine_messages = [
                 LLMMessage(role="system", content=PM_SYSTEM_PROMPT),
                 LLMMessage(
@@ -119,9 +120,14 @@ class PMAgent(BaseAgent):
                     content=f"Please refine the draft based on this feedback:\n\n{user_input}",
                 ),
             ]
-
-            print("\n[PM Agent is refining the draft...]\n")
             resp = await self.llm_client.chat(
                 provider, refine_messages, model=model, temperature=0.7, max_tokens=2048
             )
             current_draft = resp.content
+
+        # Exhausted rounds — return the latest draft so the pipeline can move on.
+        return AgentResult(
+            output=current_draft,
+            status="success",
+            metadata={"note": f"max_refinement_rounds ({max_rounds}) reached"},
+        )
