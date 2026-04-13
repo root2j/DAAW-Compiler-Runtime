@@ -235,8 +235,15 @@ class GatewayProvider(LLMProvider):
 
                 last_response = _parse_response(resp.json(), target_model)
 
-                # Check for degenerate output
-                if _is_degenerate(last_response.content):
+                # A response with tool_calls but empty content is VALID —
+                # it's the OpenAI pattern for a pure tool-call turn. Don't
+                # treat it as degenerate.  (Previous bug: retried these
+                # forever, then raised "empty output" even though Gemma
+                # had correctly emitted a tool call each attempt.)
+                has_tool_calls = bool(getattr(last_response, "tool_calls", None))
+
+                # Check for degenerate output (text content only)
+                if not has_tool_calls and _is_degenerate(last_response.content):
                     if attempt < _MAX_RETRIES:
                         continue  # retry
                     # All retries exhausted on garbage — raise so the agent

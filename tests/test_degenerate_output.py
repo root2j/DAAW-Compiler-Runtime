@@ -232,6 +232,71 @@ class TestOllamaNumCtx:
         assert gp.DEFAULT_NUM_CTX == 16384
 
 
+class TestToolCallsNotDegenerate:
+    """A response with tool_calls but empty content is valid OpenAI; don't retry."""
+
+    def test_empty_content_with_tool_calls_is_accepted(self, monkeypatch):
+        from daaw.llm.base import LLMMessage
+        from daaw.llm.providers import gateway_provider
+
+        # Ollama returns the tool_call natively; content is empty.
+        response_body = {
+            "choices": [{
+                "message": {
+                    "content": "",
+                    "tool_calls": [{
+                        "id": "call_1",
+                        "type": "function",
+                        "function": {
+                            "name": "web_search",
+                            "arguments": '{"query": "Tokyo attractions"}',
+                        },
+                    }],
+                },
+                "finish_reason": "tool_calls",
+            }],
+            "model": "gemma4:e2b-it-q4_K_M",
+            "usage": {},
+        }
+        calls = {"n": 0}
+
+        class FakeResp:
+            status_code = 200
+            def json(self): return response_body
+
+        class FakeClient:
+            def __init__(self, *a, **kw): pass
+            async def __aenter__(self): return self
+            async def __aexit__(self, *a): return None
+            async def post(self, *a, **kw):
+                calls["n"] += 1
+                return FakeResp()
+
+        import httpx as _real_httpx
+        monkeypatch.setattr(_real_httpx, "AsyncClient", FakeClient)
+
+        p = gateway_provider.GatewayProvider(
+            gateway_url="http://localhost:11434/v1",
+            default_model="gemma4:e2b-it-q4_K_M",
+        )
+        resp = run(p.chat(
+            [LLMMessage(role="user", content="find tokyo stuff")],
+            max_tokens=100,
+            tools=[{
+                "type": "function",
+                "function": {
+                    "name": "web_search", "description": "search",
+                    "parameters": {"type": "object", "properties": {
+                        "query": {"type": "string"}}, "required": ["query"]},
+                },
+            }],
+        ))
+        # Critical: we did not retry. The single call produced a usable response.
+        assert calls["n"] == 1, f"Expected 1 call, got {calls['n']} retries"
+        assert resp.tool_calls, "tool_calls should be populated"
+        assert resp.tool_calls[0].name == "web_search"
+
+
 class TestCudaOomAutoRetry:
     """A CUDA OOM 500 should trigger automatic num_ctx halving."""
 
