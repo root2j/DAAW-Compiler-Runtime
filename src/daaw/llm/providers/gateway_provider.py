@@ -32,6 +32,17 @@ DEFAULT_GATEWAY_URL = os.environ.get("GATEWAY_URL", "http://127.0.0.1:11434/v1")
 DEFAULT_GATEWAY_TOKEN = os.environ.get("GATEWAY_TOKEN", "")
 DEFAULT_GATEWAY_MODEL = os.environ.get("GATEWAY_MODEL", "default")
 
+# Ollama-specific: OpenAI-compatible endpoint defaults to num_ctx=2048
+# which overflows any workflow with tool results or non-trivial
+# dependencies.  We override via the `options` field (Ollama extension,
+# ignored by other OpenAI-compatible backends).
+#   GATEWAY_NUM_CTX   context window hint for Ollama-style backends
+#                     (default 8192 — fits most workflows on 8-16GB VRAM)
+#   GATEWAY_KEEP_ALIVE how long the model stays resident between calls
+#                     (default "5m" — reduces VRAM fragmentation churn)
+DEFAULT_NUM_CTX = int(os.environ.get("GATEWAY_NUM_CTX", "8192"))
+DEFAULT_KEEP_ALIVE = os.environ.get("GATEWAY_KEEP_ALIVE", "5m")
+
 # Reasoning models burn tokens on chain-of-thought before the response.
 _REASONING_TOKEN_MULTIPLIER = 4
 _MIN_REASONING_TOKENS = 8192
@@ -40,6 +51,12 @@ _MIN_REASONING_TOKENS = 8192
 # Local models crash intermittently from VRAM fragmentation (~every 7
 # requests) but recover within seconds.  We retry generously.
 _MAX_RETRIES = 4
+
+
+def _is_ollama_url(url: str) -> bool:
+    """Heuristic: is this gateway an Ollama endpoint? Controls num_ctx usage."""
+    u = url.lower()
+    return ":11434" in u or "ollama" in u
 
 
 class GatewayProvider(LLMProvider):
@@ -101,6 +118,16 @@ class GatewayProvider(LLMProvider):
         if is_reasoning:
             payload["frequency_penalty"] = 0.5
             payload["presence_penalty"] = 0.3
+
+        # ── Ollama-specific knobs ──
+        # Ollama's OpenAI-compatible endpoint defaults to num_ctx=2048, which
+        # overflows trivially once a task has tool results or a compiler-
+        # generated schema in its prompt — the model then returns an empty
+        # completion. Bump to 8 K (configurable) and tell Ollama to keep
+        # the model resident so VRAM doesn't fragment across sequential calls.
+        if _is_ollama_url(self._base_url):
+            payload["options"] = {"num_ctx": DEFAULT_NUM_CTX}
+            payload["keep_alive"] = DEFAULT_KEEP_ALIVE
 
         # ── JSON mode ── prompt reinforcement instead of API param
         if response_format and response_format.get("type") in (
@@ -180,14 +207,40 @@ class GatewayProvider(LLMProvider):
                     # All retries exhausted on garbage — raise so the agent
                     # marks the task as failure instead of silently storing
                     # a reserved-token salad as a successful output.
-                    preview = (last_response.content or "")[:120].replace("\n", " ")
+                    content = last_response.content or ""
+                    preview = content[:120].replace("\n", " ")
+
+                    # Distinguish the two failure modes so the diagnostic
+                    # hints match reality.
+                    if not content.strip():
+                        hint = (
+                            "Empty completion usually means context overflow. "
+                            "If on Ollama, raise GATEWAY_NUM_CTX (default 8192) "
+                            "or pick a bigger model. Also try shortening the "
+                            "task description and any dependency_outputs."
+                        )
+                        kind = "empty"
+                    elif "<unused" in content or "<tool|" in content:
+                        hint = (
+                            "Reserved-token salad usually means the chat "
+                            "template is wrong or VRAM fragmented. Try "
+                            "restarting the backend, switching model "
+                            "(llama3.1:8b-instruct / qwen2.5:7b-instruct), "
+                            "or lowering prompt size."
+                        )
+                        kind = "token-salad"
+                    else:
+                        hint = (
+                            "Output matched neither a valid completion nor a "
+                            "known drift pattern. Check the backend logs."
+                        )
+                        kind = "garbage"
+
                     raise RuntimeError(
-                        f"Gateway produced degenerate output after "
-                        f"{_MAX_RETRIES + 1} attempts (model={target_model!r}). "
-                        f"Last content: {preview!r}. Common causes: wrong "
-                        f"chat template, context overflow, VRAM exhaustion. "
-                        f"Try a smaller prompt, raise max_tokens, restart the "
-                        f"backend, or switch model."
+                        f"Gateway produced degenerate ({kind}) output after "
+                        f"{_MAX_RETRIES + 1} attempts "
+                        f"(model={target_model!r}). "
+                        f"Last content: {preview!r}. {hint}"
                     )
                 return last_response
 

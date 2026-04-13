@@ -81,29 +81,27 @@ class TestSanitizeAndTruncate:
 class TestGatewayDegenerateRaises:
     """We monkeypatch httpx.AsyncClient.post so no network is required."""
 
-    def test_raises_after_all_retries_garbage(self, monkeypatch):
-        from daaw.llm.base import LLMMessage
-        from daaw.llm.providers import gateway_provider
+    def _make_fake_client(self, response_content: str):
+        """Factory returning a FakeClient that always serves ``response_content``.
+
+        Captures every payload sent to ``post`` so tests can assert what
+        was on the wire.
+        """
+        captured_payloads: list[dict] = []
 
         class FakeResp:
             status_code = 200
 
             def json(self):
                 return {
-                    "choices": [
-                        {
-                            "message": {
-                                "content": "<unused1><unused2><tool|><bos><mask>"
-                            }
-                        }
-                    ],
+                    "choices": [{"message": {"content": response_content}}],
                     "model": "gemma4:e4b",
                     "usage": {},
                 }
 
         class FakeClient:
             def __init__(self, *a, **kw):
-                self.calls = 0
+                pass
 
             async def __aenter__(self):
                 return self
@@ -112,26 +110,126 @@ class TestGatewayDegenerateRaises:
                 return None
 
             async def post(self, *a, **kw):
-                self.calls += 1
+                captured_payloads.append(kw.get("json", {}))
                 return FakeResp()
 
-        monkeypatch.setattr(gateway_provider, "httpx", None, raising=False)
+        return FakeClient, captured_payloads
 
-        # Replace httpx.AsyncClient inside the module namespace at call time.
+    def test_raises_after_all_retries_token_salad(self, monkeypatch):
+        from daaw.llm.base import LLMMessage
+        from daaw.llm.providers import gateway_provider
+
+        FakeClient, _ = self._make_fake_client(
+            "<unused1><unused2><tool|><bos><mask>"
+        )
         import httpx as _real_httpx
         monkeypatch.setattr(_real_httpx, "AsyncClient", FakeClient)
 
-        # Also skip the async wait to keep the test fast.
         async def _no_wait(*a, **kw):
             return None
-
         monkeypatch.setattr(gateway_provider, "_wait_for_model", _no_wait)
 
         p = gateway_provider.GatewayProvider(
             gateway_url="http://fake:9999/v1", default_model="gemma4:e4b",
         )
-        with pytest.raises(RuntimeError, match="degenerate output"):
+        with pytest.raises(RuntimeError, match=r"degenerate \(token-salad\)"):
             run(p.chat([LLMMessage(role="user", content="hi")], max_tokens=100))
+
+    def test_raises_with_empty_output_hint(self, monkeypatch):
+        """Empty completions get the context-overflow diagnostic, not token-salad."""
+        from daaw.llm.base import LLMMessage
+        from daaw.llm.providers import gateway_provider
+
+        FakeClient, _ = self._make_fake_client("")
+        import httpx as _real_httpx
+        monkeypatch.setattr(_real_httpx, "AsyncClient", FakeClient)
+
+        async def _no_wait(*a, **kw):
+            return None
+        monkeypatch.setattr(gateway_provider, "_wait_for_model", _no_wait)
+
+        p = gateway_provider.GatewayProvider(
+            gateway_url="http://fake:9999/v1", default_model="gemma4:e4b",
+        )
+        with pytest.raises(RuntimeError) as ei:
+            run(p.chat([LLMMessage(role="user", content="hi")], max_tokens=100))
+        msg = str(ei.value)
+        assert "empty" in msg
+        assert "GATEWAY_NUM_CTX" in msg  # diagnostic points at the fix
+
+
+class TestOllamaNumCtx:
+    """Verify that num_ctx + keep_alive are sent only to Ollama-ish gateways."""
+
+    def _make_capturing_client(self):
+        captured: list[dict] = []
+
+        class FakeResp:
+            status_code = 200
+
+            def json(self):
+                return {
+                    "choices": [{"message": {"content": "hello world."}}],
+                    "model": "m", "usage": {},
+                }
+
+        class FakeClient:
+            def __init__(self, *a, **kw):
+                pass
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *a):
+                return None
+            async def post(self, *a, **kw):
+                captured.append(kw.get("json", {}))
+                return FakeResp()
+
+        return FakeClient, captured
+
+    def test_ollama_url_gets_num_ctx_options(self, monkeypatch):
+        from daaw.llm.base import LLMMessage
+        from daaw.llm.providers import gateway_provider
+
+        FakeClient, captured = self._make_capturing_client()
+        import httpx as _real_httpx
+        monkeypatch.setattr(_real_httpx, "AsyncClient", FakeClient)
+
+        p = gateway_provider.GatewayProvider(
+            gateway_url="http://localhost:11434/v1", default_model="gemma4:e4b",
+        )
+        run(p.chat([LLMMessage(role="user", content="hi")], max_tokens=50))
+        assert captured, "request was never made"
+        payload = captured[0]
+        assert "options" in payload, "Ollama endpoint missing options block"
+        assert payload["options"].get("num_ctx") >= 4096
+        assert payload.get("keep_alive"), "Ollama endpoint missing keep_alive"
+
+    def test_non_ollama_url_no_num_ctx(self, monkeypatch):
+        """LM Studio (port 1234) shouldn't get Ollama-only fields."""
+        from daaw.llm.base import LLMMessage
+        from daaw.llm.providers import gateway_provider
+
+        FakeClient, captured = self._make_capturing_client()
+        import httpx as _real_httpx
+        monkeypatch.setattr(_real_httpx, "AsyncClient", FakeClient)
+
+        p = gateway_provider.GatewayProvider(
+            gateway_url="http://localhost:1234/v1",
+            default_model="some-model",
+        )
+        run(p.chat([LLMMessage(role="user", content="hi")], max_tokens=50))
+        assert captured
+        payload = captured[0]
+        assert "options" not in payload
+        assert "keep_alive" not in payload
+
+    def test_num_ctx_override_from_env(self, monkeypatch):
+        monkeypatch.setenv("GATEWAY_NUM_CTX", "16384")
+        # Module-level constant was captured at import time; reload to pick up env.
+        import importlib
+        from daaw.llm.providers import gateway_provider as gp
+        importlib.reload(gp)
+        assert gp.DEFAULT_NUM_CTX == 16384
 
 
 # ─── Fix 3: critic fail-closed on unparseable verdict ────────────────────
