@@ -88,7 +88,7 @@ class TestQueueHandler:
 class TestAgentIntegration:
     """End-to-end: user_proxy + factory + handler."""
 
-    def test_user_proxy_prompt_mode_uses_handler(self):
+    def test_user_proxy_prompt_mode_uses_handler(self, tmp_path):
         import daaw.agents.builtin.user_proxy  # noqa: F401
         from daaw.agents.factory import AgentFactory
         from daaw.llm.unified import UnifiedLLMClient
@@ -96,11 +96,12 @@ class TestAgentIntegration:
         from daaw.schemas.workflow import AgentSpec
         from daaw.store.artifact_store import ArtifactStore
 
+        store_dir = str(tmp_path / "ip")
         handler = AutoAnswerInteractionHandler(["my-answer"])
-        cfg = AppConfig(artifact_store_dir="/tmp/daaw_test_ip")  # unused
+        cfg = AppConfig(artifact_store_dir=store_dir)
         factory = AgentFactory(
             UnifiedLLMClient(cfg),
-            ArtifactStore("/tmp/daaw_test_ip"),
+            ArtifactStore(store_dir),
             interaction_handler=handler,
         )
         agent = factory.create(
@@ -112,7 +113,7 @@ class TestAgentIntegration:
         assert len(handler.calls) == 1
         assert handler.calls[0].agent_id == "t1"
 
-    def test_user_proxy_questionnaire_runs_seven_questions(self):
+    def test_user_proxy_questionnaire_runs_seven_questions(self, tmp_path):
         import daaw.agents.builtin.user_proxy  # noqa: F401
         from daaw.agents.factory import AgentFactory
         from daaw.llm.unified import UnifiedLLMClient
@@ -120,12 +121,13 @@ class TestAgentIntegration:
         from daaw.schemas.workflow import AgentSpec
         from daaw.store.artifact_store import ArtifactStore
 
+        store_dir = str(tmp_path / "q")
         answers = [f"ans{i}" for i in range(7)]
         handler = AutoAnswerInteractionHandler(answers)
-        cfg = AppConfig(artifact_store_dir="/tmp/daaw_test_q")
+        cfg = AppConfig(artifact_store_dir=store_dir)
         factory = AgentFactory(
             UnifiedLLMClient(cfg),
-            ArtifactStore("/tmp/daaw_test_q"),
+            ArtifactStore(store_dir),
             interaction_handler=handler,
         )
         agent = factory.create("t1", AgentSpec(role="user_proxy"))
@@ -135,7 +137,7 @@ class TestAgentIntegration:
         assert result.metadata["answers"]["task"] == "ans0"
         assert result.metadata["answers"]["manual_process"] == "ans6"
 
-    def test_agent_without_handler_raises_when_asking(self):
+    def test_agent_without_handler_raises_when_asking(self, tmp_path):
         import daaw.agents.builtin.user_proxy  # noqa: F401
         from daaw.agents.factory import AgentFactory
         from daaw.llm.unified import UnifiedLLMClient
@@ -143,10 +145,11 @@ class TestAgentIntegration:
         from daaw.schemas.workflow import AgentSpec
         from daaw.store.artifact_store import ArtifactStore
 
-        cfg = AppConfig(artifact_store_dir="/tmp/daaw_test_noh")
+        store_dir = str(tmp_path / "noh")
+        cfg = AppConfig(artifact_store_dir=store_dir)
         factory = AgentFactory(
             UnifiedLLMClient(cfg),
-            ArtifactStore("/tmp/daaw_test_noh"),
+            ArtifactStore(store_dir),
             interaction_handler=None,
         )
         agent = factory.create(

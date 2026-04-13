@@ -6,15 +6,21 @@ from typing import Any
 
 from daaw.config import AppConfig
 from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse
+from daaw.llm.rate_limiter import RateLimiter, get_rate_limiter
 
 
 class UnifiedLLMClient:
     """Dispatcher that lazily initialises only providers whose API keys are set."""
 
-    def __init__(self, config: AppConfig):
+    def __init__(self, config: AppConfig, rate_limiter: RateLimiter | None = None):
         self._config = config
         self._providers: dict[str, LLMProvider] = {}
+        self._rate_limiter = rate_limiter if rate_limiter is not None else get_rate_limiter()
         self._init_providers()
+
+    @property
+    def rate_limiter(self) -> RateLimiter:
+        return self._rate_limiter
 
     def _init_providers(self) -> None:
         if self._config.groq_api_key:
@@ -69,7 +75,11 @@ class UnifiedLLMClient:
                 f"Provider '{provider}' not available. "
                 f"Configured providers: {available}"
             )
-        return await self._providers[provider].chat(
+        # Cheap heuristic: assume worst-case token spend = prompt_chars/4 + max_tokens.
+        # The exact usage is reconciled below once the response lands.
+        estimated_tokens = max_tokens + sum(len(m.content) for m in messages) // 4
+        await self._rate_limiter.acquire(provider, estimated_tokens=estimated_tokens)
+        resp = await self._providers[provider].chat(
             messages,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -77,3 +87,5 @@ class UnifiedLLMClient:
             model=model,
             tools=tools,
         )
+        self._rate_limiter.record_actual_usage(provider, resp.usage)
+        return resp
