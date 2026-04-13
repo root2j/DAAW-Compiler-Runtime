@@ -10,9 +10,14 @@ from __future__ import annotations
 
 import asyncio
 import html as html_lib
+import io
 import json
+import queue
+import re
+import threading
 import time
 import traceback
+import zipfile
 from datetime import datetime, timedelta
 
 import networkx as nx
@@ -942,6 +947,15 @@ def render_sidebar():
                         f'Local LLM — tasks run <strong>sequentially</strong> (one at a time)</div>',
                         unsafe_allow_html=True)
                 goal = st.text_area("Goal", placeholder="Describe your workflow goal…", height=80)
+                hitl_enabled = st.checkbox(
+                    "Enable human-in-the-loop prompts",
+                    value=True,
+                    help=(
+                        "When on, user_proxy / PM tasks pause the workflow and "
+                        "ask you questions in the UI. Off = auto-fill with demo defaults."
+                    ),
+                )
+                st.session_state["hitl_enabled"] = hitl_enabled
                 compile_btn = st.button("Compile & Execute", type="primary",
                                         use_container_width=True)
 
@@ -954,6 +968,16 @@ def render_sidebar():
         c1, c2 = st.columns(2)
         c1.metric("Agents", ss["agents"]); c2.metric("Tools", ss["tools"])
         c1.metric("Providers", ss["providers"]); c2.metric("Schemas", ss["schemas"])
+
+        st.divider()
+        from daaw.__version__ import BUILD_TAG as _BT, __version__ as _VER
+        st.markdown(
+            f'<div style="font-family:JetBrains Mono;font-size:.68rem;'
+            f'color:{D["text_muted"]};text-align:center;margin-top:.25rem">'
+            f'DAAW v<strong style="color:{D["cyan"]}">{_VER}</strong>'
+            f' · <span style="color:{D["amber"]}">{_BT}</span></div>',
+            unsafe_allow_html=True,
+        )
 
     return mode, step_fwd, step_back, reset, play_all, provider, model, goal, compile_btn
 
@@ -991,13 +1015,15 @@ def _init_state():
                  ("demo_show_met", False), ("demo_show_spec", False),
                  ("live_msgs", []), ("live_logs", []), ("live_dag", {}),
                  ("live_stage", "goal"), ("live_spec", None),
-                 ("live_results", {}), ("live_show_met", False)]:
+                 ("live_results", {}), ("live_verdicts", []),
+                 ("live_exec_handle", None),
+                 ("live_show_met", False), ("hitl_enabled", True)]:
         if k not in st.session_state:
             st.session_state[k] = v
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Live Mode
+# Live Mode helpers — exports + HITL bridge
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 def _run_async(coro):
     loop = asyncio.new_event_loop()
@@ -1007,7 +1033,375 @@ def _run_async(coro):
         loop.close()
 
 
-def _run_live(provider: str, model: str, goal: str):
+def _safe_filename(name: str) -> str:
+    """Sanitize a task id into a filesystem-safe stem."""
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "_", str(name)).strip("_")
+    return stem or "task"
+
+
+def _build_outputs_zip(spec, results) -> bytes:
+    """Build a ZIP with one JSON per task output plus a combined all_outputs.json."""
+    buffer = io.BytesIO()
+    combined: dict[str, dict] = {}
+    task_by_id = {t.id: t for t in getattr(spec, "tasks", [])}
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for tid, r in results.items():
+            task = task_by_id.get(tid)
+            agent_role = getattr(getattr(task, "agent", None), "role", None)
+            tools_allowed = list(getattr(getattr(task, "agent", None), "tools_allowed", []) or [])
+            metadata = r.agent_result.metadata or {}
+            payload = {
+                "task_id": tid,
+                "task_name": getattr(task, "name", tid),
+                "agent_role": agent_role,
+                "tools_allowed": tools_allowed,
+                "status": r.agent_result.status,
+                "elapsed_seconds": r.elapsed_seconds,
+                "output": r.agent_result.output,
+                "error_message": getattr(r.agent_result, "error_message", None),
+                "tool_calls": metadata.get("tool_calls", []),
+                "usage": metadata.get("usage"),
+            }
+            combined[tid] = payload
+            zf.writestr(f"{_safe_filename(tid)}.json",
+                        json.dumps(payload, indent=2, default=str))
+        zf.writestr("all_outputs.json", json.dumps(combined, indent=2, default=str))
+    return buffer.getvalue()
+
+
+def render_export_row(spec, results, verdicts: list[dict] | None = None) -> None:
+    """Render download buttons for WorkflowSpec / Results / per-task ZIP / verdicts."""
+    if spec is None:
+        return
+    verdicts = verdicts or []
+    col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
+    with col1:
+        st.download_button(
+            "Download WorkflowSpec JSON",
+            data=spec.model_dump_json(indent=2),
+            file_name="workflow_spec.json",
+            mime="application/json",
+            use_container_width=True,
+            key="demo_dl_spec",
+        )
+    with col2:
+        if results:
+            results_export = {
+                tid: {
+                    "status": r.agent_result.status,
+                    "output": r.agent_result.output,
+                    "elapsed": r.elapsed_seconds,
+                }
+                for tid, r in results.items()
+            }
+            st.download_button(
+                "Download Results JSON",
+                data=json.dumps(results_export, indent=2, default=str),
+                file_name="results.json",
+                mime="application/json",
+                use_container_width=True,
+                key="demo_dl_results",
+            )
+        else:
+            st.caption("Execute to export results.")
+    with col3:
+        if results:
+            st.download_button(
+                "Download Output JSONs (ZIP)",
+                data=_build_outputs_zip(spec, results),
+                file_name="task_outputs.zip",
+                mime="application/zip",
+                use_container_width=True,
+                help="One JSON per task output plus a combined all_outputs.json.",
+                key="demo_dl_zip",
+            )
+        else:
+            st.caption("No outputs yet.")
+    with col4:
+        if verdicts:
+            st.download_button(
+                "Verdicts",
+                data=json.dumps(verdicts, indent=2, default=str),
+                file_name="verdicts.json",
+                mime="application/json",
+                use_container_width=True,
+                key="demo_dl_verdicts",
+            )
+
+
+def _auto_fill_user_proxy(spec) -> None:
+    """Swap user_proxy tasks for an auto-filling generic_llm agent (HITL disabled)."""
+    for t in spec.tasks:
+        if t.agent.role == "user_proxy":
+            t.agent = t.agent.model_copy(update={
+                "role": "generic_llm",
+                "system_prompt_override": (
+                    "You are auto-filling user parameters for a demo. "
+                    "Based on the task description, return ONLY a JSON object "
+                    "with concrete values (dates, locations, budget numbers). "
+                    "Do NOT generate a prompt or ask questions."
+                )})
+
+
+# ── HITL bridge: background executor thread + queue-based prompt relay ─────
+
+def _start_exec_hitl(spec, provider: str, model: str) -> dict | None:
+    """Spin the execute + critic phases onto a background thread with a
+    ``QueueInteractionHandler``. Returns a handle driven by ``_poll_exec_hitl``.
+    """
+    try:
+        import daaw.agents.builtin.breakdown_agent  # noqa: F401
+        import daaw.agents.builtin.critic_agent  # noqa: F401
+        import daaw.agents.builtin.generic_llm_agent  # noqa: F401
+        import daaw.agents.builtin.planner_agent  # noqa: F401
+        import daaw.agents.builtin.pm_agent  # noqa: F401
+        import daaw.agents.builtin.user_proxy  # noqa: F401
+        try:
+            import daaw.tools.real_tools  # noqa: F401
+        except ImportError:
+            import daaw.tools.mock_tools  # noqa: F401
+
+        from daaw.agents.factory import AgentFactory
+        from daaw.config import get_config
+        from daaw.critic.critic import Critic
+        from daaw.engine.circuit_breaker import CircuitBreaker
+        from daaw.engine.executor import DAGExecutor
+        from daaw.interaction import QueueInteractionHandler
+        from daaw.llm.unified import UnifiedLLMClient
+        from daaw.store.artifact_store import ArtifactStore
+
+        config = get_config()
+        llm = UnifiedLLMClient(config)
+        is_local = provider == "gateway"
+
+        store = ArtifactStore(config.artifact_store_dir)
+        cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
+        questions: "queue.Queue" = queue.Queue()
+        answers: "queue.Queue" = queue.Queue()
+        handler = QueueInteractionHandler(questions, answers, timeout=1800.0)
+
+        factory = AgentFactory(
+            llm, store,
+            default_provider=provider, default_model=model,
+            interaction_handler=handler,
+        )
+        executor = DAGExecutor(factory, store, cb,
+                               max_concurrent=1 if is_local else None)
+
+        holder: dict = {"results": None, "verdicts": None, "error": None,
+                        "exec_time": 0.0}
+
+        def _worker():
+            try:
+                loop = asyncio.new_event_loop()
+                try:
+                    t0 = time.monotonic()
+                    results = loop.run_until_complete(executor.execute(spec))
+                    holder["exec_time"] = time.monotonic() - t0
+                    critic = Critic(llm, config, provider=provider, model=model)
+                    verdicts: list[dict] = []
+                    for task in spec.tasks:
+                        if task.id not in results:
+                            continue
+                        try:
+                            passed, patch, reason = loop.run_until_complete(
+                                critic.evaluate(task, results[task.id])
+                            )
+                        except Exception as crit_err:
+                            passed, patch, reason = False, None, (
+                                f"Critic error: {str(crit_err)[:60]}"
+                            )
+                        verdicts.append({
+                            "task_id": task.id,
+                            "task_name": task.name,
+                            "verdict": "PASS" if passed else "FAIL",
+                            "reasoning": reason,
+                            "patch": str(patch.operations) if patch else None,
+                        })
+                    holder["results"] = results
+                    holder["verdicts"] = verdicts
+                finally:
+                    loop.close()
+            except Exception as e:  # noqa: BLE001
+                holder["error"] = f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+
+        thread = threading.Thread(target=_worker, name="daaw-demo-exec", daemon=True)
+        thread.start()
+
+        return {
+            "thread": thread, "questions": questions, "answers": answers,
+            "holder": holder, "pending": None, "started_at": time.monotonic(),
+        }
+    except Exception as e:
+        st.error(f"Failed to start HITL execution: {e}")
+        st.code(traceback.format_exc(), language="text")
+        return None
+
+
+def _poll_exec_hitl(handle: dict) -> str:
+    """Return ``pending_question`` / ``running`` / ``done`` / ``error``."""
+    if handle.get("pending") is not None:
+        return "pending_question"
+    try:
+        handle["pending"] = handle["questions"].get_nowait()
+        return "pending_question"
+    except queue.Empty:
+        pass
+    if handle["holder"].get("error"):
+        return "error"
+    if not handle["thread"].is_alive():
+        try:
+            handle["pending"] = handle["questions"].get_nowait()
+            return "pending_question"
+        except queue.Empty:
+            return "done"
+    return "running"
+
+
+def _answer_exec_hitl(handle: dict, answer: str) -> None:
+    handle["answers"].put(str(answer))
+    handle["pending"] = None
+
+
+def _render_hitl_prompt_demo(handle: dict) -> bool:
+    """Render the pending HITL question. Returns True if the user just submitted."""
+    req = handle.get("pending")
+    if req is None:
+        return False
+    prompt_text = getattr(req, "prompt", str(req))
+    hint = getattr(req, "hint", None)
+    choices = getattr(req, "choices", None)
+    agent_id = getattr(req, "agent_id", "agent")
+    step_id = getattr(req, "step_id", None) or "prompt"
+    ctx = getattr(req, "context", None) or {}
+
+    st.markdown(
+        f'<div style="background:{D["bg_card"]};border:1px solid {D["border"]};'
+        f'border-left:4px solid {D["amber"]};border-radius:10px;padding:.9rem 1.1rem;'
+        f'margin:.5rem 0;">'
+        f'<strong style="color:{D["amber"]};font-family:Sora">HUMAN INPUT REQUESTED</strong>'
+        f'<div style="font-size:.72rem;color:{D["text_muted"]};margin-top:.2rem">'
+        f'agent: <code>{_esc(agent_id)}</code> · step: <code>{_esc(step_id)}</code>'
+        + (
+            f' · Q {ctx.get("step")}/{ctx.get("total")}'
+            if ctx.get("step") and ctx.get("total") else ""
+        )
+        + '</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    with st.form(f"hitl_form_{id(req)}", clear_on_submit=True):
+        st.markdown(f"**{_esc(prompt_text)}**")
+        if hint:
+            st.caption(hint)
+        choice_val = None
+        if choices:
+            choice_val = st.radio("Pick one (or type below):",
+                                  options=choices, horizontal=True,
+                                  key=f"hitl_radio_{id(req)}")
+        freeform = st.text_area("Your answer:",
+                                key=f"hitl_text_{id(req)}", height=110)
+        submitted = st.form_submit_button("Submit answer", use_container_width=True)
+    if submitted:
+        answer = (freeform or "").strip() or (choice_val or "")
+        _answer_exec_hitl(handle, answer)
+        return True
+    return False
+
+
+def _finalize_exec_hitl(spec, handle: dict) -> None:
+    """Write results/verdicts from a finished handle back into session_state."""
+    holder = handle["holder"]
+    results = holder.get("results") or {}
+    verdicts = holder.get("verdicts") or []
+    exec_time = holder.get("exec_time") or 0.0
+    st.session_state.live_results = results
+    st.session_state.live_verdicts = verdicts
+
+    exec_lines = []
+    for t in spec.tasks:
+        r = results.get(t.id)
+        if not r:
+            continue
+        s = r.agent_result.status
+        st.session_state.live_dag[t.id] = s
+        is_ok = s == "success"
+        st.session_state.live_logs.append(
+            {"ts": f"{r.elapsed_seconds:.1f}s",
+             "text": f"[{'OK' if is_ok else 'FAIL'}] {t.id}: {t.name}",
+             "lv": "ok" if is_ok else "er"})
+        tcs = len((r.agent_result.metadata or {}).get("tool_calls", []))
+        tc_str = f" | {tcs} tool calls" if tcs else ""
+        tag = "st-ok" if is_ok else "st-fail"
+        label = "✓" if is_ok else "✗"
+        exec_lines.append(
+            f'<span class="{tag}">{label}</span> '
+            f'<strong>{_esc(t.id)}</strong> — {r.elapsed_seconds:.1f}s{tc_str}')
+
+    ok = sum(1 for r in results.values() if r.agent_result.status == "success")
+    fail = len(results) - ok
+    st.session_state.live_msgs.append(
+        {"role": "engine", "label": "DAG Engine", "icon": "▶",
+         "color": D["stage_execute"],
+         "content": (
+             f"<strong>Execution complete</strong> — {exec_time:.1f}s wall clock<br><br>"
+             + "<br>".join(exec_lines)
+             + f'<br><br><span class="st-ok">{ok} passed</span>'
+             + (f' <span class="st-fail">{fail} failed</span>' if fail else "")
+         )})
+
+    pass_count = sum(1 for v in verdicts if v.get("verdict") == "PASS")
+    verdict_lines = []
+    for v in verdicts:
+        passed = v.get("verdict") == "PASS"
+        st.session_state.live_logs.append(
+            {"ts": "", "text": f"[{v.get('verdict', '?')}] {v.get('task_id', '')}: "
+                                f"{(v.get('reasoning') or '')[:80]}",
+             "lv": "ok" if passed else "er"})
+        tag = "st-pass" if passed else "st-fail"
+        label = v.get("verdict", "?")
+        verdict_lines.append(
+            f'<span class="{tag}">{label}</span> '
+            f'<code style="font-size:0.75rem;color:{D["cyan"]}">{_esc(v.get("task_id", ""))}</code> '
+            f'{_esc(v.get("task_name", ""))}')
+    st.session_state.live_stage = "critique"
+    if verdicts:
+        st.session_state.live_msgs.append(
+            {"role": "critic", "label": "Critic", "icon": "🔍",
+             "color": D["stage_critique"],
+             "content": (
+                 "<strong>Critic evaluation</strong><br><br>"
+                 + "<br>".join(verdict_lines)
+                 + f'<br><br><strong>{pass_count}/{len(results)} tasks passed</strong>'
+             )})
+
+    total_elapsed = sum(r.elapsed_seconds for r in results.values())
+    st.session_state.live_stage = "summary"
+    st.session_state.live_show_met = True
+    st.session_state.live_msgs.append(
+        {"role": "summary", "label": "Summary", "icon": "📊",
+         "color": D["stage_summary"],
+         "content": (
+             "<strong>Pipeline complete</strong><br><br>"
+             f'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin:0.5rem 0;">'
+             + "".join(
+                 f'<div style="text-align:center;background:{D["bg_surface"]};border-radius:8px;padding:0.5rem;">'
+                 f'<div style="font-family:Sora;font-size:1.1rem;font-weight:700;color:{c}">{v}</div>'
+                 f'<div style="font-size:0.65rem;color:{D["text_muted"]};text-transform:uppercase;letter-spacing:.05em">{la}</div></div>'
+                 for v, la, c in [
+                     (f"{pass_count}/{len(results)}", "Passed", D["green"]),
+                     (f"{exec_time:.0f}s", "Wall Clock", D["blue"]),
+                     (f"{total_elapsed:.0f}s", "Total CPU", D["cyan"]),
+                 ]
+             )
+             + "</div>"
+         )})
+    st.session_state.live_logs.append(
+        {"ts": "", "text": f"Pipeline done — {pass_count}/{len(results)} passed, "
+                           f"{exec_time:.0f}s wall", "lv": "ok"})
+
+
+def _run_live(provider: str, model: str, goal: str, hitl: bool = True):
     st.session_state.live_msgs = [
         {"role": "user", "label": "You", "icon": "👤",
          "color": D["blue"], "content": _esc(goal)}]
@@ -1016,7 +1410,9 @@ def _run_live(provider: str, model: str, goal: str):
     st.session_state.live_stage = "compile"
     st.session_state.live_spec = None
     st.session_state.live_results = {}
+    st.session_state.live_verdicts = []
     st.session_state.live_show_met = False
+    st.session_state["live_exec_handle"] = None
 
     try:
         import time as _time
@@ -1078,6 +1474,21 @@ def _run_live(provider: str, model: str, goal: str):
 
         # ── Execute ──
         st.session_state.live_stage = "execute"
+        if hitl:
+            # HITL path: spawn the background executor and return.
+            # The main() poll loop will drive the prompt form and finalization.
+            st.session_state.live_logs.append(
+                {"ts": "", "text": "HITL executor starting (user_proxy prompts live in UI)",
+                 "lv": "info"})
+            handle = _start_exec_hitl(spec, provider, model)
+            if handle is None:
+                st.session_state.live_logs.append(
+                    {"ts": "", "text": "Failed to start HITL executor", "lv": "error"})
+                return
+            st.session_state["live_exec_handle"] = handle
+            return  # main() continues via _poll_exec_hitl → _finalize_exec_hitl
+
+        # Legacy synchronous path (HITL disabled): auto-fill user_proxy tasks.
         import daaw.agents.builtin.breakdown_agent  # noqa: F401
         import daaw.agents.builtin.critic_agent  # noqa: F401
         import daaw.agents.builtin.generic_llm_agent  # noqa: F401
@@ -1096,16 +1507,7 @@ def _run_live(provider: str, model: str, goal: str):
         from daaw.engine.executor import DAGExecutor
         from daaw.store.artifact_store import ArtifactStore
 
-        for t in spec.tasks:
-            if t.agent.role == "user_proxy":
-                t.agent = t.agent.model_copy(update={
-                    "role": "generic_llm",
-                    "system_prompt_override": (
-                        "You are auto-filling user parameters for a demo. "
-                        "Based on the task description, return ONLY a JSON object "
-                        "with concrete values (dates, locations, budget numbers). "
-                        "Do NOT generate a prompt or ask questions."
-                    )})
+        _auto_fill_user_proxy(spec)
 
         store = ArtifactStore(config.artifact_store_dir)
         cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
@@ -1275,12 +1677,51 @@ def main():
         show_spec = st.session_state.demo_show_spec
 
     elif mode == "Live Mode":
+        hitl_enabled = st.session_state.get("hitl_enabled", True)
+
         if compile_btn and goal:
             with st.status("Running pipeline…", expanded=True) as status:
                 status.write("Compiling workflow…")
-                _run_live(provider, model, goal)
-                status.update(label="Pipeline complete", state="complete")
+                _run_live(provider, model, goal, hitl=hitl_enabled)
+                if st.session_state.get("live_exec_handle") is None:
+                    # Legacy synchronous path already ran to completion.
+                    status.update(label="Pipeline complete", state="complete")
+                else:
+                    status.update(
+                        label="Compiled — HITL executor started, see prompt below",
+                        state="running",
+                    )
             st.rerun()
+
+        # ── HITL poller (runs every rerun while a handle is active) ──
+        handle = st.session_state.get("live_exec_handle")
+        if handle is not None:
+            state = _poll_exec_hitl(handle)
+            if state == "pending_question":
+                st.markdown("### Workflow paused — your input is needed")
+                submitted = _render_hitl_prompt_demo(handle)
+                if submitted:
+                    time.sleep(0.05)
+                    st.rerun()
+                else:
+                    st.info(
+                        "The executor is waiting for your reply. "
+                        "Answer above and click **Submit answer** to resume.",
+                        icon="⏸",
+                    )
+            elif state == "running":
+                elapsed = int(time.monotonic() - handle["started_at"])
+                st.info(f"Executing workflow… ({elapsed}s elapsed)", icon="⚙")
+                time.sleep(1.0)
+                st.rerun()
+            elif state == "error":
+                st.error("Execution crashed")
+                st.code(handle["holder"]["error"], language="text")
+                st.session_state["live_exec_handle"] = None
+            elif state == "done":
+                _finalize_exec_hitl(st.session_state.live_spec, handle)
+                st.session_state["live_exec_handle"] = None
+                st.rerun()
 
         spec = st.session_state.live_spec
         results = st.session_state.live_results
@@ -1349,6 +1790,19 @@ def main():
             f'<span class="acc" style="background:{D["green"]}22;color:{D["green"]}">Results</span></div>',
             unsafe_allow_html=True)
         render_metrics(spec, results)
+
+    # ── Exports (downloads) ──
+    if show_spec and spec and mode == "Live Mode":
+        st.markdown("---")
+        st.markdown(
+            f'<div class="sec-h">Exports '
+            f'<span class="acc" style="background:{D["cyan"]}22;color:{D["cyan"]}">Downloads</span></div>',
+            unsafe_allow_html=True)
+        render_export_row(
+            spec,
+            results or {},
+            st.session_state.get("live_verdicts") or [],
+        )
 
     # ── WorkflowSpec JSON ──
     if show_spec and spec:

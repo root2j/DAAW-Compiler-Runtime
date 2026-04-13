@@ -15,10 +15,17 @@ RULES:
 - First task: research/gather information (use web_search tool)
 - Middle tasks: analyze, process, or transform the data
 - Last task: produce the final output
-- role MUST be "generic_llm" for ALL tasks
-- tools_allowed picks from: {available_tools}
+- role MUST be "generic_llm" for most tasks.
+- EXCEPTION: if the goal REQUIRES information only the user can supply
+  (personal preferences, credentials, approval, ambiguous choices between
+  options), insert ONE task with role "user_proxy" BEFORE the task that
+  needs that information, and put the question in its "description".
+  Do NOT use user_proxy if the information can reasonably be inferred or
+  looked up with tools.
+- tools_allowed picks from: {available_tools} (user_proxy tasks have [])
 - Use dependencies to chain tasks: task_002 depends on task_001, etc.
-- timeout_seconds: 300 for web_search tasks, 120 for others
+- timeout_seconds: 300 for web_search tasks, 600 for user_proxy tasks
+  (user may take a while to reply), 120 for others
 """
 
 PLANNER_REFINEMENT_PROMPT = """\

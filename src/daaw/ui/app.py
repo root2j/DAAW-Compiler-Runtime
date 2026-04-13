@@ -4,8 +4,14 @@ from __future__ import annotations
 
 import asyncio
 import html
+import io
 import json
+import queue
+import re
+import threading
+import time
 import traceback
+import zipfile
 from datetime import datetime, timedelta
 
 import networkx as nx
@@ -291,6 +297,47 @@ def _esc(text: str) -> str:
     return html.escape(str(text))
 
 
+def _safe_filename(name: str) -> str:
+    """Sanitize a task id into a filesystem-safe filename stem."""
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "_", str(name)).strip("_")
+    return stem or "task"
+
+
+def _build_outputs_zip(spec, results) -> bytes:
+    """Build a ZIP containing one JSON per task output plus a combined file.
+
+    Each per-task file contains the raw output plus metadata (status, elapsed,
+    agent role, tools_allowed, tool_calls). A trailing ``all_outputs.json``
+    bundles every task keyed by task id.
+    """
+    buffer = io.BytesIO()
+    combined: dict[str, dict] = {}
+    task_by_id = {t.id: t for t in getattr(spec, "tasks", [])}
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for tid, r in results.items():
+            task = task_by_id.get(tid)
+            agent_role = getattr(getattr(task, "agent", None), "role", None)
+            tools_allowed = list(getattr(getattr(task, "agent", None), "tools_allowed", []) or [])
+            metadata = r.agent_result.metadata or {}
+            payload = {
+                "task_id": tid,
+                "task_name": getattr(task, "name", tid),
+                "agent_role": agent_role,
+                "tools_allowed": tools_allowed,
+                "status": r.agent_result.status,
+                "elapsed_seconds": r.elapsed_seconds,
+                "output": r.agent_result.output,
+                "error_message": getattr(r.agent_result, "error_message", None),
+                "tool_calls": metadata.get("tool_calls", []),
+                "usage": metadata.get("usage"),
+            }
+            combined[tid] = payload
+            fname = f"{_safe_filename(tid)}.json"
+            zf.writestr(fname, json.dumps(payload, indent=2, default=str))
+        zf.writestr("all_outputs.json", json.dumps(combined, indent=2, default=str))
+    return buffer.getvalue()
+
+
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
@@ -387,6 +434,16 @@ def render_sidebar():
                     value=False,
                     help="Use fake tool responses instead of real execution.",
                 )
+                hitl_enabled = st.checkbox(
+                    "Enable human-in-the-loop prompts",
+                    value=True,
+                    help=(
+                        "When enabled, user_proxy / PM agents pause the workflow "
+                        "and ask you questions here in the UI. Disable to auto-fill "
+                        "with demo defaults."
+                    ),
+                )
+                st.session_state["hitl_enabled"] = hitl_enabled
 
                 compile_btn = st.button(
                     "Compile Workflow",
@@ -447,6 +504,17 @@ def render_sidebar():
             f'<div style="font-size:0.72rem; color:{C["text_muted"]}; margin-top:0.5rem;">'
             f'Notifications: <span style="color:{C["success"] if notif_ok else C["failure"]};font-weight:600;">'
             f'{"configured" if notif_ok else "not configured"}</span></div>',
+            unsafe_allow_html=True,
+        )
+
+    with st.sidebar:
+        st.divider()
+        from daaw.__version__ import BUILD_TAG as _BT, __version__ as _VER
+        st.markdown(
+            f'<div style="font-family:monospace;font-size:.7rem;'
+            f'color:{C["text_muted"]};text-align:center">'
+            f'DAAW v<strong style="color:{C["accent"]}">{_VER}</strong>'
+            f' · <span style="color:{C["human"]}">{_BT}</span></div>',
             unsafe_allow_html=True,
         )
 
@@ -1295,11 +1363,11 @@ def _get_live_infra(provider: str):
 
 
 def _patch_user_proxy_for_ui(spec):
-    """Replace user_proxy tasks with pre-filled defaults.
+    """Replace user_proxy tasks with pre-filled auto-answers.
 
-    Instead of wasting an LLM call to "simulate user input" (which
-    often generates a prompt template instead of data), we pre-fill
-    the artifact store with sensible defaults and skip the task.
+    Legacy behaviour retained for users who opt out of interactive HITL
+    (sidebar toggle). When HITL mode is enabled, leave user_proxy tasks
+    intact so the UI can prompt the user live.
     """
     for task in spec.tasks:
         if task.agent.role == "user_proxy":
@@ -1352,22 +1420,49 @@ def run_live_compile(provider: str, goal: str, model: str | None = None) -> tupl
         return None, log
 
 
-def run_live_execute(spec, provider: str, use_mock: bool = False, model: str | None = None):
+def _send_completion_notification(spec, results) -> None:
+    """Best-effort webhook notification on workflow completion."""
     try:
-        import daaw.agents.builtin.breakdown_agent  # noqa: F401
-        import daaw.agents.builtin.critic_agent  # noqa: F401
-        import daaw.agents.builtin.generic_llm_agent  # noqa: F401
-        import daaw.agents.builtin.planner_agent  # noqa: F401
-        import daaw.agents.builtin.pm_agent  # noqa: F401
-        import daaw.agents.builtin.user_proxy  # noqa: F401
+        import asyncio as _asyncio
+        from daaw.integrations.notifications import notify_workflow_complete as _notify
+        _success = sum(1 for r in results.values() if r.agent_result.status == "success")
+        _elapsed = sum(r.elapsed_seconds for r in results.values())
+        _loop = _asyncio.new_event_loop()
+        _sent = _loop.run_until_complete(_notify(
+            workflow_name=spec.name,
+            total=len(results),
+            passed=_success,
+            failed=len(results) - _success,
+            elapsed=_elapsed,
+        ))
+        _loop.close()
+        if _sent:
+            st.toast("Webhook notification sent", icon="bell")
+    except Exception:
+        pass
 
-        if use_mock:
+
+def _import_builtin_agents_and_tools(use_mock: bool) -> None:
+    import daaw.agents.builtin.breakdown_agent  # noqa: F401
+    import daaw.agents.builtin.critic_agent  # noqa: F401
+    import daaw.agents.builtin.generic_llm_agent  # noqa: F401
+    import daaw.agents.builtin.planner_agent  # noqa: F401
+    import daaw.agents.builtin.pm_agent  # noqa: F401
+    import daaw.agents.builtin.user_proxy  # noqa: F401
+
+    if use_mock:
+        import daaw.tools.mock_tools  # noqa: F401
+    else:
+        try:
+            import daaw.tools.real_tools  # noqa: F401
+        except ImportError:
             import daaw.tools.mock_tools  # noqa: F401
-        else:
-            try:
-                import daaw.tools.real_tools  # noqa: F401
-            except ImportError:
-                import daaw.tools.mock_tools  # noqa: F401
+
+
+def run_live_execute(spec, provider: str, use_mock: bool = False, model: str | None = None):
+    """Synchronous (no-HITL) execution path. Kept for the auto-fill demo mode."""
+    try:
+        _import_builtin_agents_and_tools(use_mock)
 
         from daaw.agents.factory import AgentFactory
         from daaw.critic.critic import Critic
@@ -1385,7 +1480,6 @@ def run_live_execute(spec, provider: str, use_mock: bool = False, model: str | N
         store = ArtifactStore(config.artifact_store_dir)
         cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
         factory = AgentFactory(llm, store, default_provider=provider, default_model=model)
-        # Local LLMs (gateway) can only handle one request at a time
         max_conc = 1 if provider == "gateway" else None
         executor = DAGExecutor(factory, store, cb, max_concurrent=max_conc)
 
@@ -1414,6 +1508,207 @@ def run_live_execute(spec, provider: str, use_mock: bool = False, model: str | N
         st.error(f"Execution failed: {e}")
         st.code(traceback.format_exc(), language="text")
         return None, None
+
+
+# ---------------------------------------------------------------------------
+# HITL (human-in-the-loop) execution via background thread + queue bridge
+# ---------------------------------------------------------------------------
+
+def start_live_execute_hitl(
+    spec,
+    provider: str,
+    use_mock: bool = False,
+    model: str | None = None,
+) -> dict | None:
+    """Spin up a background thread running the full compile→execute→critic pipeline
+    with a ``QueueInteractionHandler`` bridging any ``user_proxy`` prompts back
+    to Streamlit via two ``queue.Queue`` objects.
+
+    Returns a handle (dict) that should be stashed in ``st.session_state`` and
+    driven by :func:`poll_live_execute_hitl` on each rerun.
+    """
+    try:
+        _import_builtin_agents_and_tools(use_mock)
+
+        from daaw.agents.factory import AgentFactory
+        from daaw.critic.critic import Critic
+        from daaw.engine.circuit_breaker import CircuitBreaker
+        from daaw.engine.executor import DAGExecutor
+        from daaw.interaction import QueueInteractionHandler
+        from daaw.store.artifact_store import ArtifactStore
+
+        infra = _get_live_infra(provider)
+        if infra is None:
+            return None
+        config, llm = infra
+
+        store = ArtifactStore(config.artifact_store_dir)
+        cb = CircuitBreaker(threshold=config.circuit_breaker_threshold)
+        questions: "queue.Queue" = queue.Queue()
+        answers: "queue.Queue" = queue.Queue()
+        handler = QueueInteractionHandler(questions, answers, timeout=1800.0)
+
+        factory = AgentFactory(
+            llm, store,
+            default_provider=provider,
+            default_model=model,
+            interaction_handler=handler,
+        )
+        max_conc = 1 if provider == "gateway" else None
+        executor = DAGExecutor(factory, store, cb, max_concurrent=max_conc)
+
+        holder: dict = {
+            "results": None,
+            "verdicts": None,
+            "error": None,
+        }
+
+        def _worker():
+            try:
+                loop = asyncio.new_event_loop()
+                try:
+                    results = loop.run_until_complete(executor.execute(spec))
+                    critic = Critic(llm, config, provider=provider, model=model)
+                    verdicts = []
+                    for task in spec.tasks:
+                        if task.id not in results:
+                            continue
+                        res = results[task.id]
+                        try:
+                            passed, patch, reasoning = loop.run_until_complete(
+                                critic.evaluate(task, res)
+                            )
+                        except Exception:
+                            passed, patch, reasoning = False, None, (
+                                "Critic crashed (model OOM/unavailable)"
+                            )
+                        verdicts.append({
+                            "task_id": task.id,
+                            "task_name": task.name,
+                            "verdict": "PASS" if passed else "FAIL",
+                            "reasoning": reasoning,
+                            "patch": str(patch.operations) if patch else None,
+                        })
+                    holder["results"] = results
+                    holder["verdicts"] = verdicts
+                finally:
+                    loop.close()
+            except Exception as e:  # noqa: BLE001
+                holder["error"] = f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+
+        thread = threading.Thread(target=_worker, name="daaw-live-exec", daemon=True)
+        thread.start()
+
+        return {
+            "thread": thread,
+            "questions": questions,
+            "answers": answers,
+            "holder": holder,
+            "pending": None,
+            "started_at": time.monotonic(),
+        }
+    except Exception as e:
+        st.error(f"Execution failed to start: {e}")
+        st.code(traceback.format_exc(), language="text")
+        return None
+
+
+def poll_live_execute_hitl(handle: dict) -> str:
+    """Drive one poll cycle of the HITL executor.
+
+    Returns one of:
+      - ``"pending_question"`` — a prompt is waiting; caller should render it.
+      - ``"running"`` — executor is still busy; caller should schedule a rerun.
+      - ``"done"`` — executor finished; results/verdicts in ``holder``.
+      - ``"error"`` — executor crashed; details in ``holder['error']``.
+    """
+    # If we already have a cached pending question, surface it again.
+    if handle.get("pending") is not None:
+        return "pending_question"
+
+    # Try to drain the next question (non-blocking).
+    try:
+        req = handle["questions"].get_nowait()
+        handle["pending"] = req
+        return "pending_question"
+    except queue.Empty:
+        pass
+
+    if handle["holder"].get("error"):
+        return "error"
+
+    if not handle["thread"].is_alive():
+        # Thread finished; give any last-moment question a chance to land.
+        try:
+            req = handle["questions"].get_nowait()
+            handle["pending"] = req
+            return "pending_question"
+        except queue.Empty:
+            pass
+        return "done"
+
+    return "running"
+
+
+def answer_live_execute_hitl(handle: dict, answer: str) -> None:
+    """Feed a user answer back to the executor and clear the pending slot."""
+    handle["answers"].put(str(answer))
+    handle["pending"] = None
+
+
+def render_hitl_prompt(handle: dict) -> bool:
+    """Render a Streamlit form for the pending question. Returns True on submit."""
+    req = handle.get("pending")
+    if req is None:
+        return False
+
+    prompt_text = getattr(req, "prompt", str(req))
+    hint = getattr(req, "hint", None)
+    choices = getattr(req, "choices", None)
+    agent_id = getattr(req, "agent_id", "agent")
+    step_id = getattr(req, "step_id", None) or "prompt"
+    ctx = getattr(req, "context", None) or {}
+
+    st.markdown(
+        f'<div style="background:{C["card"]}; border:1px solid {C["border"]}; '
+        f'border-left:4px solid {C["human"]}; border-radius:8px; '
+        f'padding:1rem 1.2rem; margin:0.5rem 0;">'
+        f'<strong style="color:{C["human"]};">HUMAN INPUT REQUESTED</strong>'
+        f'<div class="dim" style="margin-top:0.2rem; font-size:0.8rem;">'
+        f'agent: <code>{_esc(agent_id)}</code> · step: <code>{_esc(step_id)}</code>'
+        + (
+            f' · Q {ctx.get("step")}/{ctx.get("total")}'
+            if ctx.get("step") and ctx.get("total") else ""
+        )
+        + '</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    form_key = f"hitl_form_{id(req)}"
+    with st.form(form_key, clear_on_submit=True):
+        st.markdown(f"**{_esc(prompt_text)}**")
+        if hint:
+            st.caption(hint)
+        if choices:
+            value = st.radio(
+                "Choose or type your own answer below:",
+                options=choices,
+                key=f"{form_key}_radio",
+                horizontal=True,
+            )
+            freeform = st.text_area("Your answer (overrides choice if non-empty):",
+                                    key=f"{form_key}_free", height=100)
+        else:
+            value = None
+            freeform = st.text_area("Your answer:", key=f"{form_key}_free", height=120)
+
+        submitted = st.form_submit_button("Submit answer", use_container_width=True)
+
+    if submitted:
+        answer = (freeform or "").strip() or (value or "")
+        answer_live_execute_hitl(handle, answer)
+        return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -1497,50 +1792,85 @@ def main():
                 st.session_state.pipeline_stage = "idle"
                 st.session_state.compile_success_msg = None
 
-        if execute_btn and st.session_state.live_spec is not None:
-            st.session_state.pipeline_stage = "executing"
-            with st.status("Executing workflow...", expanded=True) as status:
-                status.write("Instantiating agents...")
-                status.write("Executing tasks in DAG order...")
-                results, verdicts = run_live_execute(
-                    st.session_state.live_spec, provider, use_mock_tools, model
-                )
-                if results is not None:
-                    success_count = sum(1 for r in results.values() if r.agent_result.status == "success")
-                    status.write(f"Executed {len(results)} tasks ({success_count} succeeded)")
-                    status.write("Critic evaluation complete")
-                    status.update(
-                        label=f"Done: {success_count}/{len(results)} tasks succeeded",
-                        state="complete",
-                    )
-                else:
-                    status.update(label="Execution failed", state="error")
-            if results is not None:
-                st.session_state.live_results = results
-                st.session_state.live_verdicts = verdicts or []
-                st.session_state.pipeline_stage = "done"
+        hitl_enabled = st.session_state.get("hitl_enabled", True)
 
-                # Webhook notification (best-effort)
-                try:
-                    import asyncio as _asyncio
-                    from daaw.integrations.notifications import notify_workflow_complete as _notify
-                    _success = sum(1 for r in results.values() if r.agent_result.status == "success")
-                    _elapsed = sum(r.elapsed_seconds for r in results.values())
-                    _loop = _asyncio.new_event_loop()
-                    _sent = _loop.run_until_complete(_notify(
-                        workflow_name=st.session_state.live_spec.name,
-                        total=len(results),
-                        passed=_success,
-                        failed=len(results) - _success,
-                        elapsed=_elapsed,
-                    ))
-                    _loop.close()
-                    if _sent:
-                        st.toast("Webhook notification sent", icon="bell")
-                except Exception:
-                    pass  # Notification is best-effort
+        # ── Kick off execution ────────────────────────────────────────────
+        if execute_btn and st.session_state.live_spec is not None:
+            if hitl_enabled:
+                # Launch background HITL executor; the poller below drives it.
+                handle = start_live_execute_hitl(
+                    st.session_state.live_spec, provider, use_mock_tools, model,
+                )
+                if handle is not None:
+                    st.session_state["live_exec_handle"] = handle
+                    st.session_state.pipeline_stage = "executing"
+                    st.rerun()
+                else:
+                    st.session_state.pipeline_stage = "compiled"
             else:
+                # Legacy synchronous path: auto-fill user_proxy tasks.
+                st.session_state.pipeline_stage = "executing"
+                with st.status("Executing workflow...", expanded=True) as status:
+                    status.write("Instantiating agents...")
+                    status.write("Executing tasks in DAG order...")
+                    results, verdicts = run_live_execute(
+                        st.session_state.live_spec, provider, use_mock_tools, model
+                    )
+                    if results is not None:
+                        success_count = sum(1 for r in results.values() if r.agent_result.status == "success")
+                        status.write(f"Executed {len(results)} tasks ({success_count} succeeded)")
+                        status.write("Critic evaluation complete")
+                        status.update(
+                            label=f"Done: {success_count}/{len(results)} tasks succeeded",
+                            state="complete",
+                        )
+                    else:
+                        status.update(label="Execution failed", state="error")
+                if results is not None:
+                    st.session_state.live_results = results
+                    st.session_state.live_verdicts = verdicts or []
+                    st.session_state.pipeline_stage = "done"
+                    _send_completion_notification(st.session_state.live_spec, results)
+                else:
+                    st.session_state.pipeline_stage = "compiled"
+
+        # ── HITL poller: runs on every rerun while a handle is active ────
+        handle = st.session_state.get("live_exec_handle")
+        if handle is not None:
+            state = poll_live_execute_hitl(handle)
+            if state == "pending_question":
+                st.markdown("### Workflow paused — your input is needed")
+                submitted = render_hitl_prompt(handle)
+                if submitted:
+                    # Give the worker a tick to pick up the answer, then rerun.
+                    time.sleep(0.05)
+                    st.rerun()
+                else:
+                    st.info(
+                        "The executor is waiting for your reply. Answer above and "
+                        "click **Submit answer** to continue.",
+                        icon="⏸",
+                    )
+            elif state == "running":
+                elapsed = int(time.monotonic() - handle["started_at"])
+                st.info(f"Executing workflow... ({elapsed}s elapsed)", icon="⚙")
+                time.sleep(1.0)
+                st.rerun()
+            elif state == "error":
+                st.error("Execution crashed")
+                st.code(handle["holder"]["error"], language="text")
                 st.session_state.pipeline_stage = "compiled"
+                st.session_state["live_exec_handle"] = None
+            elif state == "done":
+                results = handle["holder"].get("results") or {}
+                verdicts = handle["holder"].get("verdicts") or []
+                st.session_state.live_results = results
+                st.session_state.live_verdicts = verdicts
+                st.session_state.pipeline_stage = "done"
+                st.session_state["live_exec_handle"] = None
+                if results:
+                    _send_completion_notification(st.session_state.live_spec, results)
+                st.rerun()
 
     # --- Determine active data ---
     if mode == "Live Mode" and st.session_state.live_spec is not None:
@@ -1601,7 +1931,7 @@ def main():
 
     # --- Export row ---
     st.markdown("---")
-    col_e1, col_e2, col_e3 = st.columns([2, 2, 1])
+    col_e1, col_e2, col_e3, col_e4 = st.columns([2, 2, 2, 1])
     with col_e1:
         spec_json = spec.model_dump_json(indent=2)
         st.download_button(
@@ -1623,7 +1953,7 @@ def main():
             }
             st.download_button(
                 "Download Results JSON",
-                data=json.dumps(results_export, indent=2),
+                data=json.dumps(results_export, indent=2, default=str),
                 file_name="results.json",
                 mime="application/json",
                 use_container_width=True,
@@ -1631,8 +1961,21 @@ def main():
         else:
             st.caption("Execute workflow to export results.")
     with col_e3:
+        if results:
+            zip_bytes = _build_outputs_zip(spec, results)
+            st.download_button(
+                "Download Output JSONs (ZIP)",
+                data=zip_bytes,
+                file_name="task_outputs.zip",
+                mime="application/zip",
+                use_container_width=True,
+                help="One JSON file per task output, plus a combined all_outputs.json.",
+            )
+        else:
+            st.caption("No outputs yet.")
+    with col_e4:
         if verdicts:
-            verdicts_json = json.dumps(verdicts, indent=2)
+            verdicts_json = json.dumps(verdicts, indent=2, default=str)
             st.download_button(
                 "Download Verdicts",
                 data=verdicts_json,

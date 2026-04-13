@@ -1,8 +1,17 @@
-"""UserProxyAgent — refactored from questionnaire.py. Human-in-the-loop agent."""
+"""UserProxyAgent — human-in-the-loop agent.
+
+Works in two modes:
+
+- ``questionnaire`` (default): walks the user through a 7-question project
+  intake.
+- ``prompt``: displays the task context and collects one free-form answer.
+
+Both modes delegate actual IO to the injected :class:`InteractionHandler`
+so the same agent works in CLI, Streamlit UI, and automated tests.
+"""
 
 from __future__ import annotations
 
-import asyncio
 from typing import Any
 
 from daaw.agents.base import BaseAgent
@@ -59,49 +68,38 @@ class UserProxyAgent(BaseAgent):
         return await self._run_prompt(task_input)
 
     async def _run_questionnaire(self) -> AgentResult:
-        """Walk the user through the 7-question intake."""
-        print("\n" + "=" * 60)
-        print("  WORKFLOW AUTOMATION — Project Intake")
-        print("=" * 60)
-        print("Answer the following questions to help us understand")
-        print("what you want to automate. Take your time.\n")
-
+        """Walk the user through the 7-question intake via the interaction handler."""
         answers: dict[str, str] = {}
-
         for i, q in enumerate(QUESTIONS, start=1):
-            print(f"Question {i} of {len(QUESTIONS)}")
-            print(f"  {q['label']}")
-            print(f"  Hint: {q['hint']}")
-            print()
+            answer = await self.ask_user(
+                prompt=q["label"],
+                hint=q["hint"],
+                step_id=q["id"],
+                context={"step": i, "total": len(QUESTIONS)},
+            )
+            answers[q["id"]] = answer.strip() or "(no answer)"
 
-            while True:
-                answer = (
-                    await asyncio.to_thread(input, "  Your answer: ")
-                ).strip()
-                if answer:
-                    break
-                print("  (Answer can't be empty, please type something)\n")
-
-            answers[q["id"]] = answer
-            print()
-
-        # Format summary
         summary_lines = ["User's project intake answers:\n"]
         for i, q in enumerate(QUESTIONS, start=1):
             summary_lines.append(f"Q{i}. {q['label']}")
             summary_lines.append(f"A{i}. {answers[q['id']]}")
             summary_lines.append("")
 
-        summary = "\n".join(summary_lines)
-        return AgentResult(output=summary, status="success")
+        return AgentResult(
+            output="\n".join(summary_lines),
+            status="success",
+            metadata={"answers": answers},
+        )
 
     async def _run_prompt(self, task_input: Any) -> AgentResult:
-        """Generic HITL: display context, collect user input."""
-        print("\n" + "=" * 60)
-        print("  HUMAN INPUT REQUIRED")
-        print("=" * 60)
-        if task_input:
-            print(f"\nContext:\n{task_input}\n")
-        print("Please provide your input:")
-        user_input = (await asyncio.to_thread(input, "  [You]: ")).strip()
-        return AgentResult(output=user_input, status="success")
+        """Generic HITL: forward the task context to the user and capture one answer."""
+        context = {"task_input": task_input} if task_input else {}
+        prompt = (
+            str(task_input).strip() if task_input else "The workflow needs your input."
+        )
+        user_input = await self.ask_user(
+            prompt=prompt,
+            step_id="prompt",
+            context=context,
+        )
+        return AgentResult(output=user_input.strip(), status="success")
