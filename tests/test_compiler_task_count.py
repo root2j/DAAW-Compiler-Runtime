@@ -139,6 +139,32 @@ class TestTaskCountHandling:
         assert len(spec.tasks) == 3, "stub task should have been dropped"
         assert len(prov.calls) == 1  # accepted first try, no retry
 
+    def test_dangling_dependency_is_dropped(self):
+        """Model emits tasks 2 + 3 with a dep on a never-existing task 1.
+        The invalid reference must be silently dropped so the DAG runs."""
+        spec_json = json.dumps({
+            "name": "broken", "description": "d", "metadata": {},
+            "tasks": [
+                {"id": "task_002", "name": "B", "description": "second step",
+                 "role": "generic_llm", "tools_allowed": [],
+                 "dependencies": [{"task_id": "task_001"}],  # dangling
+                 "success_criteria": "ok",
+                 "timeout_seconds": 60, "max_retries": 1},
+                {"id": "task_003", "name": "C", "description": "third step",
+                 "role": "generic_llm", "tools_allowed": [],
+                 "dependencies": [{"task_id": "task_002"}],
+                 "success_criteria": "ok",
+                 "timeout_seconds": 60, "max_retries": 1},
+            ],
+        })
+        c, prov = _compiler_with([spec_json])
+        spec = run(c.compile("do something"))
+        # Both tasks kept; task_002 is now a root (dep dropped).
+        assert len(spec.tasks) == 2
+        assert spec.tasks[0].dependencies == []
+        assert len(spec.tasks[1].dependencies) == 1
+        assert spec.tasks[1].dependencies[0].task_id == "task_002"
+
     def test_only_stub_tasks_retries(self):
         """If every task is malformed, we still retry (eventually fail)."""
         stub_only = {
