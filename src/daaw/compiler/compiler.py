@@ -381,6 +381,17 @@ def _fixup_json_structure(data: dict) -> None:
                 fixed_deps.append(d)
         task["dependencies"] = fixed_deps
 
+    # Drop dangling dependencies — a small model sometimes emits task_002
+    # + task_003 with dependencies on the never-existing task_001. The DAG
+    # validator would reject the whole spec; silently dropping the bad
+    # refs lets the remaining DAG run (tasks become roots instead).
+    valid_ids = {t.get("id") for t in data.get("tasks", []) if t.get("id")}
+    for task in data.get("tasks", []):
+        task["dependencies"] = [
+            d for d in task.get("dependencies", [])
+            if isinstance(d, dict) and d.get("task_id") in valid_ids
+        ]
+
 
 # Roles that exist in the registry but should NOT be used as task agents.
 # The compiler prompt tells the LLM to use "generic_llm" for everything,
