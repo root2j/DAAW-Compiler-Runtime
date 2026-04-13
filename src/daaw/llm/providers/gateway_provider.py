@@ -24,9 +24,11 @@ from __future__ import annotations
 import json as _json
 import os
 import re
-from typing import Any
+from typing import Any, AsyncIterator
 
-from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse, ToolCall
+from daaw.llm.base import (
+    LLMMessage, LLMProvider, LLMResponse, LLMStreamChunk, ToolCall,
+)
 
 DEFAULT_GATEWAY_URL = os.environ.get("GATEWAY_URL", "http://127.0.0.1:11434/v1")
 DEFAULT_GATEWAY_TOKEN = os.environ.get("GATEWAY_TOKEN", "")
@@ -288,6 +290,120 @@ class GatewayProvider(LLMProvider):
 
         # Unreachable with the raise above, but keep a defensive fallback.
         return last_response  # type: ignore[return-value]
+
+    async def chat_stream(
+        self,
+        messages: list[LLMMessage],
+        *,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        response_format: dict[str, Any] | None = None,
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+    ) -> AsyncIterator[LLMStreamChunk]:
+        """Stream chat completions via OpenAI-compatible SSE.
+
+        Unlike ``chat()``, this path is optimistic: it does NOT retry on
+        degenerate output or CUDA OOM — real-time streams want to surface
+        tokens as they arrive, not pause for retries. If you need
+        reliability guarantees, use ``chat()``. The caller is expected to
+        detect drift (empty / <unused> tokens) in the accumulated content
+        and retry at a higher level.
+
+        Tools + response_format are NOT forwarded; streaming is intended
+        for display (compile, final answers), not tool-call loops.
+        """
+        import httpx
+
+        target_model = model or self._default_model
+        oai_messages = _build_oai_messages(messages)
+
+        _lower = target_model.lower()
+        is_reasoning = any(k in _lower for k in ("qwen3", "deepseek-r1", "qwq"))
+        if is_reasoning:
+            effective_max = max(
+                max_tokens * _REASONING_TOKEN_MULTIPLIER,
+                _MIN_REASONING_TOKENS,
+            )
+        else:
+            effective_max = min(max_tokens, 700)
+
+        payload: dict[str, Any] = {
+            "model": target_model,
+            "messages": oai_messages,
+            "temperature": temperature,
+            "max_tokens": effective_max,
+            "stream": True,
+        }
+        if _is_ollama_url(self._base_url):
+            payload["options"] = {"num_ctx": DEFAULT_NUM_CTX}
+            payload["keep_alive"] = DEFAULT_KEEP_ALIVE
+        # Mirror JSON-mode prompt injection from chat() so streamed
+        # compile output is actually JSON.
+        if response_format and response_format.get("type") in (
+            "json_object", "json_schema",
+        ):
+            _inject_system(oai_messages, (
+                "IMPORTANT: Respond with ONLY valid JSON. "
+                "No markdown fences, no explanation, no text "
+                "outside the JSON object.\n\n"
+            ), guard="ONLY valid JSON")
+
+        headers: dict[str, str] = {"Content-Type": "application/json"}
+        if self._token:
+            headers["Authorization"] = f"Bearer {self._token}"
+
+        accumulated: list[str] = []
+        final_usage: dict[str, Any] = {}
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            async with client.stream(
+                "POST",
+                f"{self._base_url}/chat/completions",
+                json=payload,
+                headers=headers,
+            ) as resp:
+                if resp.status_code != 200:
+                    body = (await resp.aread()).decode("utf-8", errors="replace")
+                    raise RuntimeError(
+                        f"Gateway stream returned {resp.status_code}: "
+                        f"{body[:300]}"
+                    )
+                async for raw_line in resp.aiter_lines():
+                    if not raw_line:
+                        continue
+                    if raw_line.startswith("data: "):
+                        data_str = raw_line[6:].strip()
+                    else:
+                        data_str = raw_line.strip()
+                    if data_str == "[DONE]":
+                        break
+                    try:
+                        evt = _json.loads(data_str)
+                    except _json.JSONDecodeError:
+                        continue
+                    # Extract incremental delta + any usage stats.
+                    choices = evt.get("choices") or []
+                    if not choices:
+                        if "usage" in evt:
+                            final_usage = evt["usage"] or {}
+                        continue
+                    delta_msg = choices[0].get("delta") or {}
+                    piece = delta_msg.get("content") or ""
+                    if piece:
+                        accumulated.append(piece)
+                        yield LLMStreamChunk(
+                            delta=piece, done=False,
+                            full_content="".join(accumulated),
+                        )
+                    if choices[0].get("finish_reason"):
+                        break
+                if "usage" in (evt if "evt" in dir() else {}):
+                    final_usage = evt["usage"]  # type: ignore[name-defined]
+
+        full = "".join(accumulated)
+        yield LLMStreamChunk(
+            delta="", done=True, full_content=full, usage=final_usage,
+        )
 
 
 async def _wait_for_model(

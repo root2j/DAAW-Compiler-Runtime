@@ -1463,7 +1463,23 @@ def run_live_compile(provider: str, goal: str, model: str | None = None) -> tupl
 
         log.append(f"[{time.monotonic() - t0:.2f}s] Sending goal to LLM...")
         compiler = Compiler(llm, config, provider=provider, model=model)
-        spec = _run_async(compiler.compile(goal))
+        # Stream tokens into a live code block so the compile phase is
+        # visible instead of a silent 30-second spinner.
+        stream_header = st.empty()
+        stream_body = st.empty()
+        stream_header.caption("Streaming compiler output...")
+
+        def _on_compile_token(_delta: str, full: str) -> None:
+            tail = full[-2400:] if len(full) > 2400 else full
+            stream_body.code(tail, language="json")
+
+        try:
+            spec = _run_async(
+                compiler.compile_stream(goal, on_token=_on_compile_token)
+            )
+        finally:
+            stream_header.empty()
+            stream_body.empty()
         log.append(f"[{time.monotonic() - t0:.2f}s] LLM response received")
         log.append(f"[{time.monotonic() - t0:.2f}s] WorkflowSpec validated -- {len(spec.tasks)} tasks")
 
