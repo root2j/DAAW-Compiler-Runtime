@@ -174,6 +174,44 @@ class TestProbeModel:
     def test_get_cached_probe_returns_none_when_empty(self):
         assert get_cached_probe("http://nope/v1", "unknown") is None
 
+    def test_probe_payload_has_generous_max_tokens_and_no_response_format(
+        self, monkeypatch,
+    ):
+        """Regression guard: Ollama returns empty when max_tokens is too low
+        and response_format is set — those are exactly the conditions the
+        first version of this probe shipped with, producing false EMPTYs.
+        """
+        import httpx
+        captured: list[dict] = []
+
+        class RecordingClient:
+            def __init__(self, *a, **kw): pass
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *a):
+                return None
+            async def post(self, *a, **kw):
+                captured.append(kw.get("json", {}))
+
+                class R:
+                    status_code = 200
+                    def json(self_inner):
+                        return {"choices": [{"message": {"content": '{"ok":true}'}}]}
+                return R()
+
+        monkeypatch.setattr(httpx, "AsyncClient", RecordingClient)
+        run(probe_model("http://localhost:11434/v1", "m"))
+        payload = captured[0]
+        assert payload["max_tokens"] >= 256, (
+            f"Probe max_tokens={payload['max_tokens']} is too low — Ollama "
+            f"returns empty completions when JSON-mode reservations + a "
+            f"tight cap collide. Keep >= 256."
+        )
+        assert "response_format" not in payload, (
+            "Probe must not send response_format — some backends reserve "
+            "internal tokens for schema shape and then run out of budget."
+        )
+
 
 class TestProbeResult:
     def test_badge_for_each_class(self):

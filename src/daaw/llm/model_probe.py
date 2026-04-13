@@ -29,8 +29,13 @@ import httpx
 
 PROBE_TIMEOUT_SECONDS = 30.0
 
-# Cache: (gateway_url, model) -> (ProbeResult, timestamp)
-_CACHE: dict[tuple[str, str], tuple["ProbeResult", float]] = {}
+# Bump this to invalidate all cached probe results after a probe-logic
+# change — otherwise users see stale verdicts until the 1h TTL expires.
+# Incremented in commits that change probe payload / classification.
+_PROBE_VERSION = 2
+
+# Cache: (gateway_url, model, _PROBE_VERSION) -> (ProbeResult, timestamp)
+_CACHE: dict[tuple[str, str, int], tuple["ProbeResult", float]] = {}
 CACHE_TTL_SECONDS = 3600  # re-probe hourly
 
 
@@ -90,12 +95,21 @@ async def probe_model(
         model: model name to probe.
         force: bypass the cache and re-probe.
     """
-    key = (gateway_url.rstrip("/"), model)
+    key = (gateway_url.rstrip("/"), model, _PROBE_VERSION)
     if not force:
         cached = _CACHE.get(key)
         if cached and (time.monotonic() - cached[1]) < CACHE_TTL_SECONDS:
             return cached[0]
 
+    # Build payload matching what gateway_provider.py actually sends:
+    #   - No `response_format` parameter (gateway injects a system rule
+    #     instead; some backends allocate internal tokens for JSON mode
+    #     and then hit max_tokens before emitting anything — probe empty
+    #     even though the model works fine for real compiles).
+    #   - temperature 0.2 so greedy decoding can't get stuck on EOS.
+    #   - max_tokens 256: tiny enough to keep the probe fast (<2s on
+    #     gemma4:e2b) but big enough that JSON-mode token reservation
+    #     doesn't starve the visible completion.
     payload: dict[str, Any] = {
         "model": model,
         "messages": [
@@ -110,9 +124,8 @@ async def probe_model(
                 "content": 'Return exactly this: {"ok": true, "n": 1}',
             },
         ],
-        "temperature": 0.0,
-        "max_tokens": 50,
-        "response_format": {"type": "json_object"},
+        "temperature": 0.2,
+        "max_tokens": 256,
     }
     # Ollama heuristic — pass options through without needing to recheck
     if ":11434" in gateway_url or "ollama" in gateway_url.lower():
@@ -168,7 +181,7 @@ def get_cached_probe(
     gateway_url: str, model: str,
 ) -> ProbeResult | None:
     """Return the cached probe without triggering a new one."""
-    entry = _CACHE.get((gateway_url.rstrip("/"), model))
+    entry = _CACHE.get((gateway_url.rstrip("/"), model, _PROBE_VERSION))
     if entry is None:
         return None
     result, ts = entry
