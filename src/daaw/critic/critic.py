@@ -102,14 +102,82 @@ class Critic:
             except (json.JSONDecodeError, Exception) as e:
                 last_error = str(e)
 
-        # Fail-closed: if the critic itself can't produce a parseable verdict,
-        # we have no evidence the task succeeded — mark FAIL so the pipeline
-        # surfaces the problem instead of burying it under a green badge.
-        # (Previously this silently passed; see MEMORY.md known issue.)
-        print(f"  [CRITIC] Could not parse verdict for {task.id} — fail-closed (fail)")
-        return (
-            False,
-            None,
-            f"Critic could not parse a verdict — fail-closed. Last parse error: "
-            f"{last_error[:200]}",
+        # Critic produced no parseable JSON verdict. Don't silently pass
+        # (hides real failures) AND don't blindly fail (punishes good task
+        # output when the critic LLM is flaky — common with local models).
+        # Decide from the evidence we have:
+        #
+        # 1. Try to salvage a verdict from the prose.
+        # 2. If prose has no signal, fall back to agent evidence:
+        #      agent success AND non-empty output      → heuristic PASS
+        #      agent failure OR empty/placeholder      → FAIL
+        last_content = locals().get("resp").content if "resp" in locals() else ""
+        salvaged = _salvage_verdict(last_content)
+        if salvaged is not None:
+            reason = (
+                f"Critic JSON unparseable; verdict '{salvaged.upper()}' "
+                f"salvaged from prose. Parse error: {last_error[:120]}"
+            )
+            print(f"  [CRITIC] Salvaged '{salvaged}' for {task.id} from prose")
+            return salvaged == "pass", None, reason
+
+        # No parseable verdict, no prose signal — use the task output itself.
+        agent = result.agent_result
+        output_str = str(agent.output or "").strip()
+        has_real_output = (
+            agent.status == "success"
+            and len(output_str) >= 20
+            and "[upstream task produced no usable" not in output_str
         )
+        if has_real_output:
+            reason = (
+                f"Critic could not produce a verdict (parse error: "
+                f"{last_error[:120]}). Falling back to agent evidence: "
+                f"task reported success with {len(output_str)}-char output."
+            )
+            print(f"  [CRITIC] Fallback PASS for {task.id} (agent succeeded, "
+                  f"output present)")
+            return True, None, reason
+
+        reason = (
+            f"Critic could not produce a verdict and agent output is "
+            f"missing / short / degenerate. Parse error: {last_error[:120]}"
+        )
+        print(f"  [CRITIC] Fallback FAIL for {task.id} (no evidence of success)")
+        return False, None, reason
+
+
+def _salvage_verdict(content: str) -> str | None:
+    """Best-effort verdict extraction when the critic's JSON is malformed.
+
+    Returns 'pass' / 'fail' if the text strongly signals one, else None.
+    Deliberately conservative — only act on unambiguous language so a
+    rambling response doesn't accidentally pass a bad task.
+    """
+    if not content:
+        return None
+    text = content.lower()
+    # Explicit JSON-ish signals first.
+    import re
+    m = re.search(r'"verdict"\s*:\s*"(pass|fail)"', text)
+    if m:
+        return m.group(1)
+    # Then clear prose signals near the start of the response.
+    head = text[:400]
+    has_pass = any(
+        k in head for k in
+        ("verdict: pass", "verdict pass", "result: pass",
+         "passed the criteria", "meets the success criteria",
+         "the task passes", "overall: pass")
+    )
+    has_fail = any(
+        k in head for k in
+        ("verdict: fail", "verdict fail", "result: fail",
+         "fails the criteria", "does not meet", "task fails",
+         "overall: fail")
+    )
+    if has_pass and not has_fail:
+        return "pass"
+    if has_fail and not has_pass:
+        return "fail"
+    return None

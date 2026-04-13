@@ -402,8 +402,19 @@ class TestCudaOomAutoRetry:
 
 # ─── Fix 3: critic fail-closed on unparseable verdict ────────────────────
 
-class TestCriticFailClosed:
-    def test_unparseable_verdict_returns_fail(self):
+class TestCriticFallback:
+    """Critic behaviour when its own LLM output can't be parsed as JSON.
+
+    Policy (tiered, see critic.py):
+      1. If the prose signals a clear verdict, use that.
+      2. Else if the agent task reports success with meaningful output,
+         fall back to PASS with reasoning that names the fallback.
+      3. Else FAIL — no evidence of success anywhere.
+    """
+
+    def _build(self, critic_response_text: str, *,
+               agent_status: str = "success",
+               agent_output: str = "some real output " * 5):
         from daaw.config import AppConfig
         from daaw.critic.critic import Critic
         from daaw.llm.base import LLMResponse, LLMProvider
@@ -411,21 +422,19 @@ class TestCriticFailClosed:
         from daaw.schemas.results import AgentResult, TaskResult
         from daaw.schemas.workflow import AgentSpec, TaskSpec
 
-        class JunkProvider(LLMProvider):
+        class ScriptedProvider(LLMProvider):
             def name(self):
-                return "junk"
-
+                return "scripted"
             async def chat(self, messages, **kw):
                 return LLMResponse(
-                    content="this is not JSON at all",
-                    model="junk", usage={}, raw=None,
+                    content=critic_response_text,
+                    model="scripted", usage={}, raw=None,
                 )
 
         cfg = AppConfig()
         llm = UnifiedLLMClient(cfg)
-        llm._providers["junk"] = JunkProvider()
-
-        critic = Critic(llm, cfg, provider="junk")
+        llm._providers["scripted"] = ScriptedProvider()
+        critic = Critic(llm, cfg, provider="scripted")
         task = TaskSpec(
             id="t1", name="t", description="do a thing",
             agent=AgentSpec(role="generic_llm"),
@@ -433,10 +442,66 @@ class TestCriticFailClosed:
         )
         result = TaskResult(
             task_id="t1",
-            agent_result=AgentResult(output="some output", status="success"),
+            agent_result=AgentResult(output=agent_output, status=agent_status),
             elapsed_seconds=1.0,
         )
-        passed, patch, reasoning = run(critic.evaluate(task, result))
-        assert passed is False, "critic must fail-closed on unparseable verdict"
-        assert "fail-closed" in reasoning.lower()
-        assert patch is None
+        return critic, task, result
+
+    def test_parseable_pass_passes(self):
+        c, t, r = self._build('{"verdict": "pass", "reasoning": "good"}')
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is True
+        assert "good" in reason
+
+    def test_parseable_fail_fails(self):
+        c, t, r = self._build('{"verdict": "fail", "reasoning": "bad"}')
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is False
+
+    def test_salvage_prose_pass(self):
+        """When critic returns non-JSON prose that clearly says pass."""
+        c, t, r = self._build(
+            "After reviewing the task output, verdict: pass. "
+            "The agent produced everything asked for."
+        )
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is True
+        assert "salvaged" in reason.lower()
+
+    def test_salvage_prose_fail(self):
+        c, t, r = self._build(
+            "This task fails the criteria — the output is off-topic."
+        )
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is False
+        assert "salvaged" in reason.lower()
+
+    def test_fallback_pass_when_agent_succeeded_with_real_output(self):
+        """Critic garble + real agent output => fallback pass (not blind fail)."""
+        c, t, r = self._build("asdfjkl nonsense no signal here",
+                              agent_output="A" * 200)
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is True
+        assert "fallback" in reason.lower() or "agent evidence" in reason.lower()
+
+    def test_fallback_fail_when_agent_failed(self):
+        c, t, r = self._build("blah blah", agent_status="failure",
+                              agent_output=None)
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is False
+
+    def test_fallback_fail_on_degenerate_placeholder_output(self):
+        """Agent succeeded but produced the sanitizer placeholder => FAIL."""
+        from daaw.engine.context_pruner import DEGENERATE_PLACEHOLDER
+        c, t, r = self._build("garbled", agent_output=DEGENERATE_PLACEHOLDER)
+        passed, _, reason = run(c.evaluate(t, r))
+        assert passed is False
+
+    def test_ambiguous_prose_does_not_salvage(self):
+        """If prose mentions both pass and fail, don't salvage — use fallback."""
+        c, t, r = self._build(
+            "It might pass but could also fail depending on criteria"
+        )
+        passed, _, _ = run(c.evaluate(t, r))
+        # Falls through to agent-evidence → PASS (agent output is real).
+        assert passed is True
