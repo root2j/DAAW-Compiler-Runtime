@@ -8,7 +8,7 @@ vs. local, etc.).
 from __future__ import annotations
 
 # Semantic version of the DAAW Compiler-Runtime.
-__version__ = "0.3.7"
+__version__ = "0.3.8"
 
 # Short build tag shown in the UI next to the version — bump with features.
-BUILD_TAG = "accept-1-task"
+BUILD_TAG = "tool-calls-not-empty"
