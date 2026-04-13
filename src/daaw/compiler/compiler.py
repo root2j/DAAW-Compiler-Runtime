@@ -79,13 +79,24 @@ class Compiler:
                 _fixup_json_structure(data)
                 _fixup_agent_roles(data)
                 spec = WorkflowSpec.model_validate(data)
-                # Reject trivially simple plans — the model collapsed
-                # the goal into a single task instead of breaking it down.
-                if len(spec.tasks) < 2:
+                # Empty spec is always invalid — retry.
+                if len(spec.tasks) == 0:
                     last_error = (
-                        f"Only {len(spec.tasks)} task generated. "
-                        "Break the goal into at least 2-3 separate tasks "
-                        "with dependencies between them."
+                        "No tasks generated. The workflow must have at "
+                        "least one task."
+                    )
+                    continue
+                # Single-task spec is valid but less interesting — if we
+                # still have retries left, nudge the model to decompose.
+                # If the final attempt still returns one task, accept it
+                # rather than hard-failing: the DAG executor handles
+                # single-task workflows fine, and refusing to compile
+                # wastes the API call the user already paid for.
+                if len(spec.tasks) == 1 and attempt < self._config.max_planner_retries - 1:
+                    last_error = (
+                        f"Only 1 task generated. Break the goal into "
+                        f"2-3 tasks with dependencies so the steps can "
+                        f"be reviewed and retried independently."
                     )
                     continue
                 return spec
