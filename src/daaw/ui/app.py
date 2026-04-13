@@ -1005,12 +1005,17 @@ def _render_task_detail(spec, results, task_id: str):
     # Output + Tool calls side by side
     col_out, col_tools = st.columns([3, 2])
     with col_out:
-        with st.expander("Task Output", expanded=True):
-            output = result.agent_result.output
-            if isinstance(output, (dict, list)):
-                st.json(output)
-            else:
-                st.code(str(output), language="text")
+        err = getattr(result.agent_result, "error_message", "") or ""
+        if result.agent_result.status != "success" and err:
+            with st.expander("Error", expanded=True):
+                st.error(err)
+        output = result.agent_result.output
+        if output is not None or result.agent_result.status == "success":
+            with st.expander("Task Output", expanded=True):
+                if isinstance(output, (dict, list)):
+                    st.json(output)
+                else:
+                    st.code(str(output), language="text")
 
     with col_tools:
         tool_calls = (result.agent_result.metadata or {}).get("tool_calls", [])
@@ -1237,11 +1242,15 @@ def render_critic_tab(spec, results, verdicts):
         status = result.agent_result.status
         icon = STATUS_ICONS.get(status, "")
         with st.expander(f"{icon} {task.id}: {task.name}"):
+            err = getattr(result.agent_result, "error_message", "") or ""
+            if status != "success" and err:
+                st.error(err)
             output = result.agent_result.output
-            if isinstance(output, (dict, list)):
-                st.json(output)
-            else:
-                st.code(str(output), language="text")
+            if output is not None or status == "success":
+                if isinstance(output, (dict, list)):
+                    st.json(output)
+                else:
+                    st.code(str(output), language="text")
 
 
 # ---------------------------------------------------------------------------

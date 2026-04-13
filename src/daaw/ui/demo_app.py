@@ -745,8 +745,24 @@ def render_task_output(spec, results: dict, dag_state: dict):
         f'<div style="font-size:.78rem;color:{D["text_muted"]};margin-top:.3rem">'
         f'Agent: {_esc(task.agent.role)} | {r.elapsed_seconds:.1f}s</div></div>',
         unsafe_allow_html=True)
+    # Show the error message prominently when the task failed, so users
+    # don't have to download the JSON to see why.
+    err = getattr(r.agent_result, "error_message", "") or ""
+    if r.agent_result.status != "success" and err:
+        st.markdown(
+            f'<div style="background:{D["red"]}11;border:1px solid {D["red"]}44;'
+            f'border-left:4px solid {D["red"]};border-radius:8px;'
+            f'padding:.7rem 1rem;margin:.4rem 0">'
+            f'<strong style="color:{D["red"]};font-family:Sora">Error</strong>'
+            f'<div class="mono" style="font-size:.78rem;color:{D["text"]};'
+            f'margin-top:.3rem;white-space:pre-wrap;word-break:break-word">'
+            f'{_esc(err)}</div></div>',
+            unsafe_allow_html=True,
+        )
     out = r.agent_result.output
-    if isinstance(out, (dict, list)):
+    if out is None and r.agent_result.status != "success":
+        pass  # error box above is sufficient; no "None" rendered
+    elif isinstance(out, (dict, list)):
         st.json(out)
     else:
         st.code(str(out)[:2000], language="markdown")
