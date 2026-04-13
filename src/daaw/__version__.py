@@ -8,7 +8,7 @@ vs. local, etc.).
 from __future__ import annotations
 
 # Semantic version of the DAAW Compiler-Runtime.
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 # Short build tag shown in the UI next to the version — bump with features.
-BUILD_TAG = "streaming-compile"
+BUILD_TAG = "chat-ui+agent-stream"

@@ -137,14 +137,49 @@ class GenericLLMAgent(BaseAgent):
         tool_results_log: list[dict[str, Any]] = []
 
         for _ in range(MAX_TOOL_ROUNDS):
-            resp = await self.llm_client.chat(
-                provider,
-                messages,
-                model=model,
-                temperature=0.7,
-                max_tokens=4096,
-                tools=tool_schemas if tool_schemas else None,
+            # Stream only when (a) a token observer is attached AND
+            # (b) the user's spec explicitly said no tools. Looking at
+            # ``tool_schemas`` directly is wrong because an empty
+            # ``tools_allowed`` means "no restriction" in the registry —
+            # we'd stream exactly zero tasks. ``tools_allowed`` is the
+            # user intent and does what we want.
+            use_streaming = (
+                self.on_token is not None and not tools_allowed
             )
+            if use_streaming:
+                content_accum: list[str] = []
+                final_usage: dict[str, Any] = {}
+                async for chunk in self.llm_client.chat_stream(
+                    provider,
+                    messages,
+                    model=model,
+                    temperature=0.7,
+                    max_tokens=4096,
+                ):
+                    if chunk.delta:
+                        content_accum.append(chunk.delta)
+                        try:
+                            self.on_token(
+                                chunk.delta, "".join(content_accum),
+                            )
+                        except Exception:
+                            # Broken UI callback must never crash the agent.
+                            pass
+                    if chunk.done:
+                        final_usage = chunk.usage
+                full_content = "".join(content_accum)
+                from daaw.llm.base import LLMResponse as _LLMR
+                resp = _LLMR(content=full_content, model=model or "",
+                             usage=final_usage, raw=None, tool_calls=[])
+            else:
+                resp = await self.llm_client.chat(
+                    provider,
+                    messages,
+                    model=model,
+                    temperature=0.7,
+                    max_tokens=4096,
+                    tools=tool_schemas if tool_schemas else None,
+                )
 
             # Check for Llama-style text tool calls in content even if
             # no structured tool_calls were returned (Groq 400 prevention).

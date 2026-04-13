@@ -195,6 +195,23 @@ def launch_demo_ui(port: int = 8502) -> None:
     )
 
 
+def launch_chat_ui(port: int = 8503) -> None:
+    """Launch the clean chat-style UI."""
+    import subprocess
+    from pathlib import Path
+
+    app_path = Path(__file__).resolve().parent.parent / "ui" / "chat_app.py"
+    if not app_path.exists():
+        print(f"Chat UI not found at {app_path}")
+        sys.exit(1)
+
+    print(f"\nLaunching DAAW Chat on port {port}...")
+    subprocess.run(
+        [sys.executable, "-m", "streamlit", "run", str(app_path),
+         "--server.port", str(port), "--server.headless", "true"],
+    )
+
+
 # ─────────────────────────────────────────────────────────────
 # CLI argument parser
 # ─────────────────────────────────────────────────────────────
@@ -225,6 +242,10 @@ def build_parser() -> argparse.ArgumentParser:
     demo_parser = sub.add_parser("demo", help="Launch the Under-the-Hood demonstration UI")
     demo_parser.add_argument("--port", type=int, default=8502, help="Port to run on")
 
+    # daaw chat
+    chat_parser = sub.add_parser("chat", help="Launch the clean chat-style UI (recommended)")
+    chat_parser.add_argument("--port", type=int, default=8503, help="Port to run on")
+
     return parser
 
 
@@ -251,6 +272,8 @@ def main() -> None:
         launch_ui(args.port)
     elif args.command == "demo":
         launch_demo_ui(args.port)
+    elif args.command == "chat":
+        launch_chat_ui(args.port)
     else:
         parser.print_help()
         sys.exit(1)

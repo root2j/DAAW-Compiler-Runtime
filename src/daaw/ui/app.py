@@ -1469,9 +1469,11 @@ def run_live_compile(provider: str, goal: str, model: str | None = None) -> tupl
         stream_body = st.empty()
         stream_header.caption("Streaming compiler output...")
 
+        from daaw.ui._streaming_display import prettify_partial_json
+
         def _on_compile_token(_delta: str, full: str) -> None:
-            tail = full[-2400:] if len(full) > 2400 else full
-            stream_body.code(tail, language="json")
+            rendered, lang = prettify_partial_json(full)
+            stream_body.code(rendered, language=lang)
 
         try:
             spec = _run_async(
