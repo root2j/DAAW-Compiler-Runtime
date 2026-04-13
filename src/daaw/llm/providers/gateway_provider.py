@@ -177,9 +177,21 @@ class GatewayProvider(LLMProvider):
                 if _is_degenerate(last_response.content):
                     if attempt < _MAX_RETRIES:
                         continue  # retry
+                    # All retries exhausted on garbage — raise so the agent
+                    # marks the task as failure instead of silently storing
+                    # a reserved-token salad as a successful output.
+                    preview = (last_response.content or "")[:120].replace("\n", " ")
+                    raise RuntimeError(
+                        f"Gateway produced degenerate output after "
+                        f"{_MAX_RETRIES + 1} attempts (model={target_model!r}). "
+                        f"Last content: {preview!r}. Common causes: wrong "
+                        f"chat template, context overflow, VRAM exhaustion. "
+                        f"Try a smaller prompt, raise max_tokens, restart the "
+                        f"backend, or switch model."
+                    )
                 return last_response
 
-        # All retries exhausted — return whatever we got
+        # Unreachable with the raise above, but keep a defensive fallback.
         return last_response  # type: ignore[return-value]
 
 
