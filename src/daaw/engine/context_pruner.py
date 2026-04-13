@@ -15,15 +15,22 @@ breaks that chain.
 
 from __future__ import annotations
 
+import os
 import re
 from typing import Any
 
 from daaw.schemas.workflow import TaskSpec
 from daaw.store.artifact_store import ArtifactStore
 
-# Max characters per dependency output.  Keeps downstream tasks
-# from getting a 10K-char wall of text as input.
-MAX_DEP_OUTPUT_CHARS = 2000
+# Max characters per dependency output. Keeps downstream tasks from
+# getting a 10 K-char wall of text as input.
+#
+# Override via env var DAAW_MAX_DEP_CHARS. On local gateways with
+# small-context models (gemma/qwen at num_ctx=4096), pushing a 2000-char
+# dependency plus the system prompt plus the task description past ~3500
+# tokens triggers empty completions and degenerate drift. Set this to
+# ~500 if you're driving a 4B-parameter local model.
+MAX_DEP_OUTPUT_CHARS = int(os.environ.get("DAAW_MAX_DEP_CHARS", "2000"))
 
 # Matches tokenizer reserved-token strings emitted by Gemma/Llama when the
 # model drifts: <unused42>, <tool|>, <tool_call|>, <tool_response|>,
