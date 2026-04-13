@@ -75,6 +75,22 @@ class TestSanitizeAndTruncate:
         out = _sanitize_and_truncate({"task_001.output": garbage})
         assert out["task_001.output"] == DEGENERATE_PLACEHOLDER
 
+    def test_max_dep_chars_env_override(self, monkeypatch):
+        """Users on small local models can set DAAW_MAX_DEP_CHARS=500 to
+        avoid overflowing 4K-context local LLMs with big dependency outputs."""
+        monkeypatch.setenv("DAAW_MAX_DEP_CHARS", "200")
+        import importlib
+        from daaw.engine import context_pruner
+        importlib.reload(context_pruner)
+        assert context_pruner.MAX_DEP_OUTPUT_CHARS == 200
+        # Reload _truncate picks up the new limit.
+        text = "x" * 1000
+        out = context_pruner._sanitize_and_truncate({"k": text})
+        assert len(out["k"]) < 500  # 200 + "\n...[truncated]"
+        # Reset for other tests.
+        monkeypatch.delenv("DAAW_MAX_DEP_CHARS")
+        importlib.reload(context_pruner)
+
 
 # ─── Fix 1: gateway raises on exhausted degenerate retries ───────────────
 
