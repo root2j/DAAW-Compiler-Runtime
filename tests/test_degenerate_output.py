@@ -232,6 +232,109 @@ class TestOllamaNumCtx:
         assert gp.DEFAULT_NUM_CTX == 16384
 
 
+class TestCudaOomAutoRetry:
+    """A CUDA OOM 500 should trigger automatic num_ctx halving."""
+
+    def _client_factory(self, response_sequence: list):
+        """Return a FakeClient that yields the given (status, body) tuples in order.
+
+        Captures every payload sent for assertions.
+        """
+        captured: list[dict] = []
+        idx = {"i": 0}
+
+        class FakeResp:
+            def __init__(self, status, body):
+                self.status_code = status
+                self._body = body
+                self.text = str(body)[:500]
+
+            def json(self):
+                return self._body
+
+        class FakeClient:
+            def __init__(self, *a, **kw):
+                pass
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *a):
+                return None
+            async def post(self, *a, **kw):
+                captured.append(kw.get("json", {}))
+                if idx["i"] >= len(response_sequence):
+                    status, body = response_sequence[-1]
+                else:
+                    status, body = response_sequence[idx["i"]]
+                idx["i"] += 1
+                return FakeResp(status, body)
+
+        return FakeClient, captured
+
+    def test_cuda_oom_halves_num_ctx_then_succeeds(self, monkeypatch):
+        # Pin DEFAULT_NUM_CTX to a known value so the assertion is env-independent.
+        monkeypatch.setenv("GATEWAY_NUM_CTX", "8192")
+        import importlib
+        from daaw.llm.providers import gateway_provider
+        importlib.reload(gateway_provider)
+        from daaw.llm.base import LLMMessage
+
+        oom = (500, {"error": {
+            "message": "an error was encountered while running the model: CUDA error",
+        }})
+        ok = (200, {
+            "choices": [{"message": {"content": "hello there friend."}}],
+            "model": "gemma4:e4b", "usage": {},
+        })
+        FakeClient, _capture_func = self._client_factory([oom, ok])
+        # Snapshot each payload deeply so later mutations don't overwrite
+        # what we observed on earlier requests.
+        import copy
+        payloads_seen: list[dict] = []
+
+        class SnapshotClient(FakeClient):
+            async def post(self, *a, **kw):
+                payloads_seen.append(copy.deepcopy(kw.get("json", {})))
+                return await super().post(*a, **kw)
+
+        import httpx as _real_httpx
+        monkeypatch.setattr(_real_httpx, "AsyncClient", SnapshotClient)
+
+        async def _no_wait(*a, **kw):
+            return None
+        monkeypatch.setattr(gateway_provider, "_wait_for_model", _no_wait)
+
+        p = gateway_provider.GatewayProvider(
+            gateway_url="http://localhost:11434/v1", default_model="gemma4:e4b",
+        )
+        resp = run(p.chat([LLMMessage(role="user", content="hi")], max_tokens=50))
+        assert resp.content == "hello there friend."
+        assert len(payloads_seen) >= 2
+        first_ctx = payloads_seen[0]["options"]["num_ctx"]
+        second_ctx = payloads_seen[1]["options"]["num_ctx"]
+        assert first_ctx == 8192, f"expected first attempt at 8192, got {first_ctx}"
+        assert second_ctx == 4096, f"expected halved 4096, got {second_ctx}"
+
+    def test_cuda_oom_raises_with_actionable_hint_when_floor_hit(self, monkeypatch):
+        from daaw.llm.base import LLMMessage
+        from daaw.llm.providers import gateway_provider
+
+        # Always-OOM. After enough halvings we hit _MIN_NUM_CTX and raise.
+        oom = (500, {"error": {"message": "CUDA error: out of memory"}})
+        FakeClient, captured = self._client_factory([oom] * 10)
+        import httpx as _real_httpx
+        monkeypatch.setattr(_real_httpx, "AsyncClient", FakeClient)
+
+        async def _no_wait(*a, **kw):
+            return None
+        monkeypatch.setattr(gateway_provider, "_wait_for_model", _no_wait)
+
+        p = gateway_provider.GatewayProvider(
+            gateway_url="http://localhost:11434/v1", default_model="gemma4:e4b",
+        )
+        with pytest.raises(RuntimeError, match="CUDA OOM after"):
+            run(p.chat([LLMMessage(role="user", content="hi")], max_tokens=50))
+
+
 # ─── Fix 3: critic fail-closed on unparseable verdict ────────────────────
 
 class TestCriticFailClosed:
