@@ -240,7 +240,27 @@ def _fixup_json_structure(data: dict) -> None:
     1. FLAT format (from lean prompt): role/tools_allowed at task level → wrap into agent{}
     2. NESTED format (old prompt): agent{} exists → move misplaced task fields out
     3. MIXED format: some fields in agent, some at task level → normalize
+    4. TRUNCATED tasks missing id/name/description → dropped (small models
+       sometimes hallucinate an empty stub at the end of the array).
     """
+    # First, drop tasks missing the three truly-required fields. Auto-
+    # filling with placeholders here would give the executor a fake task
+    # to run; dropping is cleaner and matches the "be lenient, not wrong"
+    # policy used elsewhere in the compiler.
+    tasks_in = data.get("tasks", []) or []
+    tasks_out: list[dict] = []
+    for t in tasks_in:
+        if not isinstance(t, dict):
+            continue
+        has_id = isinstance(t.get("id"), str) and t["id"].strip()
+        has_name = isinstance(t.get("name"), str) and t["name"].strip()
+        has_desc = (
+            isinstance(t.get("description"), str) and t["description"].strip()
+        )
+        if has_id and has_name and has_desc:
+            tasks_out.append(t)
+    data["tasks"] = tasks_out
+
     for task in data.get("tasks", []):
         agent = task.get("agent")
 

@@ -120,3 +120,33 @@ class TestTaskCountHandling:
         spec = run(c.compile("plan a trip"))
         assert len(spec.tasks) == 2
         assert len(prov.calls) == 2
+
+    def test_truncated_trailing_task_is_dropped(self):
+        """Small models sometimes append a stub task with only metadata/agent.
+        Those must be silently dropped, not fail validation.
+        """
+        good = json.loads(_spec_json(3))
+        # Append a malformed stub like the user's gemma4:e4b response.
+        good["tasks"].append({
+            "metadata": {},
+            "agent": {"role": "generic_llm", "tools_allowed": []},
+            "timeout_seconds": 300,
+            "max_retries": 2,
+            # no id, no name, no description
+        })
+        c, prov = _compiler_with([json.dumps(good)])
+        spec = run(c.compile("plan a trip"))
+        assert len(spec.tasks) == 3, "stub task should have been dropped"
+        assert len(prov.calls) == 1  # accepted first try, no retry
+
+    def test_only_stub_tasks_retries(self):
+        """If every task is malformed, we still retry (eventually fail)."""
+        stub_only = {
+            "name": "Bad plan", "description": "d", "metadata": {},
+            "tasks": [{"metadata": {}, "agent": {}}, {"metadata": {}}],
+        }
+        c, prov = _compiler_with(
+            [json.dumps(stub_only)] * 3, max_retries=3,
+        )
+        with pytest.raises(RuntimeError, match="failed after 3 attempts"):
+            run(c.compile("plan a trip"))
