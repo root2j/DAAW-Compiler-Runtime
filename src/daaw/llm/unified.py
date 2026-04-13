@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, AsyncIterator
 
 from daaw.config import AppConfig
-from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse
+from daaw.llm.base import LLMMessage, LLMProvider, LLMResponse, LLMStreamChunk
 from daaw.llm.rate_limiter import RateLimiter, get_rate_limiter
 
 
@@ -89,3 +89,38 @@ class UnifiedLLMClient:
         )
         self._rate_limiter.record_actual_usage(provider, resp.usage)
         return resp
+
+    async def chat_stream(
+        self,
+        provider: str,
+        messages: list[LLMMessage],
+        *,
+        model: str | None = None,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        response_format: dict[str, Any] | None = None,
+        tools: list[dict[str, Any]] | None = None,
+    ) -> AsyncIterator[LLMStreamChunk]:
+        """Stream chat completions, honouring the same rate limit as ``chat``."""
+        if provider not in self._providers:
+            available = ", ".join(self._providers) or "(none)"
+            raise ValueError(
+                f"Provider '{provider}' not available. "
+                f"Configured providers: {available}"
+            )
+        estimated_tokens = max_tokens + sum(len(m.content) for m in messages) // 4
+        await self._rate_limiter.acquire(provider, estimated_tokens=estimated_tokens)
+        last_usage: dict[str, Any] = {}
+        async for chunk in self._providers[provider].chat_stream(
+            messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            model=model,
+            tools=tools,
+        ):
+            if chunk.usage:
+                last_usage = chunk.usage
+            yield chunk
+        if last_usage:
+            self._rate_limiter.record_actual_usage(provider, last_usage)

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 import uuid
-from typing import Any
+from typing import Any, AsyncIterator, Callable
 
 from daaw.agents.registry import AGENT_REGISTRY
 from daaw.compiler.prompts import PLANNER_REFINEMENT_PROMPT, PLANNER_SYSTEM_PROMPT
@@ -105,6 +105,83 @@ class Compiler:
 
         raise RuntimeError(
             f"Compiler failed after {self._config.max_planner_retries} attempts: {last_error}"
+        )
+
+    async def compile_stream(
+        self, user_goal: str, *,
+        on_token: Callable[[str, str], None] | None = None,
+    ) -> WorkflowSpec:
+        """Compile with real-time token streaming.
+
+        Behaves exactly like :meth:`compile` (same retry loop, same
+        validation, same repair pipeline) but emits each token through
+        ``on_token(delta, full_so_far)`` as it arrives so the UI can
+        render a live view of the plan being written.
+
+        Returns the final validated ``WorkflowSpec``.
+        """
+        system_prompt = self._build_system_prompt()
+        last_error = ""
+        for attempt in range(self._config.max_planner_retries):
+            messages = [
+                LLMMessage(role="system", content=system_prompt),
+                LLMMessage(
+                    role="user",
+                    content=(
+                        f"Create a workflow plan for this goal:\n\n{user_goal}"
+                        + (f"\n\nPrevious attempt had error: {last_error[:200]}\nFix and respond with valid JSON." if last_error else "")
+                    ),
+                ),
+            ]
+
+            accumulated = ""
+            async for chunk in self._llm.chat_stream(
+                self._provider,
+                messages,
+                model=self._model,
+                temperature=0.4,
+                max_tokens=4096,
+                response_format={"type": "json_object"},
+            ):
+                if chunk.delta and on_token is not None:
+                    try:
+                        on_token(chunk.delta, chunk.full_content)
+                    except Exception:
+                        # UI callback must never break compilation.
+                        pass
+                if chunk.done:
+                    accumulated = chunk.full_content
+
+            try:
+                data = json.loads(_repair_json(accumulated))
+                data.setdefault("id", str(uuid.uuid4()))
+                data.setdefault("name", user_goal[:50])
+                data.setdefault("description", user_goal)
+                data.setdefault("tasks", [])
+                data.setdefault("metadata", {})
+                _fixup_json_structure(data)
+                _fixup_agent_roles(data)
+                spec = WorkflowSpec.model_validate(data)
+                if len(spec.tasks) == 0:
+                    last_error = (
+                        "No tasks generated. The workflow must have at "
+                        "least one task."
+                    )
+                    continue
+                if len(spec.tasks) == 1 and attempt < self._config.max_planner_retries - 1:
+                    last_error = (
+                        "Only 1 task generated. Break the goal into "
+                        "2-3 tasks with dependencies so the steps can "
+                        "be reviewed and retried independently."
+                    )
+                    continue
+                return spec
+            except (json.JSONDecodeError, Exception) as e:
+                last_error = str(e)
+
+        raise RuntimeError(
+            f"Compiler failed after {self._config.max_planner_retries} "
+            f"attempts: {last_error}"
         )
 
     async def refine(

@@ -1514,7 +1514,31 @@ def _run_live(provider: str, model: str, goal: str, hitl: bool = True):
 
         t0 = _time.monotonic()
         compiler = Compiler(llm, config, provider=provider, model=model)
-        spec = _run_async(compiler.compile(goal))
+        # Stream tokens into a live code block so the user sees the plan
+        # being written in real time instead of staring at a spinner.
+        stream_slot = st.empty()
+        stream_slot.markdown(
+            f'<div style="font-family:DM Sans;font-size:.72rem;'
+            f'color:{D["text_muted"]};margin:.25rem 0 .1rem">'
+            f'Streaming compiler output&hellip;</div>',
+            unsafe_allow_html=True,
+        )
+        stream_body = st.empty()
+
+        def _on_compile_token(_delta: str, full: str) -> None:
+            # Show just the tail so the box doesn't grow unbounded.
+            tail = full[-2400:] if len(full) > 2400 else full
+            stream_body.code(tail, language="json")
+
+        try:
+            spec = _run_async(
+                compiler.compile_stream(goal, on_token=_on_compile_token)
+            )
+        finally:
+            # Collapse the live stream — the structured chat message below
+            # replaces it with the human-readable compile summary.
+            stream_slot.empty()
+            stream_body.empty()
         compile_time = _time.monotonic() - t0
 
         st.session_state.live_spec = spec
