@@ -37,11 +37,15 @@ DEFAULT_GATEWAY_MODEL = os.environ.get("GATEWAY_MODEL", "default")
 # dependencies.  We override via the `options` field (Ollama extension,
 # ignored by other OpenAI-compatible backends).
 #   GATEWAY_NUM_CTX   context window hint for Ollama-style backends
-#                     (default 8192 — fits most workflows on 8-16GB VRAM)
+#                     (default 4096 — sized to fit a 7B/8B q4 model in
+#                     ~6 GB VRAM. Bump to 8192/16384 if you have headroom;
+#                     the gateway auto-halves on CUDA OOM either way.)
 #   GATEWAY_KEEP_ALIVE how long the model stays resident between calls
 #                     (default "5m" — reduces VRAM fragmentation churn)
-DEFAULT_NUM_CTX = int(os.environ.get("GATEWAY_NUM_CTX", "8192"))
+DEFAULT_NUM_CTX = int(os.environ.get("GATEWAY_NUM_CTX", "4096"))
 DEFAULT_KEEP_ALIVE = os.environ.get("GATEWAY_KEEP_ALIVE", "5m")
+# Floor — we won't shrink below this when retrying on CUDA OOM.
+_MIN_NUM_CTX = 1024
 
 # Reasoning models burn tokens on chain-of-thought before the response.
 _REASONING_TOKEN_MULTIPLIER = 4
@@ -188,12 +192,43 @@ class GatewayProvider(LLMProvider):
                                            guard="<function=")
                             continue
 
+                    # CUDA OOM / VRAM exhaustion: halve num_ctx and retry.
+                    # Common with smaller GPUs when KV cache + model + other
+                    # processes (browser, IDE) tip total VRAM over the edge.
+                    is_cuda_oom = any(k in detail_str for k in (
+                        "cuda error", "out of memory", "cudamalloc",
+                        "vram", "no memory available",
+                    ))
+                    if is_cuda_oom and attempt < _MAX_RETRIES:
+                        cur_ctx = (payload.get("options") or {}).get(
+                            "num_ctx", DEFAULT_NUM_CTX,
+                        )
+                        new_ctx = max(_MIN_NUM_CTX, cur_ctx // 2)
+                        if new_ctx < cur_ctx:
+                            payload.setdefault("options", {})["num_ctx"] = new_ctx
+                            await _wait_for_model(client, self._base_url, attempt)
+                            continue
+                        # Already at floor — fall through to raise below.
+
                     is_transient = any(k in detail_str for k in
                                        ("crashed", "reloaded", "loading",
                                         "not loaded", "channel error"))
                     if is_transient and attempt < _MAX_RETRIES:
                         await _wait_for_model(client, self._base_url, attempt)
                         continue
+
+                    # Add an actionable hint for CUDA OOM that survived
+                    # all retries (i.e. even num_ctx=1024 still OOM'd).
+                    if is_cuda_oom:
+                        raise RuntimeError(
+                            f"Gateway CUDA OOM after {attempt + 1} attempts "
+                            f"(model={target_model!r}). Tried halving num_ctx "
+                            f"down to {_MIN_NUM_CTX}. Free more VRAM (close "
+                            f"browser/IDE), restart the backend, switch to a "
+                            f"smaller model (e.g. gemma3:1b, qwen2.5:3b), or "
+                            f"set OLLAMA_NUM_GPU=0 to fall back to CPU. "
+                            f"Original error: {detail}"
+                        )
                     raise RuntimeError(
                         f"Gateway returned {resp.status_code}: {detail}"
                     )
