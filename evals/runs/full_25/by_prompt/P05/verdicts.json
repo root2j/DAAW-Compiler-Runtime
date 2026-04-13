@@ -1,0 +1,8 @@
+[
+  {
+    "task_id": "task_002",
+    "task_name": "Summarize TechCrunch Articles",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

@@ -1,0 +1,20 @@
+# P19 — File Management & Document Processing
+# complexity: Medium
+# characteristics: Loop
+# prompt: I have a folder with 200 image files in mixed formats (PNG, JPEG, BMP, TIFF). Convert all of them to WEBP format with 80% quality. Rename each file using the pattern "IMG_YYYY-MM-DD_001.webp" based on the image's EXIF creation date. If no EXIF data exists, use the file's modification date. Move the converted files to a folder called "Processed_Images".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 4.8s
+          · task_003: Get Image EXIF Data  [deps=-] [tools=file_read, shell_command]
+          · task_004: Get File Modification Dates  [deps=-] [tools=file_read, shell_command]
+          · task_005: Rename and Convert Images  [deps=task_003, task_004] [tools=file_write, shell_command]
+          · task_006: Move Converted Images  [deps=task_005] [tools=file_write, shell_command]
+[task success] task_003 (68.3s, 8 tool calls)
+[task success] task_004 (84.0s, 9 tool calls)
+[task success] task_005 (11.7s, 7 tool calls)
+[task success] task_006 (25.0s, 3 tool calls)
+[critic FAIL] task_003  — Error message indicates task execution failed and no image files were processed
+[critic FAIL] task_004  — Error message indicates a problem with the command execution
+[critic FAIL] task_005  — The list of image files is empty, indicating that no images were processed.
+[critic FAIL] task_006  — List of image files is empty
+[DONE] total 133.9s  api_calls=19  tokens=13666

@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.1-8b-instant` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 4956, Requested 1112. Please try again in 680ms. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+  "elapsed_seconds": 13.58,
+  "tool_calls": [],
+  "usage": null
+}

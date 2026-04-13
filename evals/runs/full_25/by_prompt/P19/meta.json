@@ -1,0 +1,7 @@
+{
+  "id": "P19",
+  "category": "File Management & Document Processing",
+  "complexity": "Medium",
+  "characteristics": "Loop",
+  "text": "I have a folder with 200 image files in mixed formats (PNG, JPEG, BMP, TIFF). Convert all of them to WEBP format with 80% quality. Rename each file using the pattern \"IMG_YYYY-MM-DD_001.webp\" based on the image's EXIF creation date. If no EXIF data exists, use the file's modification date. Move the converted files to a folder called \"Processed_Images\"."
+}

@@ -1,0 +1,15 @@
+# P08 — Data Processing & Analysis
+# complexity: Complex
+# characteristics: Conditional + Loop
+# prompt: Connect to a PostgreSQL database and pull all orders from the last 90 days. For each customer with more than 5 orders, calculate their average order value and classify them into tiers: Gold (>$500 avg), Silver ($200-$500), Bronze (<$200). Generate a separate email report for each tier with the customer list, and upload the full analysis as a Google Sheet shared with the marketing team.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 10.7s
+          · task_001: Connect to PostgreSQL Database  [deps=-] [tools=-]
+          · task_002: Pull Orders from Last 90 Days  [deps=task_001] [tools=web_search]
+          · task_003: Calculate Average Order Value and Classify Customers  [deps=task_002] [tools=web_search]
+          · task_004: Generate Email Reports for Each Tier  [deps=task_003] [tools=file_write]
+          · task_005: Upload Full Analysis to Google Sheet  [deps=task_003] [tools=file_write]
+[task failure] task_001 (0.0s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[DONE] total 10.7s  api_calls=1  tokens=975

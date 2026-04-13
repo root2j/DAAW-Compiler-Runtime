@@ -1,0 +1,20 @@
+# P10 — Data Processing & Analysis
+# complexity: Simple
+# characteristics: Linear
+# prompt: Read a JSON file containing 500 user records with fields name, email, signup_date, and country. Filter only users who signed up in the last 30 days from India, sort them alphabetically by name, and export the filtered list as both a CSV file and a formatted HTML table.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 5.2s
+          · task_001: Read JSON File  [deps=-] [tools=file_read]
+          · task_002: Filter User Records  [deps=task_001] [tools=file_read]
+          · task_003: Sort User Records  [deps=task_002] [tools=file_read]
+          · task_004: Export as CSV and HTML  [deps=task_003] [tools=file_write]
+[task success] task_001 (19.3s, 3 tool calls)
+[task success] task_002 (17.8s, 4 tool calls)
+[task success] task_003 (43.8s, 3 tool calls)
+[task success] task_004 (38.0s, 2 tool calls)
+[critic PASS] task_001  — JSON data loaded successfully
+[critic PASS] task_002  — Filtered user records by signup date and country as requested
+[critic PASS] task_003  — The output contains sorted user records as expected.
+[critic PASS] task_004  — Task completed successfully, indicating CSV and HTML export was successful.
+[DONE] total 134.5s  api_calls=19  tokens=13656

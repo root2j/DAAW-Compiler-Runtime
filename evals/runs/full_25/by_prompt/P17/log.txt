@@ -1,0 +1,26 @@
+# P17 — File Management & Document Processing
+# complexity: Medium
+# characteristics: Conditional
+# prompt: Monitor a shared Google Drive folder called "Submissions". When a new file is uploaded, check the file type. If it is a PDF, extract the text and run a plagiarism check against a reference database. If it is a DOCX, convert it to PDF first, then run the same check. Send the plagiarism report to the folder owner via email. If plagiarism exceeds 30%, flag the file by moving it to a subfolder called "Flagged".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 6 tasks in 8.7s
+          · task_001: Research Google Drive API  [deps=-] [tools=web_search]
+          · task_002: Set Up Google Drive Webhook  [deps=task_001] [tools=web_search]
+          · task_003: Determine File Type and Extract Text  [deps=task_002] [tools=file_read, shell_command]
+          · task_004: Run Plagiarism Check  [deps=task_003] [tools=shell_command]
+          · task_005: Send Plagiarism Report via Email  [deps=task_004] [tools=shell_command]
+          · task_006: Flag File if Plagiarism Exceeds 30%  [deps=task_004] [tools=shell_command]
+[task success] task_001 (8.9s, 0 tool calls)
+[task success] task_002 (8.0s, 0 tool calls)
+[task success] task_003 (10.8s, 0 tool calls)
+[task success] task_004 (9.7s, 0 tool calls)
+[task failure] task_006 (3.9s, 0 tool calls)
+[task failure] task_005 (13.6s, 0 tool calls)
+[critic PASS] task_001  — The task produced relevant content addressing the goal, specifically the Google 
+[critic PASS] task_002  — Relevant content addressing the goal was provided, although it appears to be a g
+[critic PASS] task_003  — File type and text extracted successfully using standard Linux commands.
+[critic FAIL] task_004  — Expected a plagiarism report, but received a shell command instead
+[critic FAIL] task_005  — Task 'task_005' failed — automatic retry.
+[critic FAIL] task_006  — Task 'task_006' failed — automatic retry.
+[DONE] total 69.4s  api_calls=11  tokens=5740

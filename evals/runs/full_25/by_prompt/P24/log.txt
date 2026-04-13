@@ -1,0 +1,23 @@
+# P24 — API Integration & Multi-Service Workflows
+# complexity: Complex
+# characteristics: Parallel + Loop
+# prompt: Create a daily competitive intelligence report. Every morning at 7 AM, scrape the latest blog posts from three competitor websites. For each post, generate a one-paragraph summary and a sentiment analysis score. Compare their content themes with our last 10 blog posts. Identify topic gaps where competitors are publishing but we are not. Compile everything into a formatted report and email it to the strategy team. Also post the top 3 findings as a Slack message.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 6.4s
+          · task_001: Scrape Competitor Blog Posts  [deps=-] [tools=web_search]
+          · task_002: Analyze Competitor Blog Posts  [deps=task_001] [tools=web_search]
+          · task_003: Compare Content Themes  [deps=task_002] [tools=file_read, web_search]
+          · task_004: Compile Report  [deps=task_003] [tools=file_write, web_search]
+          · task_005: Post Top 3 Findings on Slack  [deps=task_003] [tools=file_read, web_search]
+[task success] task_001 (20.7s, 4 tool calls)
+[task success] task_002 (30.1s, 6 tool calls)
+[task success] task_003 (34.2s, 4 tool calls)
+[task failure] task_005 (17.8s, 0 tool calls)
+[task success] task_004 (28.1s, 4 tool calls)
+[critic PASS] task_001  — Relevant content addressing the goal was produced, listing scraped blog posts fr
+[critic PASS] task_002  — Relevant content addressing the goal, including a list of analyzed blog posts wi
+[critic PASS] task_003  — Relevant content addressing the goal was produced, listing topic gaps and sugges
+[critic PASS] task_004  — Report compilation and emailing to strategy team was successful.
+[critic FAIL] task_005  — Task 'task_005' failed — automatic retry.
+[DONE] total 130.9s  api_calls=14  tokens=13227

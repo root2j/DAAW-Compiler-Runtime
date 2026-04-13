@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "output": "Based on the search results, here is the gathered information about the new wireless speaker:\n\n* Product description: The new wireless speakers are designed to provide immersive sound and have a flat, spherical design. They are available in different models, such as the Grand Horizon and the Horizon.\n* Features:\n\t+ Wireless connectivity\n\t+ Bluetooth connectivity\n\t+ IP67 weatherproofing\n\t+ Rugged build\n\t+ Dolby Atmos experience\n\t+ Multi-room setup or surround sound system\n\t+ Advanced features\n\t+ Great audio quality\n\t+ Various connectivity options\n\nNote: The features listed above are based on the search results and may not be an exhaustive list of all the features of the new wireless speaker.",
+  "error_message": "",
+  "elapsed_seconds": 22.94,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "new wireless speaker"
+      },
+      "result": "Search results for 'new wireless speaker':\n1. Shop for New Bluetooth &amp; Wireless Speakers at Best Buy. Find low everyday prices and buy online for delivery or in-store pick-up\n2. Explore wireless speakers that bring the concert to you. Discover options with powerful performance, long-lasting battery life, and versatile connectivity.\n3. Whether you want a rugged, take-anywhere speaker for the beach or the centerpiece for a multiroom sound system, these are the top Bluetooth and Wi-Fi speakers we&#x27;ve reviewed.\n4. Shop Target for Bluetooth Speakers you will love at great low prices. Choose from Same Day Delivery, Drive Up or Order Pickup. Free standard shipping with $35 orders. Expect More. Pay Less.\n5. All of the best wireless speakers we&#x27;re recommending in this guide combine fantastic sound quality with the freedom of a cable-free design."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "new wireless speaker features"
+      },
+      "result": "Search results for 'new wireless speaker features':\n1. The Grand Horizon and smaller Horizon are the renowned Japanese hi-fi maker&#x27;s first-ever wireless speakers (and its first new speakers in decades). They have a flat, spherical design and deliver immersive sound \u2014 each speaker fires audio in all directions (including upward for an enhanced Dolby Atmos experience).\n2. Sonos releases the new Sonos Play smart wireless and Bluetooth speaker in Q1 in 2026: Here&#x27;s where to find, shop, and buy the new speaker online\n3. The latest Wireless Speakers breaking news, comment, reviews and features from the experts at Whathifi\n4. Very few speakers I&#x27;ve tested occupy quite the same niche as the Sonos Roam 2. Yes, it has IP67 weatherproofing and a rugged build but it&#x27;s also crammed with smart wireless speaker features. Not ...\n5. Best Overall WiFi Speaker A beautifully designed modern WiFi speaker, the Sonos Five supplies a reliable connection of multiple Sonos speakers to form a multi-room setup or surround sound system. With amazing advanced features, great audio quality, and various connectivity options, the Sonos Fives is the Best Wifi Speaker."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 815,
+    "completion_tokens": 146,
+    "total_tokens": 961
+  }
+}

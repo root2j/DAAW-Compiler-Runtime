@@ -1,0 +1,83 @@
+{
+  "status": "success",
+  "output": "Unfortunately, the task cannot be completed as expected because several required searches could not be fulfilled.",
+  "error_message": "",
+  "elapsed_seconds": 12.81,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email extraction"
+      },
+      "result": "No results found for: email extraction"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email sender, subject, body"
+      },
+      "result": "No results found for: email sender, subject, body"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email parsing and extraction techniques"
+      },
+      "result": "No results found for: email parsing and extraction techniques"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email data extraction tools"
+      },
+      "result": "No results found for: email data extraction tools"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email object structure"
+      },
+      "result": "No results found for: email object structure"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email body parsing techniques"
+      },
+      "result": "No results found for: email body parsing techniques"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email subject parsing techniques"
+      },
+      "result": "No results found for: email subject parsing techniques"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email sender parsing techniques"
+      },
+      "result": "No results found for: email sender parsing techniques"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email object example"
+      },
+      "result": "No results found for: email object example"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "list of 10 email objects"
+      },
+      "result": "No results found for: list of 10 email objects"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 693,
+    "completion_tokens": 19,
+    "total_tokens": 712
+  }
+}

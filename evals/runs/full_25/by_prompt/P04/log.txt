@@ -1,0 +1,18 @@
+# P04 — Email & Communication Automation
+# complexity: Complex
+# characteristics: Conditional + Loop
+# prompt: Build a customer support email triage system. Read all unread emails from support@mycompany.com. Classify each email into one of four categories: billing, technical, general inquiry, or complaint. For billing issues, auto-reply with a payment portal link. For technical issues, create a Jira ticket and assign it to the engineering team. For complaints, escalate to a manager via Slack with the full email thread. For general inquiries, draft a response using an FAQ knowledge base and save it as a draft for human review.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 6 tasks in 26.5s
+          · task_001: Gather Unread Emails  [deps=-] [tools=web_search]
+          · task_002: Classify Emails  [deps=task_001] [tools=web_search]
+          · task_003: Auto-Reply Billing Issues  [deps=task_002] [tools=file_write, file_read]
+          · task_004: Create Jira Tickets  [deps=task_002] [tools=shell_command]
+          · task_005: Escalate Complaints  [deps=task_002] [tools=shell_command]
+          · task_006: Draft General Inquiry Responses  [deps=task_002] [tools=file_write, file_read]
+[task success] task_001 (15.9s, 3 tool calls)
+[task failure] task_002 (4.6s, 0 tool calls)
+[critic FAIL] task_001  — No unread emails found for support@mycompany.com
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 53.2s  api_calls=7  tokens=4480

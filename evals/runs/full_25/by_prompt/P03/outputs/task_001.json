@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search>{\"query\": \"retrieve customer data from CSV file Python\"}</function>\n\n<web_search>{\"query\": \"customer data extraction from CSV file\"}</function>",
+  "error_message": "",
+  "elapsed_seconds": 5.91,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 331,
+    "completion_tokens": 36,
+    "total_tokens": 367
+  }
+}

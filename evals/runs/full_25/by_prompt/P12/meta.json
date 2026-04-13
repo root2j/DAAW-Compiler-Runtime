@@ -1,0 +1,7 @@
+{
+  "id": "P12",
+  "category": "Content Generation & Social Media",
+  "complexity": "Medium",
+  "characteristics": "Parallel",
+  "text": "Take a single product description for a new wireless speaker and generate marketing content for three platforms simultaneously: a 150-word Instagram caption with emoji and hashtags, a professional 300-word LinkedIn post highlighting business use cases, and a casual 100-word Twitter thread (3 tweets). Export all three in a single document with clear section headers."
+}

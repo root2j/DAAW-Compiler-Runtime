@@ -1,0 +1,7 @@
+{
+  "id": "P17",
+  "category": "File Management & Document Processing",
+  "complexity": "Medium",
+  "characteristics": "Conditional",
+  "text": "Monitor a shared Google Drive folder called \"Submissions\". When a new file is uploaded, check the file type. If it is a PDF, extract the text and run a plagiarism check against a reference database. If it is a DOCX, convert it to PDF first, then run the same check. Send the plagiarism report to the folder owner via email. If plagiarism exceeds 30%, flag the file by moving it to a subfolder called \"Flagged\"."
+}

@@ -1,0 +1,16 @@
+# P25 — API Integration & Multi-Service Workflows
+# complexity: Medium
+# characteristics: Linear
+# prompt: When a new order is placed on my Shopify store, fetch the order details via Shopify API. Generate a shipping label using the ShipStation API. Update the order status to "Shipped" in Shopify. Send the customer a tracking email with the carrier name and tracking number. Log the complete order + shipping details in a Google Sheet.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 6 tasks in 5.9s
+          · task_001: Fetch Shopify Order Details  [deps=-] [tools=web_search]
+          · task_002: Generate Shipping Label  [deps=task_001] [tools=web_search]
+          · task_003: Update Order Status  [deps=task_002] [tools=web_search]
+          · task_004: Get Tracking Email Details  [deps=task_002] [tools=web_search]
+          · task_005: Send Tracking Email  [deps=task_004] [tools=web_search]
+          · task_006: Log Order and Shipping Details  [deps=task_003, task_005] [tools=file_write]
+[task failure] task_001 (7.6s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[DONE] total 13.5s  api_calls=2  tokens=1038

@@ -1,0 +1,127 @@
+{
+  "id": "c44e8004-a85b-4baa-945d-e5c63cc36a16",
+  "name": "Kubernetes Blog Post Conversion",
+  "description": "Convert a 2000-word Kubernetes blog post into a simplified version, executive summary, and FAQs.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Original Blog Post",
+      "description": "Find the original 2000-word Kubernetes blog post.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Original blog post content",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Simplify Blog Post for Non-Technical Readers",
+      "description": "Convert the original blog post into a simplified 500-word version.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Simplified blog post content",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create Executive Summary",
+      "description": "Extract a bullet-point executive summary from the original blog post.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Executive summary content",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Generate FAQs",
+      "description": "Create a set of 5 FAQ questions with answers based on the original blog post.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "FAQs content",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Combine Outputs into Markdown File",
+      "description": "Save the simplified blog post, executive summary, and FAQs into a single Markdown file.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        },
+        {
+          "task_id": "task_003",
+          "output_key": null
+        },
+        {
+          "task_id": "task_004",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Combined Markdown file",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

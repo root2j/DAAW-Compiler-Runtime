@@ -1,0 +1,17 @@
+# P18 — File Management & Document Processing
+# complexity: Complex
+# characteristics: Parallel + Conditional
+# prompt: Process a batch of 50 scanned receipts (JPEG images) from a folder. For each image, perform OCR to extract the merchant name, date, total amount, and payment method. Validate the extracted data — if any field is missing or ambiguous, flag the receipt for manual review. For valid receipts, categorize expenses into Food, Transport, Office Supplies, and Other. Generate an expense report as a formatted Excel file with a pie chart showing spending distribution, and email the report to finance@mycompany.com.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 5.2s
+          · task_002: Perform OCR on Receipts  [deps=-] [tools=web_search]
+          · task_003: Validate and Flag Receipts  [deps=task_002] [tools=file_write]
+          · task_004: Categorize Expenses  [deps=task_003] [tools=file_write]
+          · task_005: Generate Expense Report  [deps=task_004] [tools=file_write]
+          · task_006: Email Expense Report  [deps=task_005] [tools=file_read]
+[task success] task_002 (46.7s, 4 tool calls)
+[task failure] task_003 (11.9s, 0 tool calls)
+[critic FAIL] task_002  — The output does not contain any extracted receipt data, it appears to be a tutor
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 73.5s  api_calls=6  tokens=6061

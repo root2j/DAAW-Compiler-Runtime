@@ -1,0 +1,7 @@
+{
+  "id": "P16",
+  "category": "File Management & Document Processing",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Scan a folder called \"Downloads\" and identify all PDF files larger than 10MB. Compress each one to reduce file size. Move the compressed versions to a new folder called \"Compressed_PDFs\" and generate a log file listing original filename, original size, new size, and compression percentage."
+}

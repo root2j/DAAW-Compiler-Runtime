@@ -1,0 +1,7 @@
+{
+  "id": "P20",
+  "category": "File Management & Document Processing",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Take a 50-page PDF report and extract all tables from it. Convert each table into a separate sheet in a single Excel workbook. Name each sheet \"Table_1\", \"Table_2\", etc. Save the workbook as \"extracted_tables.xlsx\"."
+}

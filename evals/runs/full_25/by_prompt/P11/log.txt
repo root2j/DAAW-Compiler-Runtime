@@ -1,0 +1,17 @@
+# P11 — Content Generation & Social Media
+# complexity: Simple
+# characteristics: Linear
+# prompt: Given a blog post URL, extract the main content, generate a 280-character tweet-sized summary, create 5 relevant hashtags, and format the output as a ready-to-post tweet.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 5.2s
+          · task_001: Web Search for Blog Post Content  [deps=-] [tools=web_search]
+          · task_002: Extract Main Content  [deps=task_001] [tools=file_read]
+          · task_003: Generate Tweet Summary  [deps=task_002] [tools=file_read]
+          · task_004: Create Relevant Hashtags  [deps=task_002] [tools=file_read]
+          · task_005: Format Tweet  [deps=task_003, task_004] [tools=file_write]
+[task success] task_001 (6.5s, 0 tool calls)
+[task failure] task_002 (4.5s, 0 tool calls)
+[critic PASS] task_001  — Relevant web search results found
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 21.7s  api_calls=4  tokens=1482

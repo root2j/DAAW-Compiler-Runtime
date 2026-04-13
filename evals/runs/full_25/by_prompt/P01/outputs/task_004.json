@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "output": "Unfortunately, the task cannot be completed as expected because several required searches could not be fulfilled.",
+  "error_message": "",
+  "elapsed_seconds": 7.19,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "categorized email list format"
+      },
+      "result": "No results found for: categorized email list format"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email categorization best practices"
+      },
+      "result": "No results found for: email categorization best practices"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email organization techniques"
+      },
+      "result": "No results found for: email organization techniques"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 466,
+    "completion_tokens": 19,
+    "total_tokens": 485
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "output": "1. List of post ideas:\n    - Find and save ideas about eco-friendly social media posts on Pinterest.\n    - Find out how these top 7 sustainable fashion brands are using social media to raise brand awareness, boost engagement and drive sales.\n    - Sustainability creative post design ideas are now deeply connected with storytelling, authenticity, and long term impact. Social media platforms like Instagram and Pinterest are filled with content, but only designs that feel meaningful and intentional manage to stand out. This is where eco friendly social media post design plays a powerful role. It connects aesthetics with purpose and ...\n    - Discover cutting-edge eco friendly social media ideas to amplify your digital presence while promoting sustainability. But what groundbreaking strategy will redefine your online persona?\n    - Discover engaging Instagram content ideas for Sustainable Fashion creators. Viral hooks, post concepts, and strategy tips for sustainable fashion.\n    - In this guide, we&#x27;ll explore eco-friendly Instagram content ideas, strategies for growth, and creative ways to spread awareness about sustainability \u2014 all while keeping your content visually appealing and authentic.\n    - Find and save ideas about sustainable instagram post on Pinterest.\n    - Our sustainable Instagram posts are thoughtfully designed to captivate your audience while spreading awareness about environmental and social issues. From minimalist designs to vibrant illustrations, our collection offers a wide range of options to suit your brand&#x27;s unique style and message.\n    - Discover 60+ fashion content ideas for Instagram, TikTok, and YouTube to boost engagement, showcase style, and keep your brand or page fresh and creative.\n    - These TikTok creators will teach you how to spot greenwashing, what to look for at the thrift store, how to mend your own clothes, and more.\n    - Discover the most popular sustainablefashion TikTok hashtags in 2025 to enhance your videos. Use trending hashtags like #recycling, #zerowastehome, #reducereuserecycle, #zerowastelifestyle, #plasticpollution, #saynotoplastic, to reach a wider audience on TikTok. Analyze hashtag performance with our TikTok #Sustainablefashion hashtags analytics.\n    - If one of your goals for 2023 is to style yourself with more sustainability in mind, you need to follow our edit of the best sustainable fashion influencers\u2026 Across Instagram and TikTok, we&#x27;ve searched through the #fitchecks and #ootds to search out the content creators who will give you tips, inspiration, styling ideas and vital knowledge about the more damaging elements of the fashion ...\n    - Do not just use vanity sustainable hashtags on TikTok or other social media channels. Real sustainability progress already generating value for organisations can provide motivation for others in the sector.",
+  "error_message": "",
+  "elapsed_seconds": 50.84,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "sustainable fashion social media post ideas"
+      },
+      "result": "Search results for 'sustainable fashion social media post ideas':\n1. Find and save ideas about eco-friendly social media posts on Pinterest.\n2. Find out how these top 7 sustainable fashion brands are using social media to raise brand awareness, boost engagement and drive sales.\n3. Sustainability creative post design ideas are now deeply connected with storytelling, authenticity, and long term impact. Social media platforms like Instagram and Pinterest are filled with content, but only designs that feel meaningful and intentional manage to stand out. This is where eco friendly social media post design plays a powerful role. It connects aesthetics with purpose and ...\n4. Discover cutting-edge eco friendly social media ideas to amplify your digital presence while promoting sustainability. But what groundbreaking strategy will redefine your online persona?\n5. From confessing eco slip-ups, to great design, to grassroots activism, there are many ways to get your sustainable brand to blow up on social media."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "sustainable fashion social media post ideas for Instagram"
+      },
+      "result": "Search results for 'sustainable fashion social media post ideas for Instagram':\n1. Discover engaging Instagram content ideas for Sustainable Fashion creators. Viral hooks, post concepts, and strategy tips for sustainable fashion.\n2. In this guide, we&#x27;ll explore eco-friendly Instagram content ideas, strategies for growth, and creative ways to spread awareness about sustainability \u2014 all while keeping your content visually appealing and authentic.\n3. Find and save ideas about sustainable instagram post on Pinterest.\n4. Our sustainable Instagram posts are thoughtfully designed to captivate your audience while spreading awareness about environmental and social issues. From minimalist designs to vibrant illustrations, our collection offers a wide range of options to suit your brand&#x27;s unique style and message.\n5. Discover 60+ fashion content ideas for Instagram, TikTok, and YouTube to boost engagement, showcase style, and keep your brand or page fresh and creative."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "sustainable fashion social media post ideas for TikTok"
+      },
+      "result": "Search results for 'sustainable fashion social media post ideas for TikTok':\n1. Discover 60+ fashion content ideas for Instagram, TikTok, and YouTube to boost engagement, showcase style, and keep your brand or page fresh and creative.\n2. These TikTok creators will teach you how to spot greenwashing, what to look for at the thrift store, how to mend your own clothes, and more.\n3. Discover the most popular sustainablefashion TikTok hashtags in 2025 to enhance your videos. Use trending hashtags like #recycling, #zerowastehome, #reducereuserecycle, #zerowastelifestyle, #plasticpollution, #saynotoplastic, to reach a wider audience on TikTok. Analyze hashtag performance with our TikTok #Sustainablefashion hashtags analytics.\n4. If one of your goals for 2023 is to style yourself with more sustainability in mind, you need to follow our edit of the best sustainable fashion influencers\u2026 Across Instagram and TikTok, we&#x27;ve searched through the #fitchecks and #ootds to search out the content creators who will give you tips, inspiration, styling ideas and vital knowledge about the more damaging elements of the fashion ...\n5. Do not just use vanity sustainable hashtags on TikTok or other social media channels. Real sustainability progress already generating value for organisations can provide motivation for others in the sector."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1571,
+    "completion_tokens": 554,
+    "total_tokens": 2125
+  }
+}

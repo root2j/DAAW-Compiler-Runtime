@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "output": "Unfortunately, the web search function was unable to fetch all the top 100 listings from Amazon.",
+  "error_message": "",
+  "elapsed_seconds": 21.44,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "Amazon top 100 product listings"
+      },
+      "result": "No results found for: Amazon top 100 product listings"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "site:amazon.com inurl:dp intitle:index of and intitle:list 100"
+      },
+      "result": "Search results for 'site:amazon.com inurl:dp intitle:index of and intitle:list 100':\n1. Amazon.com : Harloon 100 Pcs Dry Erase Index Cards 3 x 5 Inch Laminated Reusable Dry Erase Note Cards Sheets for Office to Do List (Candy Color) : Office Products Available at checkout This item is a gift. Change At checkout, you can add a custom message, a gift receipt for easy returns and have the item gift-wrapped Add gift options at checkout See more $9.49 with 21 percent savings $949$0.09 ...\n2. BEBEMOKO Index Tab Memo Pads 100 Sheets Portable Lined Writing Paper Self-adhesive Note Pads for Office School Daily To-do List and Message Writing on Amazon.com. *FREE* shipping on qualifying offers.\n3. GAROZATION Index Loose-leaf Memo Pads 100 Sheets Small Lined Note Pads for Students Portable To-do List Paper and Message Recording\n4. Online shopping for from a great selection at All Departments Store.\n5. Amazon.com : EXCOOL CLUB 3 Count Diabetes Food List And Meal Planner Laminated - Diabetic Food Chart For Type 2 Diabetes, Healthy Diabete Meal Guide Diet Plan, Glycemic Index Foods Guide Chart 2026 For Diabetics : Office Products Diabetes Food List Chart: A clear, at-a-glance diabetes food list chart designed to simplify everyday choices. Includes guidance that aligns with a diabetes food ..."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 725,
+    "completion_tokens": 20,
+    "total_tokens": 745
+  }
+}

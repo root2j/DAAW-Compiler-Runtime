@@ -1,0 +1,26 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Log into Gmail and fetch 10 most recent emails",
+    "verdict": "FAIL",
+    "reasoning": "Error message indicates task failed due to unfulfilled searches"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract sender, subject, and body from each email",
+    "verdict": "FAIL",
+    "reasoning": "Task failed due to incomplete searches"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Analyze and categorize each email as 'Important' or 'Not Important'",
+    "verdict": "FAIL",
+    "reasoning": "Error message indicates task cannot be completed as expected"
+  },
+  {
+    "task_id": "task_004",
+    "task_name": "Present results in a clear list",
+    "verdict": "FAIL",
+    "reasoning": "Error message indicates task cannot be completed"
+  }
+]

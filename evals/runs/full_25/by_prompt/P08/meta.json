@@ -1,0 +1,7 @@
+{
+  "id": "P08",
+  "category": "Data Processing & Analysis",
+  "complexity": "Complex",
+  "characteristics": "Conditional + Loop",
+  "text": "Connect to a PostgreSQL database and pull all orders from the last 90 days. For each customer with more than 5 orders, calculate their average order value and classify them into tiers: Gold (>$500 avg), Silver ($200-$500), Bronze (<$200). Generate a separate email report for each tier with the customer list, and upload the full analysis as a Google Sheet shared with the marketing team."
+}

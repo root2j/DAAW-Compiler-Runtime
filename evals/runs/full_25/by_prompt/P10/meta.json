@@ -1,0 +1,7 @@
+{
+  "id": "P10",
+  "category": "Data Processing & Analysis",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Read a JSON file containing 500 user records with fields name, email, signup_date, and country. Filter only users who signed up in the last 30 days from India, sort them alphabetically by name, and export the filtered list as both a CSV file and a formatted HTML table."
+}

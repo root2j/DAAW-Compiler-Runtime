@@ -1,0 +1,7 @@
+{
+  "id": "P15",
+  "category": "Content Generation & Social Media",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Given a company name and its one-line description, generate a 100-word \"About Us\" section, a tagline (max 10 words), and three value proposition bullet points. Format the output as HTML suitable for embedding in a website."
+}

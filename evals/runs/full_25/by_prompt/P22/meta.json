@@ -1,0 +1,7 @@
+{
+  "id": "P22",
+  "category": "API Integration & Multi-Service Workflows",
+  "complexity": "Complex",
+  "characteristics": "Parallel + Conditional + Loop",
+  "text": "Build an automated hiring pipeline. When a new application is submitted via a Google Form, extract the candidate's resume PDF from the form response. Parse the resume to extract name, email, skills, and years of experience. If the candidate has 3+ years of experience and lists Python or Java as a skill, move them to the \"Shortlisted\" Google Sheet and send them a calendar link for an interview via Calendly. Otherwise, send a polite rejection email. At the end of each day, generate a summary report of all applications received, shortlisted, and rejected, and post it to a Slack channel."
+}

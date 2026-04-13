@@ -1,0 +1,7 @@
+{
+  "id": "P13",
+  "category": "Content Generation & Social Media",
+  "complexity": "Complex",
+  "characteristics": "Loop + Conditional",
+  "text": "Manage a content calendar for the next 30 days. For each day, check if there is already a scheduled post in the Google Sheet \"ContentCalendar\". If not, generate a social media post idea relevant to our niche (sustainable fashion), write the caption, suggest an image description for AI generation, and populate the empty slot in the sheet. Skip weekends. At the end, send a summary of all newly created posts to my email."
+}

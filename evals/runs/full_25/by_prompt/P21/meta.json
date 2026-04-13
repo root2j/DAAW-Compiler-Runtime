@@ -1,0 +1,7 @@
+{
+  "id": "P21",
+  "category": "API Integration & Multi-Service Workflows",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "When a new row is added to a Google Sheet called \"Leads\", extract the contact name, email, company, and phone number. Create a new contact in HubSpot CRM with these details. Send an automated welcome email via SendGrid using a predefined template. Log the timestamp and status of both operations back to the Google Sheet in new columns."
+}

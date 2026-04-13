@@ -1,0 +1,48 @@
+{
+  "id": "11428591-2c6e-4f8c-8cb7-5450d9d2a971",
+  "name": "Weekly Tech Digest",
+  "description": "Pull top 5 headlines from TechCrunch, summarize each article, and send digest to email",
+  "tasks": [
+    {
+      "id": "task_002",
+      "name": "Summarize TechCrunch Articles",
+      "description": "Summarize each article in 2 sentences",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "summaries of top 5 headlines",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Compose and Send Weekly Digest",
+      "description": "Compose email with subject line Weekly Tech Digest \u2014 [Date] and send to email address",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "email sent to email address",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Scrape Competitor Blog Posts",
+    "verdict": "PASS",
+    "reasoning": "Relevant content addressing the goal was produced, listing scraped blog posts from competitor websites."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Analyze Competitor Blog Posts",
+    "verdict": "PASS",
+    "reasoning": "Relevant content addressing the goal, including a list of analyzed blog posts with sentiment analysis scores."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Compare Content Themes",
+    "verdict": "PASS",
+    "reasoning": "Relevant content addressing the goal was produced, listing topic gaps and suggesting ways to address them."
+  },
+  {
+    "task_id": "task_004",
+    "task_name": "Compile Report",
+    "verdict": "PASS",
+    "reasoning": "Report compilation and emailing to strategy team was successful."
+  },
+  {
+    "task_id": "task_005",
+    "task_name": "Post Top 3 Findings on Slack",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_005' failed \u2014 automatic retry."
+  }
+]

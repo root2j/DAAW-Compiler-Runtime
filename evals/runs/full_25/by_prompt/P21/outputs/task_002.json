@@ -1,0 +1,41 @@
+{
+  "status": "success",
+  "output": "To create a new contact in HubSpot CRM, follow these steps:\n\n1. Log into your HubSpot account.\n2. Navigate to the left side panel: CRM > Contacts.\n3. In the top right corner, click \"Create contact.\"\n4. Fill in applicable fields in the pop-up, including:\n\t* Lead ID\n\t* Name\n\t* Email\n\t* Company\n\t* Intent\n5. Click on \"Create\" at the bottom of the pop-up to save the new contact.\n\nAlternatively, you can use the HubSpot API to create a new contact by making a POST request to `/crm/v3/objects/contacts` with a `properties` object containing the contact data and an `associations` array to define associations with other CRM records.\n\nNote: The `Lead ID` field is not a default property in HubSpot, but it can be added as a custom property.",
+  "error_message": "",
+  "elapsed_seconds": 35.55,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "create new contact in HubSpot CRM"
+      },
+      "result": "Search results for 'create new contact in HubSpot CRM':\n1. There are additional ways to create contacts in HubSpot: Import: if you&#x27;re moving from another CRM with existing contacts or have contact data in a spreadsheet, you can import contacts to HubSpot. Form submission: when a new visitor fills in and submits a HubSpot form, a contact record for their email address will be created in HubSpot ...\n2. Learn how to add a new contact to HubSpot CRM quickly and correctly so your database stays clean and actionable. This step-by-step tutorial covers manual contact creation, adding contact ...\n3. Once the contact is created in HubSpot, we&#x27;ll want to make sure they are added to the proper lists. Here are the steps to creating a new contact in HubSpot: 1. Log into your HubSpot account 2. Navigate to the left side panel: CRM &gt; Contacts 3. In the top right corner, click &quot;Create contact&quot; 4.\n4. Create a new contact in HubSpot Open the left sidebar navigation and click CRM &gt; Contacts. Click on Create Contact on the far right. Fill in applicable fields in the pop-up. A field with an asterisk (*) is required. Click on Create at the bottom of the pop-up or Create and add another if you want to enter more than one contact.\n5. Create and connect contacts, companies, deals, and leads in HubSpot with clean setup steps, automation tips, and reporting checks."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "HubSpot CRM contact properties"
+      },
+      "result": "Search results for 'HubSpot CRM contact properties':\n1. Contact properties store information about your contacts, such as their email address, or the last time they filled out a form. HubSpot creates default properties in each account to store key information. Some of those properties, such as the lifecycle stage property, are automatically populated by HubSpot. Some default contact properties cannot be edited. Instead of editing a default property ...\n2. How to define and manage HubSpot contact properties to efficiently store key information, like emails and form submissions, and save valuable time in your CRM.\n3. When your HubSpot CRM starts to scale, the mess often isn&#x27;t from a lack of data; it&#x27;s from mismatched fields, broken automations, and reporting that doesn&#x27;t line up. Poorly managed contact properties are usually the culprit. Maybe you&#x27;ve onboarded data from another tool, built a few automations, and noticed your lifecycle stages or attribution sources aren&#x27;t making sense. Or contacts ...\n4. Prior to creating a property you should: Review the property editor terminology and layout. Check whether a default HubSpot-provided property can meet your data requirements before creating a custom property. Learn more about the default properties for contacts, companies, deals, tickets, leads, line items, products, and feedback submissions.\n5. Most Commonly Used Default Properties for Contacts As an independent consultant using HubSpot, one of the most important components of your CRM is the accurate and consistent management of your Contacts. HubSpot&#x27;s default Contact properties (often referred to as &quot;properties&quot;) help you store key pieces of information about each individual."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "HubSpot CRM API documentation"
+      },
+      "result": "Search results for 'HubSpot CRM API documentation':\n1. 2026-03 API reference Reference documentation for HubSpot&#x27;s date-versioned APIs, introduced with the 2026-03 release. The 2026-03 APIs use a date-based versioning scheme that replaces the previous numeric version paths (e.g., /crm/v3/). All endpoints in this section follow the pattern:\n2. What is the HubSpot API and Why Use It? Connect disparate business apps directly to CRM features using robust endpoints for contacts, companies, deals, tickets, and marketing events. Automate repetitive tasks, such as lead capture and follow-up, by integrating third-party platforms, reducing manual workload by up to 60% (Gartner, 2024).\n3. Welcome to the HubSpot Developer Documentation. Build custom CRM and data-driven website experiences on HubSpot. Follow the steps below to get started, or jump directly into a quickstart that fits your build.\n4. The HubSpot API is a set of RESTful endpoints that allows developers to interact with and access data from the HubSpot CRM platform. With this API, developers can create custom integrations and applications to automate their marketing, sales, and customer service workflows. The API provides access to a wide range of HubSpot features, such as contacts, deals, companies, tickets, and more. It is ...\n5. A step-by-step guide to building API integrations with custom objects and field mappings across Salesforce, HubSpot, and NetSuite."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "HubSpot CRM contact API create contact"
+      },
+      "result": "Search results for 'HubSpot CRM contact API create contact':\n1. Create a single contact. Include a properties object to define property values for the contact, along with an associations array to define associations with other CRM records.\n2. By connecting with HubSpot&#x27;s API, developers can create or update contact information seamlessly, enabling personalized marketing strategies and improved customer relationship management.\n3. Create contacts To create new contacts, make a POST request to /crm/v3/objects/contacts. In your request, include your contact data in a properties object. You can also add an associations object to associate your new contact with existing records (e.g., companies, deals), or activities (e.g., meetings, notes).\n4. What Is the HubSpot API? HubSpot provides a RESTful API for accessing CRM data and marketing automation features. The API handles: Contacts, companies, deals, tickets, and custom objects Marketing emails and landing pages Sales pipelines and sequences Service tickets and conversations Analytics and reporting Workflows and automation Files and ...\n5. An API is built to empower you to create a functional application or integration effortlessly. HubSpot APIs are what power the HubSpot application. The ecosystem of developers using integrations at the top of the APIs is active and diverse, varying from webinars to CRM s to social media. Now let&#x27;s get back to the HubSpot Contact API overview."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2140,
+    "completion_tokens": 185,
+    "total_tokens": 2325
+  }
+}

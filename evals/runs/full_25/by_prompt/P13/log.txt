@@ -1,0 +1,23 @@
+# P13 — Content Generation & Social Media
+# complexity: Complex
+# characteristics: Loop + Conditional
+# prompt: Manage a content calendar for the next 30 days. For each day, check if there is already a scheduled post in the Google Sheet "ContentCalendar". If not, generate a social media post idea relevant to our niche (sustainable fashion), write the caption, suggest an image description for AI generation, and populate the empty slot in the sheet. Skip weekends. At the end, send a summary of all newly created posts to my email.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 15.3s
+          · task_001: Gather Existing Posts  [deps=-] [tools=web_search]
+          · task_002: Determine Post Schedule  [deps=task_001] [tools=web_search]
+          · task_003: Generate Post Ideas  [deps=task_002] [tools=web_search]
+          · task_004: Populate Google Sheet  [deps=task_003] [tools=file_write, file_read]
+          · task_005: Send Summary Email  [deps=task_004] [tools=file_write, file_read]
+[task success] task_001 (38.0s, 3 tool calls)
+[task success] task_002 (18.2s, 2 tool calls)
+[task success] task_003 (50.8s, 3 tool calls)
+[task success] task_004 (59.2s, 3 tool calls)
+[task failure] task_005 (24.2s, 0 tool calls)
+[critic FAIL] task_001  — Output does not list existing posts as requested
+[critic FAIL] task_002  — Output is off-topic and does not address the goal of determining post schedule
+[critic PASS] task_003  — Relevant content addressing the goal of generating post ideas for sustainable fa
+[critic PASS] task_004  — The task completed successfully and the Google Sheet was updated with post ideas
+[critic FAIL] task_005  — Task 'task_005' failed — automatic retry.
+[DONE] total 223.1s  api_calls=22  tokens=21949

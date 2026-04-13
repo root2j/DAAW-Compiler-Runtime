@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Research Company Information",
+    "verdict": "PASS",
+    "reasoning": "Relevant company information was found, although company name was not specified."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract Company Description",
+    "verdict": "PASS",
+    "reasoning": "Extracted one-line description from search results"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Ask for Tagline",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

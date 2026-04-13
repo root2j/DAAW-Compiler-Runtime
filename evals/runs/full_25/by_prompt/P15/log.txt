@@ -1,0 +1,19 @@
+# P15 — Content Generation & Social Media
+# complexity: Simple
+# characteristics: Linear
+# prompt: Given a company name and its one-line description, generate a 100-word "About Us" section, a tagline (max 10 words), and three value proposition bullet points. Format the output as HTML suitable for embedding in a website.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 3.4s
+          · task_001: Research Company Information  [deps=-] [tools=web_search]
+          · task_002: Extract Company Description  [deps=task_001] [tools=web_search]
+          · task_003: Ask for Tagline  [deps=task_002] [tools=-]
+          · task_004: Generate Value Propositions  [deps=task_003] [tools=web_search]
+          · task_005: Format Output as HTML  [deps=task_004] [tools=file_write]
+[task success] task_001 (49.5s, 4 tool calls)
+[task success] task_002 (22.5s, 2 tool calls)
+[task failure] task_003 (0.0s, 0 tool calls)
+[critic PASS] task_001  — Relevant company information was found, although company name was not specified.
+[critic PASS] task_002  — Extracted one-line description from search results
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 81.1s  api_calls=11  tokens=8344

@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "output": "Unfortunately, the task cannot be completed as expected because several required searches could not be fulfilled.",
+  "error_message": "",
+  "elapsed_seconds": 10.88,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email categorization techniques"
+      },
+      "result": "No results found for: email categorization techniques"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "email classification algorithms"
+      },
+      "result": "No results found for: email classification algorithms"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "machine learning for email analysis"
+      },
+      "result": "No results found for: machine learning for email analysis"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 468,
+    "completion_tokens": 19,
+    "total_tokens": 487
+  }
+}

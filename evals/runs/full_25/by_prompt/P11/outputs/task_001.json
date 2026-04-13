@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search query=\"site:exampleblog.com blog post content\">",
+  "error_message": "",
+  "elapsed_seconds": 6.55,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 331,
+    "completion_tokens": 15,
+    "total_tokens": 346
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Gather Unread Emails",
+    "verdict": "FAIL",
+    "reasoning": "No unread emails found for support@mycompany.com"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Classify Emails",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

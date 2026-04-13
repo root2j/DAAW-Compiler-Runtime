@@ -1,0 +1,17 @@
+# P23 — API Integration & Multi-Service Workflows
+# complexity: Medium
+# characteristics: Conditional
+# prompt: Integrate a Stripe payment webhook with my system. When a payment succeeds, update the customer's status in my database to "Paid", send a receipt email, and log the transaction in a Google Sheet. When a payment fails, send a reminder email to the customer with a retry link and alert the finance team via Slack.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 8.4s
+          · task_001: Research Stripe Webhook  [deps=-] [tools=web_search]
+          · task_002: Configure Stripe Webhook  [deps=task_001] [tools=file_write, file_read, shell_command]
+          · task_003: Update Customer Status and Send Receipt  [deps=task_002] [tools=file_write, file_read, shell_command]
+          · task_004: Log Transaction in Google Sheet  [deps=task_002] [tools=file_write, file_read, shell_command]
+          · task_005: Handle Failed Payment  [deps=task_002] [tools=file_write, file_read, shell_command]
+[task success] task_001 (9.6s, 0 tool calls)
+[task failure] task_002 (5.5s, 0 tool calls)
+[critic PASS] task_001  — Found relevant web search query for Stripe webhook documentation and API keys
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 28.9s  api_calls=4  tokens=1555

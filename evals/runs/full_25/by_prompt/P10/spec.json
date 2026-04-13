@@ -1,0 +1,95 @@
+{
+  "id": "c48c92a9-8053-4376-83f9-5c981b69f41b",
+  "name": "Read and Filter User Records",
+  "description": "Read user records from a JSON file, filter by signup date and country, sort alphabetically, and export as CSV and HTML",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Read JSON File",
+      "description": "Read user records from a JSON file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "JSON data loaded",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Filter User Records",
+      "description": "Filter user records by signup date and country",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Filtered user records",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Sort User Records",
+      "description": "Sort filtered user records alphabetically by name",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Sorted user records",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Export as CSV and HTML",
+      "description": "Export sorted user records as CSV and HTML",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Exported CSV and HTML files",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}
