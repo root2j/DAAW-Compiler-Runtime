@@ -102,6 +102,14 @@ class Critic:
             except (json.JSONDecodeError, Exception) as e:
                 last_error = str(e)
 
-        # Fail-open: if critic can't produce valid output, pass the task
-        print(f"  [CRITIC] Could not parse verdict for {task.id} — fail-open (pass)")
-        return True, None, "Critic could not parse a verdict — fail-open (pass)."
+        # Fail-closed: if the critic itself can't produce a parseable verdict,
+        # we have no evidence the task succeeded — mark FAIL so the pipeline
+        # surfaces the problem instead of burying it under a green badge.
+        # (Previously this silently passed; see MEMORY.md known issue.)
+        print(f"  [CRITIC] Could not parse verdict for {task.id} — fail-closed (fail)")
+        return (
+            False,
+            None,
+            f"Critic could not parse a verdict — fail-closed. Last parse error: "
+            f"{last_error[:200]}",
+        )
