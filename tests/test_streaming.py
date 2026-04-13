@@ -57,7 +57,7 @@ class ScriptedStreamProvider(LLMProvider):
         self._deltas = deltas
 
     def name(self):
-        return "scripted"
+        return "stream_scripted"
 
     async def chat(self, messages, **kw):
         content = "".join(self._deltas)
@@ -78,9 +78,9 @@ class TestUnifiedStreamRouting:
     def test_routes_to_provider_stream(self):
         cfg = AppConfig(artifact_store_dir="/tmp/daaw")
         llm = UnifiedLLMClient(cfg)
-        llm._providers["scripted"] = ScriptedStreamProvider(["hel", "lo ", "world"])
+        llm._providers["stream_scripted"] = ScriptedStreamProvider(["hel", "lo ", "world"])
         chunks = run(_collect(llm.chat_stream(
-            "scripted", [LLMMessage(role="user", content="hi")],
+            "stream_scripted", [LLMMessage(role="user", content="hi")],
         )))
         assert len(chunks) == 4  # 3 deltas + final done
         assert chunks[-1].done
@@ -89,15 +89,15 @@ class TestUnifiedStreamRouting:
     def test_records_usage_from_final_chunk(self):
         cfg = AppConfig(artifact_store_dir="/tmp/daaw")
         llm = UnifiedLLMClient(cfg)
-        llm._providers["scripted"] = ScriptedStreamProvider(["abc"])
+        llm._providers["stream_scripted"] = ScriptedStreamProvider(["abc"])
         run(_collect(llm.chat_stream(
-            "scripted", [LLMMessage(role="user", content="x")],
+            "stream_scripted", [LLMMessage(role="user", content="x")],
         )))
         # Rate limiter should have accrued tokens_total via record_actual_usage.
         snap = llm.rate_limiter.snapshot()
         # scripted isn't a known provider name, so it lives under default mapping.
         # The per-provider state is only created for names in _DEFAULT_LIMITS,
-        # so "scripted" is simply a no-op. That's fine — we just assert the
+        # so "stream_scripted" is simply a no-op. That's fine — we just assert the
         # call completes without raising.
 
     def test_unknown_provider_raises(self):
@@ -105,6 +105,45 @@ class TestUnifiedStreamRouting:
         llm = UnifiedLLMClient(cfg)
         with pytest.raises(ValueError, match="not available"):
             run(_collect(llm.chat_stream("nope", [])))
+
+
+class TestAgentTokenStreaming:
+    """Factory's on_agent_token callback routes per-agent tokens correctly."""
+
+    def test_agent_streams_when_callback_attached(self):
+        import daaw.agents.builtin.generic_llm_agent  # noqa: F401
+        from daaw.agents.factory import AgentFactory
+        from daaw.config import AppConfig
+        from daaw.schemas.workflow import AgentSpec
+        from daaw.store.artifact_store import ArtifactStore
+
+        cfg = AppConfig(groq_api_key="x")
+        llm = UnifiedLLMClient(cfg)
+        llm._providers["stream_scripted"] = ScriptedStreamProvider(
+            ["Hel", "lo ", "wor", "ld"],
+        )
+
+        captured: list[tuple[str, str, str]] = []
+
+        def _on_agent_token(task_id, delta, full):
+            captured.append((task_id, delta, full))
+
+        import tempfile
+        store = ArtifactStore(tempfile.mkdtemp())
+        factory = AgentFactory(
+            llm, store,
+            default_provider="stream_scripted",
+            on_agent_token=_on_agent_token,
+        )
+        agent = factory.create(
+            "task_abc", AgentSpec(role="generic_llm", tools_allowed=[]),
+        )
+        result = run(agent.run({"task": "say hello"}))
+        assert result.status == "success"
+        assert result.output == "Hello world"
+        # Every delta was forwarded to the callback with the correct task id.
+        assert [c[0] for c in captured] == ["task_abc"] * 4
+        assert captured[-1][2] == "Hello world"
 
 
 class TestCompilerStream:
@@ -137,8 +176,8 @@ class TestCompilerStream:
 
         cfg = AppConfig(groq_api_key="x")
         llm = UnifiedLLMClient(cfg)
-        llm._providers["scripted"] = ScriptedStreamProvider(deltas)
-        c = Compiler(llm, cfg, provider="scripted")
+        llm._providers["stream_scripted"] = ScriptedStreamProvider(deltas)
+        c = Compiler(llm, cfg, provider="stream_scripted")
 
         token_log: list[tuple[str, int]] = []
 

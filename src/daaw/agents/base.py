@@ -26,12 +26,16 @@ class BaseAgent(ABC):
         store: ArtifactStore,
         config: dict[str, Any] | None = None,
         interaction: InteractionHandler | None = None,
+        on_token: Any = None,  # Callable[[delta, full_so_far], None] | None
     ):
         self.agent_id = agent_id
         self.llm_client = llm_client
         self.store = store
         self.config = config or {}
         self.interaction: InteractionHandler = interaction or NullInteractionHandler()
+        # Optional per-agent token observer — surfaces streaming output
+        # to the UI. ``None`` means non-streaming mode (default).
+        self.on_token = on_token
 
     async def ask_user(
         self,
