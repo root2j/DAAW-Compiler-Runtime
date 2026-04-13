@@ -1,0 +1,95 @@
+{
+  "id": "45a4dd3d-5626-4601-8dae-f289dadb14b7",
+  "name": "Gmail Email Analysis",
+  "description": "Log into Gmail, pull 10 most recent emails, analyze and categorize them.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Log into Gmail and fetch 10 most recent emails",
+      "description": "Use web_search to log into Gmail and retrieve emails.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "list of 10 email objects",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract sender, subject, and body from each email",
+      "description": "Use web_search to extract relevant data from each email.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "list of 10 email objects with sender, subject, and body",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Analyze and categorize each email as 'Important' or 'Not Important'",
+      "description": "Use web_search to analyze and categorize each email.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "list of 10 categorized email objects",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Present results in a clear list",
+      "description": "Use web_search to format the categorized email list.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "clear list of categorized emails",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

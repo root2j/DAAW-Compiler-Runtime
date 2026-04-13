@@ -1,0 +1,7 @@
+{
+  "id": "P04",
+  "category": "Email & Communication Automation",
+  "complexity": "Complex",
+  "characteristics": "Conditional + Loop",
+  "text": "Build a customer support email triage system. Read all unread emails from support@mycompany.com. Classify each email into one of four categories: billing, technical, general inquiry, or complaint. For billing issues, auto-reply with a payment portal link. For technical issues, create a Jira ticket and assign it to the engineering team. For complaints, escalate to a manager via Slack with the full email thread. For general inquiries, draft a response using an FAQ knowledge base and save it as a draft for human review."
+}

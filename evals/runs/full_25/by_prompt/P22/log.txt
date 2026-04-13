@@ -1,0 +1,19 @@
+# P22 — API Integration & Multi-Service Workflows
+# complexity: Complex
+# characteristics: Parallel + Conditional + Loop
+# prompt: Build an automated hiring pipeline. When a new application is submitted via a Google Form, extract the candidate's resume PDF from the form response. Parse the resume to extract name, email, skills, and years of experience. If the candidate has 3+ years of experience and lists Python or Java as a skill, move them to the "Shortlisted" Google Sheet and send them a calendar link for an interview via Calendly. Otherwise, send a polite rejection email. At the end of each day, generate a summary report of all applications received, shortlisted, and rejected, and post it to a Slack channel.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 7 tasks in 6.0s
+          · task_001: Extract Resume from Google Form  [deps=-] [tools=web_search]
+          · task_002: Parse Resume  [deps=task_001] [tools=shell_command]
+          · task_003: Evaluate Candidate  [deps=task_002] [tools=shell_command]
+          · task_004: Update Google Sheet and Send Interview Link  [deps=task_003] [tools=shell_command]
+          · task_005: Send Rejection Email  [deps=task_003] [tools=shell_command]
+          · task_006: Generate Daily Report  [deps=-] [tools=shell_command]
+          · task_007: Post Report to Slack  [deps=task_006] [tools=shell_command]
+[task failure] task_006 (8.2s, 0 tool calls)
+[task failure] task_001 (8.6s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[critic FAIL] task_006  — Task 'task_006' failed — automatic retry.
+[DONE] total 14.6s  api_calls=3  tokens=1132

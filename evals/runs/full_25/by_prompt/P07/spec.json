@@ -1,0 +1,96 @@
+{
+  "id": "93e6805d-96b7-4d2a-9e20-55a578990c5a",
+  "name": "Excel Sales Report",
+  "description": "Merge and analyze sales data from three Excel files",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Gather Excel Files",
+      "description": "Download or access the three Excel files",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Three Excel files are available",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Merge and Clean Data",
+      "description": "Merge the three Excel files, remove duplicates, and handle missing values",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Cleaned dataset is available",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create Pivot Table and Chart",
+      "description": "Generate a pivot table showing monthly revenue by region and a bar chart of the results",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Pivot table and chart are available",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Report as PDF",
+      "description": "Save the final report as a PDF file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Report is saved as a PDF",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

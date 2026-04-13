@@ -1,0 +1,7 @@
+{
+  "id": "P11",
+  "category": "Content Generation & Social Media",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Given a blog post URL, extract the main content, generate a 280-character tweet-sized summary, create 5 relevant hashtags, and format the output as a ready-to-post tweet."
+}

@@ -1,0 +1,15 @@
+# P02 — Email & Communication Automation
+# complexity: Medium
+# characteristics: Conditional Branching
+# prompt: Monitor my Gmail inbox every 30 minutes. When a new email arrives from a client (domain: @acmecorp.com), extract any attached invoices as PDF, save them to a Google Drive folder called "Invoices 2026", and send me a Slack notification with the sender name, subject, and attachment filename. If the email has no attachment, just log the subject and sender to a Google Sheet.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 4.8s
+          · task_002: Extract Client Emails  [deps=-] [tools=web_search]
+          · task_003: Extract Invoices as PDF  [deps=task_002] [tools=file_read, web_search]
+          · task_004: Save Invoice to Google Drive  [deps=task_003] [tools=file_write, web_search]
+          · task_005: Log Email to Google Sheet  [deps=task_002] [tools=file_write, web_search]
+          · task_006: Send Slack Notification  [deps=task_003] [tools=web_search]
+[task failure] task_002 (15.4s, 0 tool calls)
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 20.2s  api_calls=3  tokens=1467

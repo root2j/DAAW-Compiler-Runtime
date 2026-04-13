@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Extract Resume from Google Form",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+  },
+  {
+    "task_id": "task_006",
+    "task_name": "Generate Daily Report",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_006' failed \u2014 automatic retry."
+  }
+]

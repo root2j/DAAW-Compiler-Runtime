@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search>{\"query\": \"Stripe webhook documentation and API keys\"}</function>",
+  "error_message": "",
+  "elapsed_seconds": 9.56,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 332,
+    "completion_tokens": 18,
+    "total_tokens": 350
+  }
+}

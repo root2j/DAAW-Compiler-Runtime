@@ -1,0 +1,121 @@
+{
+  "id": "1e28557a-0226-49fb-863c-fc4f775a84bf",
+  "name": "Daily Competitive Intelligence Report",
+  "description": "Create a daily competitive intelligence report by scraping competitor blog posts, analyzing their content, and comparing it with our own.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Scrape Competitor Blog Posts",
+      "description": "Scrape the latest blog posts from three competitor websites.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "List of scraped blog posts",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Analyze Competitor Blog Posts",
+      "description": "Generate a one-paragraph summary and a sentiment analysis score for each post.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "List of analyzed blog posts",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Compare Content Themes",
+      "description": "Compare the content themes of the competitor blog posts with our last 10 blog posts to identify topic gaps.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "List of topic gaps",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Compile Report",
+      "description": "Compile the findings into a formatted report and email it to the strategy team.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Report sent to strategy team",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Post Top 3 Findings on Slack",
+      "description": "Post the top 3 findings as a Slack message.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Top 3 findings posted on Slack",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

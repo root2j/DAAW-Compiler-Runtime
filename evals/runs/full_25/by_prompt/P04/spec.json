@@ -1,0 +1,143 @@
+{
+  "id": "b25d8c61-1dcc-451d-8bfe-907b3f1169d3",
+  "name": "Customer Support Email Triage System",
+  "description": "Automate customer support email triage and routing",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Gather Unread Emails",
+      "description": "Read all unread emails from support@mycompany.com",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Email list retrieved",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Classify Emails",
+      "description": "Classify each email into one of four categories: billing, technical, general inquiry, or complaint",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Emails classified",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Auto-Reply Billing Issues",
+      "description": "Auto-reply with a payment portal link for billing issues",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Billing auto-replies sent",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Create Jira Tickets",
+      "description": "Create a Jira ticket and assign it to the engineering team for technical issues",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Jira tickets created",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Escalate Complaints",
+      "description": "Escalate complaints to a manager via Slack with the full email thread",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Complaints escalated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_006",
+      "name": "Draft General Inquiry Responses",
+      "description": "Draft a response using an FAQ knowledge base and save it as a draft for human review",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "General inquiry responses drafted",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

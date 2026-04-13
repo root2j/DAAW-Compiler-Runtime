@@ -1,0 +1,18 @@
+# P21 — API Integration & Multi-Service Workflows
+# complexity: Medium
+# characteristics: Linear
+# prompt: When a new row is added to a Google Sheet called "Leads", extract the contact name, email, company, and phone number. Create a new contact in HubSpot CRM with these details. Send an automated welcome email via SendGrid using a predefined template. Log the timestamp and status of both operations back to the Google Sheet in new columns.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 13.3s
+          · task_001: Gather Google Sheet Data  [deps=-] [tools=web_search]
+          · task_002: Create HubSpot Contact  [deps=task_001] [tools=web_search]
+          · task_003: Send Welcome Email  [deps=task_002] [tools=web_search]
+          · task_004: Log Operations in Google Sheet  [deps=task_002, task_003] [tools=web_search, file_write]
+[task success] task_001 (39.2s, 5 tool calls)
+[task success] task_002 (35.5s, 4 tool calls)
+[task failure] task_003 (5.7s, 0 tool calls)
+[critic PASS] task_001  — Task produced relevant content addressing the goal of extracting lead data from 
+[critic FAIL] task_002  — Output does not contain information about creating a contact using the task's AP
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 106.0s  api_calls=10  tokens=9694

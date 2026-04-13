@@ -1,0 +1,26 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Research Original Blog Post",
+    "verdict": "FAIL",
+    "reasoning": "Could not find the original 2000-word Kubernetes blog post."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Simplify Blog Post for Non-Technical Readers",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Create Executive Summary",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  },
+  {
+    "task_id": "task_004",
+    "task_name": "Generate FAQs",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_004' failed \u2014 automatic retry."
+  }
+]

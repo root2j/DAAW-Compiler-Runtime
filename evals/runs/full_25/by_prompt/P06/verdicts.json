@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Gather Sales Data",
+    "verdict": "PASS",
+    "reasoning": "Sales data retrieved from CSV file"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Calculate Revenue",
+    "verdict": "FAIL",
+    "reasoning": "The code to calculate the total revenue per product is incomplete."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Sort and Export Data",
+    "verdict": "PASS",
+    "reasoning": "Task completed successfully and data was exported as CSV."
+  }
+]

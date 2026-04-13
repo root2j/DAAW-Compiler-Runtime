@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "output": "No results found for the given search queries.",
+  "error_message": "",
+  "elapsed_seconds": 15.91,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "read all unread emails support@mycompany.com"
+      },
+      "result": "No results found for: read all unread emails support@mycompany.com"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "check email on support@mycompany.com"
+      },
+      "result": "No results found for: check email on support@mycompany.com"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "access support email"
+      },
+      "result": "No results found for: access support email"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 446,
+    "completion_tokens": 10,
+    "total_tokens": 456
+  }
+}

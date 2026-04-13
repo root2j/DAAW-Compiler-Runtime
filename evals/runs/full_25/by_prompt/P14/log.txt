@@ -1,0 +1,21 @@
+# P14 — Content Generation & Social Media
+# complexity: Medium
+# characteristics: Linear
+# prompt: Take a 2000-word technical blog post about Kubernetes and convert it into: a simplified 500-word version for non-technical readers, a bullet-point executive summary (max 10 bullets), and a set of 5 FAQ questions with answers based on the original content. Save all outputs in a single Markdown file.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 4.5s
+          · task_001: Research Original Blog Post  [deps=-] [tools=web_search]
+          · task_002: Simplify Blog Post for Non-Technical Readers  [deps=task_001] [tools=file_read, file_write]
+          · task_003: Create Executive Summary  [deps=task_001] [tools=file_read]
+          · task_004: Generate FAQs  [deps=task_001] [tools=file_read]
+          · task_005: Combine Outputs into Markdown File  [deps=task_002, task_003, task_004] [tools=file_write]
+[task success] task_001 (39.5s, 3 tool calls)
+[task failure] task_004 (2.5s, 0 tool calls)
+[task failure] task_003 (2.5s, 0 tool calls)
+[task failure] task_002 (14.7s, 0 tool calls)
+[critic FAIL] task_001  — Could not find the original 2000-word Kubernetes blog post.
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[critic FAIL] task_004  — Task 'task_004' failed — automatic retry.
+[DONE] total 64.2s  api_calls=9  tokens=4649

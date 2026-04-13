@@ -1,0 +1,32 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Gather Existing Posts",
+    "verdict": "FAIL",
+    "reasoning": "Output does not list existing posts as requested"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Determine Post Schedule",
+    "verdict": "FAIL",
+    "reasoning": "Output is off-topic and does not address the goal of determining post schedule"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Generate Post Ideas",
+    "verdict": "PASS",
+    "reasoning": "Relevant content addressing the goal of generating post ideas for sustainable fashion."
+  },
+  {
+    "task_id": "task_004",
+    "task_name": "Populate Google Sheet",
+    "verdict": "PASS",
+    "reasoning": "The task completed successfully and the Google Sheet was updated with post ideas."
+  },
+  {
+    "task_id": "task_005",
+    "task_name": "Send Summary Email",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_005' failed \u2014 automatic retry."
+  }
+]

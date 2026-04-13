@@ -1,0 +1,51 @@
+{
+  "task_002": {
+    "status": "success",
+    "output": "Based on the search results, I will provide a step-by-step guide on how to use Tesseract OCR to extract data from scanned receipts.\n\n**Step 1: Install Tesseract OCR**\n\nYou can install Tesseract OCR using pip:\n```bash\npip install pytesseract\n```\n**Step 2: Install OpenCV**\n\nYou can install OpenCV using pip:\n```bash\npip install opencv-python\n```\n**Step 3: Load the Receipt Image**\n\nLoad the receipt image using OpenCV:\n```python\nimport cv2\n\nimage = cv2.imread('receipt_image.jpg')\n```\n**Step 4: Preprocess the Image**\n\nPreprocess the image to enhance the quality and remove noise:\n```python\nimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)\nimage = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]\n```\n**Step 5: Extract Text from the Receipt**\n\nUse Tesseract OCR to extract text from the receipt:\n```python\nimport pytesseract\n\ntext = pytesseract.image_to_string(image)\n```\n**Step 6: Parse the Extracted Text**\n\nParse the extracted text to extract relevant information such as merchant name, line items, and totals:\n```python\nimport re\n\n# Extract merchant name\nmerchant_name = re.search(r'Merchant Name: (.*?)$', text).group(1)\n\n# Extract line items\nline_items = re.findall(r'Item: (.*?)\\nPrice: (.*?)\\n', text)\n\n# Extract totals\ntotals = re.search(r'Total: (.*?)$', text).group(1)\n```\n**Step 7: Store the Extracted Data**\n\nStore the extracted data in a database or file for further processing and analysis.\n\nNote: This is a basic example and you may need to adjust the code to suit your specific requirements. Additionally, you may need to fine-tune the Tesseract OCR engine to improve the accuracy of the extracted text.",
+    "error_message": "",
+    "elapsed_seconds": 46.7,
+    "tool_calls": [
+      {
+        "tool": "web_search",
+        "args": {
+          "query": "Tesseract OCR receipt extraction example"
+        },
+        "result": "Search results for 'Tesseract OCR receipt extraction example':\n1. An efficient OCR engine for receipt image processing. This repository provides a comprehensive solution for Optical Character Recognition (OCR) on receipt images, featuring both a dedicated Tesseract OCR module and a general receipt processing package using LLMs.\n2. Phase 2 - Extracting Text from a Receipt Image (OCR) \ud83d\udd25 Built for greatness. Learn like you&#x27;re in a private Python masterclass.\n3. POST /ocr/: Upload a receipt image file to perform OCR. The response will contain the extracted text from the receipt. Note: The Tesseract OCR API returns raw extracted text from the receipt image. For structured JSON output with parsed fields such as merchant name, line items, and totals, use the receipt-ocr instead. Example usage with cURL:\n4. Tesseract OCR is an open source optical character recognition (OCR) engine developed by Google. It can be used to scan receipts and extract text from them. The following example code shows how to use Tesseract OCR to scan a receipt: # import the necessary packages from PIL import Image import pytesseract # load the image image = Image.open ...\n5. Introduction to Python OCR with Tesseract Optical Character Recognition (OCR) is a technology that converts different types of documents, like scanned paper documents, images, or PDFs, into machine-readable and editable text. By analyzing the shapes of letters and characters within an image, OCR extracts and recognizes text, allowing the digitization of printed information. This technology is ..."
+      },
+      {
+        "tool": "web_search",
+        "args": {
+          "query": "Best practices for using Tesseract OCR on scanned receipts"
+        },
+        "result": "Search results for 'Best practices for using Tesseract OCR on scanned receipts':\n1. An efficient OCR engine for receipt image processing. This repository provides a comprehensive solution for Optical Character Recognition (OCR) on receipt images, featuring both a dedicated Tesseract OCR module and a general receipt processing package using LLMs.\n2. Dictionaries, word lists, and patterns By default Tesseract is optimized to recognize sentences of words. If you&#x27;re trying to recognize something else, like receipts, price lists, or codes, there are a few things you can do to improve the accuracy of your results, as well as double-checking that the appropriate segmentation method is selected. Disabling the dictionaries Tesseract uses should ...\n3. Jim, from my experience with Tesseract some more tricks you can do: 1) Change image resolution by resizing to something like 150% or 75% of the original image size (experiment with different factors), I guess Tesseract is trained on certain DPI values (300, 600, 900) for scanned documents, sometimes you need to get closer to these for better OCR results. 2) Segment the image in columns with ...\n4. How to use Tesseract to OCR the receipt, line-by-line See a real-world application of how choosing the correct Tesseract Page Segmentation Mode (PSM) can lead to better results OCR&#x27;ing Receipts with OpenCV and Tesseract In the first part of this tutorial, we will review our directory structure for our receipt scanner project.\n5. Introduction to Python OCR with Tesseract Optical Character Recognition (OCR) is a technology that converts different types of documents, like scanned paper documents, images, or PDFs, into machine-readable and editable text. By analyzing the shapes of letters and characters within an image, OCR extracts and recognizes text, allowing the digitization of printed information. This technology is ..."
+      },
+      {
+        "tool": "web_search",
+        "args": {
+          "query": "Tesseract OCR tutorial receipt extraction"
+        },
+        "result": "Search results for 'Tesseract OCR tutorial receipt extraction':\n1. An efficient OCR engine for receipt image processing. This repository provides a comprehensive solution for Optical Character Recognition (OCR) on receipt images, featuring both a dedicated Tesseract OCR module and a general receipt processing package using LLMs.\n2. Explore and run machine learning code with Kaggle Notebooks | Using data from [Private Datasource]\n3. Learning Objectives In this tutorial, you will learn: How to use OpenCV to detect, extract, and transform a receipt in an input image How to use Tesseract to OCR the receipt, line-by-line See a real-world application of how choosing the correct Tesseract Page Segmentation Mode (PSM) can lead to better results OCR&#x27;ing Receipts with OpenCV and ...\n4. Tesseract OCR is an open source optical character recognition (OCR) engine developed by Google. It can be used to scan receipts and extract text from them. The following example code shows how to use Tesseract OCR to scan a receipt: # import the necessary packages from PIL import Image import pytesseract # load the image image = Image.open ...\n5. Build a fully functional Receipt Scanner with Tesseract OCR, Gemini AI and Python Tutorial Coders Academy 650 subscribers Subscribe"
+      },
+      {
+        "tool": "web_search",
+        "args": {
+          "query": "Tesseract OCR receipt extraction code example"
+        },
+        "result": "Search results for 'Tesseract OCR receipt extraction code example':\n1. An efficient OCR engine for receipt image processing. This repository provides a comprehensive solution for Optical Character Recognition (OCR) on receipt images, featuring both a dedicated Tesseract OCR module and a general receipt processing package using LLMs.\n2. POST /ocr/: Upload a receipt image file to perform OCR. The response will contain the extracted text from the receipt. Note: The Tesseract OCR API returns raw extracted text from the receipt image. For structured JSON output with parsed fields such as merchant name, line items, and totals, use the receipt-ocr instead. Example usage with cURL:\n3. Have you ever wanted to OCR receipts and scanned documents using Python? Good news, in this complete tutorial, you&#x27;ll see all of the code, and we&#x27;ll walk you through all of it line-by-line.\n4. Tesseract OCR is an open source optical character recognition (OCR) engine developed by Google. It can be used to scan receipts and extract text from them. The following example code shows how to use Tesseract OCR to scan a receipt: # import the necessary packages from PIL import Image import pytesseract # load the image image = Image.open ...\n5. Phase 2 - Extracting Text from a Receipt Image (OCR) \ud83d\udd25 Built for greatness. Learn like you&#x27;re in a private Python masterclass."
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1688,
+      "completion_tokens": 413,
+      "total_tokens": 2101
+    }
+  },
+  "task_003": {
+    "status": "failure",
+    "output": null,
+    "error_message": "Error code: 400 - {'error': {'message': \"tool call validation failed: attempted to call tool 'bruce_check_for_missing_or_ambiguous_data_and_flag_receipts_for_manual_review' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=bruce_check_for_missing_or_ambiguous_data_and_flag_receipts_for_manual_review>{\\n\\n  \"task_id\": \"task_003\",\\n  \"status\": \"in_progress\",\\n  \"output\": \"Validating receipt data...\",\\n  \"flags\": [],\\n  \"receipts\": [\\n    {\"id\": 1, \"data\": {\"merchant_name\": \"\", \"line_items\": [], \"totals\": {}}},\\n    {\"id\": 2, \"data\": {\"merchant_name\": \"\", \"line_items\": [], \"totals\": {}}},\\n    {\"id\": 3, \"data\": {\"merchant_name\": \"ABC Inc.\", \"line_items\": [{\"item\": \"Item 1\", \"price\": 10.99}, {\"item\": \"Item 2\", \"price\": 5.99}], \"totals\": {\"total\": 16.98}}},\\n    {\"id\": 4, \"data\": {\"merchant_name\": \"\", \"line_items\": [], \"totals\": {}}},\\n    {\"id\": 5, \"data\": {\"merchant_name\": \"XYZ Corp.\", \"line_items\": [{\"item\": \"Item 1\", \"price\": 9.99}, {\"item\": \"Item 2\", \"price\": 7.99}], \"totals\": {\"total\": 17.98}}}\\n  ]\\n} </function>\\n\\n'}}",
+    "elapsed_seconds": 11.95,
+    "tool_calls": [],
+    "usage": null
+  }
+}

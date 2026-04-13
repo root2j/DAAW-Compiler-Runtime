@@ -1,0 +1,17 @@
+# P06 — Data Processing & Analysis
+# complexity: Simple
+# characteristics: Linear
+# prompt: Read a CSV file called "sales_data.csv" that contains columns for date, product name, quantity, and price. Calculate the total revenue per product, sort by highest revenue, and export the result as a new CSV file called "revenue_summary.csv".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 9.2s
+          · task_001: Gather Sales Data  [deps=-] [tools=file_read]
+          · task_002: Calculate Revenue  [deps=task_001] [tools=file_read]
+          · task_003: Sort and Export Data  [deps=task_002] [tools=file_write]
+[task success] task_001 (23.9s, 4 tool calls)
+[task success] task_002 (35.7s, 4 tool calls)
+[task success] task_003 (26.4s, 12 tool calls)
+[critic PASS] task_001  — Sales data retrieved from CSV file
+[critic FAIL] task_002  — The code to calculate the total revenue per product is incomplete.
+[critic PASS] task_003  — Task completed successfully and data was exported as CSV.
+[DONE] total 102.4s  api_calls=16  tokens=10483

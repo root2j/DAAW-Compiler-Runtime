@@ -1,0 +1,15 @@
+# P16 — File Management & Document Processing
+# complexity: Simple
+# characteristics: Linear
+# prompt: Scan a folder called "Downloads" and identify all PDF files larger than 10MB. Compress each one to reduce file size. Move the compressed versions to a new folder called "Compressed_PDFs" and generate a log file listing original filename, original size, new size, and compression percentage.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 3.2s
+          · task_001: Gather Large PDFs  [deps=-] [tools=web_search]
+          · task_002: Get Original File Sizes  [deps=task_001] [tools=file_read]
+          · task_003: Compress PDFs  [deps=task_002] [tools=shell_command]
+          · task_004: Move Compressed Files  [deps=task_003] [tools=shell_command]
+          · task_005: Generate Log File  [deps=task_004] [tools=file_write]
+[task failure] task_001 (8.5s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[DONE] total 11.7s  api_calls=2  tokens=963

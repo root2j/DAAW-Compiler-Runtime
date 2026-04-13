@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Web Search for Blog Post Content",
+    "verdict": "PASS",
+    "reasoning": "Relevant web search results found"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract Main Content",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

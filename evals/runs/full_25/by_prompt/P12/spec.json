@@ -1,0 +1,157 @@
+{
+  "id": "f1c888b3-e549-4c09-b900-eb8c84ad7464",
+  "name": "Wireless Speaker Marketing Content",
+  "description": "Generate marketing content for a new wireless speaker across three platforms",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Wireless Speaker Product",
+      "description": "Gather information about the new wireless speaker",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Product description and features",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Determine Marketing Tone and Style",
+      "description": "Decide on the tone and style for each marketing platform",
+      "agent": {
+        "role": "user_proxy",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Marketing tone and style",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create Instagram Caption",
+      "description": "Generate a 150-word Instagram caption with emoji and hashtags",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Instagram caption",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Create LinkedIn Post",
+      "description": "Generate a professional 300-word LinkedIn post highlighting business use cases",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "LinkedIn post",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Create Twitter Thread",
+      "description": "Generate a casual 100-word Twitter thread (3 tweets)",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Twitter thread",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_006",
+      "name": "Export Marketing Content",
+      "description": "Export all three marketing content in a single document with clear section headers",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        },
+        {
+          "task_id": "task_004",
+          "output_key": null
+        },
+        {
+          "task_id": "task_005",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Exported marketing content",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

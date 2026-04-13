@@ -1,0 +1,14 @@
+# P07 — Data Processing & Analysis
+# complexity: Medium
+# characteristics: Parallel Branches
+# prompt: I have three Excel files — Q1_sales.xlsx, Q2_sales.xlsx, and Q3_sales.xlsx — each with the same column structure. Merge all three into a single dataset, remove any duplicate rows, handle missing values by filling with the column mean, create a pivot table showing monthly revenue by region, and generate a bar chart of the results. Save the final report as a PDF.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 5.3s
+          · task_001: Gather Excel Files  [deps=-] [tools=file_read]
+          · task_002: Merge and Clean Data  [deps=task_001] [tools=file_read, shell_command]
+          · task_003: Create Pivot Table and Chart  [deps=task_002] [tools=shell_command]
+          · task_004: Save Report as PDF  [deps=task_003] [tools=file_write]
+[task failure] task_001 (6.5s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[DONE] total 11.8s  api_calls=2  tokens=917

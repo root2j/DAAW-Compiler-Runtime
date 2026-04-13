@@ -1,0 +1,7 @@
+{
+  "id": "P25",
+  "category": "API Integration & Multi-Service Workflows",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "When a new order is placed on my Shopify store, fetch the order details via Shopify API. Generate a shipping label using the ShipStation API. Update the order status to \"Shipped\" in Shopify. Send the customer a tracking email with the carrier name and tracking number. Log the complete order + shipping details in a Google Sheet."
+}

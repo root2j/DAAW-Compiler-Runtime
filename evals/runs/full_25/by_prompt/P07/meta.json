@@ -1,0 +1,7 @@
+{
+  "id": "P07",
+  "category": "Data Processing & Analysis",
+  "complexity": "Medium",
+  "characteristics": "Parallel Branches",
+  "text": "I have three Excel files \u2014 Q1_sales.xlsx, Q2_sales.xlsx, and Q3_sales.xlsx \u2014 each with the same column structure. Merge all three into a single dataset, remove any duplicate rows, handle missing values by filling with the column mean, create a pivot table showing monthly revenue by region, and generate a bar chart of the results. Save the final report as a PDF."
+}

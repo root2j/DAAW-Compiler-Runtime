@@ -1,0 +1,126 @@
+{
+  "id": "b5d7fa6b-a09e-4565-80c3-f75c5ebf8235",
+  "name": "Stripe Payment Webhook Integration",
+  "description": "Integrate Stripe payment webhook with system",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Stripe Webhook",
+      "description": "Find Stripe webhook documentation and API keys",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Stripe API keys and webhook documentation",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Configure Stripe Webhook",
+      "description": "Set up Stripe webhook endpoint and API keys",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Stripe webhook endpoint and API keys configured",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Update Customer Status and Send Receipt",
+      "description": "Update customer status to 'Paid' and send receipt email",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Customer status updated and receipt email sent",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Log Transaction in Google Sheet",
+      "description": "Log transaction in Google Sheet",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Transaction logged in Google Sheet",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Handle Failed Payment",
+      "description": "Send reminder email and alert finance team",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Reminder email sent and finance team alerted",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

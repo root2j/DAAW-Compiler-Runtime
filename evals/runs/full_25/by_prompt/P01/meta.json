@@ -1,0 +1,7 @@
+{
+  "id": "P01",
+  "category": "Email & Communication Automation",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Log into my Gmail and pull the 10 most recent emails from my inbox. For each one, analyze the sender, subject, and body content. Categorize them as either 'Important' or 'Not Important' based on whether they require my immediate action or contain personal/professional business. Ignore newsletters and automated receipts. Present the results in a clear list."
+}

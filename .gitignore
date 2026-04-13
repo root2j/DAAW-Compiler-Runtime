@@ -8,3 +8,8 @@ __pycache__/
 *.pyc
 Testinglogs/
 .pytest_cache/
+# Eval runner intermediates (the per-run artifact store + stdout log).
+# Actual evaluation artifacts (summary, aggregates, by_prompt) are kept.
+evals/runs/*/.artifact_store/
+evals/runs/*_stdout.log
+evals/runs/2*/

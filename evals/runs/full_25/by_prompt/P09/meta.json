@@ -1,0 +1,7 @@
+{
+  "id": "P09",
+  "category": "Data Processing & Analysis",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Scrape the top 100 product listings from Amazon for the search term \"wireless earbuds\". Extract the product name, price, rating, and number of reviews. Clean the data by removing duplicates and entries with missing prices. Calculate the average price and rating, and identify the top 10 best-value products (highest rating-to-price ratio). Save to a formatted Excel file."
+}

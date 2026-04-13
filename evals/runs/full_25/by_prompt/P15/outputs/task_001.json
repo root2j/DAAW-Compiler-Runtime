@@ -1,0 +1,41 @@
+{
+  "status": "success",
+  "output": "Based on the search results, I was able to find the following company information:\n\n* Company Name: [Not specified]\n* Company Database: [Several options available, including OpenCorporates, AllBiz, and EDGAR]\n* Company Information: [Available through various sources, including company websites, business directories, and open databases]\n\nPlease note that the company name was not specified in the task, so I was unable to provide a specific company name. If you could provide more information about the company you are looking for, I would be happy to try and assist you further.",
+  "error_message": "",
+  "elapsed_seconds": 49.45,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "company information online"
+      },
+      "result": "Search results for 'company information online':\n1. Variable Insurance Product Search Find a product by typing the name of an insurance company, underlying mutual fund, or contract.\n2. Free and Open Company Data on 235 million companies and corporations in over 145 jurisdictions, including US, UK, Switzerland, Panama...\n3. Find any U.S. business with our EIN lookup tool. Search by EIN, company name, or address and access verified details instantly.\n4. Find a Business by Company Name Business Location Quicksearch This page allows you to search our database of over 28 million business locations in the United States. Just enter the name of the company you are searching for and click Search. If you need to narrow down results, you can also specify a city or state to limit results by location.\n5. A comprehensive company research tool offering in-depth profiles on millions of public and private companies worldwide. Includes financials, executive details, corporate structures, litigation history, intellectual property, and industry news. This interfaces is the best Lexis platform to download a comprehensive company profile. The breath of information available will vary by company."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "US company database search"
+      },
+      "result": "Search results for 'US company database search':\n1. To search the EDGAR company database, enter the search parameters below. Note that the search is case-insensitive. Help and examples for a specific parameter can be found by clicking on the question mark next to the parameter name. The company database was last updated on 04/12/26 at 3:01 AM EDT.\n2. Business Location Quicksearch This page allows you to search our database of over 28 million business locations in the United States. Just enter the name of the company you are searching for and click Search. If you need to narrow down results, you can also specify a city or state to limit results by location. Please keep in mind the following:\n3. Access global corporate data with OpenCorporates, the leading open database of companies worldwide.\n4. A comprehensive company research tool offering in-depth profiles on millions of public and private companies worldwide. Includes financials, executive details, corporate structures, litigation history, intellectual property, and industry news. This interfaces is the best Lexis platform to download a comprehensive company profile. The breath of information available will vary by company.\n5. AllBiz is an expansive free to use business database with a wide range of datapoints. We aim to be the most comprehensive United States Business Directory on the web today. Start a Search"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "company database open access"
+      },
+      "result": "Search results for 'company database open access':\n1. Access reliable legal-entity data from over 140 jurisdictions with OpenCorporates, your trusted source for standardized and auditable company information.\n2. Browse 150+ free and open databases for business, finance, science, health, and ESG \u2014 all verified public data sources.\n3. OpenCorpData.com provides open access to data on corporations, companies, and businesses in the world.\n4. BQ Open Data is your open-source gateway to a global directory of organizations, addresses, locations, and people\u2014each with unique identifiers and transparent metadata. The open entity graph provides the linkages between the entities based on golden records. Why BQ Open Data?\n5. OpenCorporates The largest open database of company data in the world, with data from over 140 registries. OpenCorporates is a global database of companies, their directors and regulatory filings. We provide links to OpenCorporates for entities that exist both in our database and in the OpenCorporates database."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "company database free download"
+      },
+      "result": "Search results for 'company database free download':\n1. Free and Open Company Data on 235 million companies and corporations in over 145 jurisdictions, including US, UK, Switzerland, Panama...\n2. An easy tool to edit CSV files online is our CSV Editor. Five datasets are available: Customers - Download People - Download Organizations - Download Leads - Download Products - Download For each dataset, several CSV sizes are available, from 100 to 2 million records. The first line contains the CSV headers. An index column is set on each file.\n3. Browse 150+ free and open databases for business, finance, science, health, and ESG \u2014 all verified public data sources.\n4. Free Business Datasets Free business datasets providing detailed company profiles for analysis, research, and development.\n5. An open dataset of companies with detailed firmographic information, including addresses, registration numbers, SIC industry codes, revenues, employee counts, and headquarter linkages. This dataset is designed for researchers, developers, data analysts, and businesses who want to explore company-level economic activity and build data-driven applications."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1366,
+    "completion_tokens": 118,
+    "total_tokens": 1484
+  }
+}

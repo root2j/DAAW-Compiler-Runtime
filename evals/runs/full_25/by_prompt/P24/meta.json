@@ -1,0 +1,7 @@
+{
+  "id": "P24",
+  "category": "API Integration & Multi-Service Workflows",
+  "complexity": "Complex",
+  "characteristics": "Parallel + Loop",
+  "text": "Create a daily competitive intelligence report. Every morning at 7 AM, scrape the latest blog posts from three competitor websites. For each post, generate a one-paragraph summary and a sentiment analysis score. Compare their content themes with our last 10 blog posts. Identify topic gaps where competitors are publishing but we are not. Compile everything into a formatted report and email it to the strategy team. Also post the top 3 findings as a Slack message."
+}

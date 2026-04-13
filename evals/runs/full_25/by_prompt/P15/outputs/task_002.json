@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "output": "Based on the search results, it appears that there are various tools and software available for extracting company information from websites and other sources. Some of the tools mentioned include:\n\n* Thunderbit: An AI-powered tool that makes data extraction easy, fast, and accurate.\n* AI-powered data extraction tools: These tools empower businesses to seamlessly collect data from various sources, including websites, databases, and documents.\n* Data extraction software: This software can be used to automate tedious data scraping tasks, reduce manual errors, and save valuable time.\n\nThe task requires extracting a one-line description from the search results, which is:\n\n\"Extract comprehensive company details from website HTML, get instant insights including company name, industry, leadership, contact information, and key business attributes.\"\n\nHowever, the task also mentions that the company name was not specified, so it's unclear which company's description should be extracted.",
+  "error_message": "",
+  "elapsed_seconds": 22.48,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "company description extraction from search results"
+      },
+      "result": "Search results for 'company description extraction from search results':\n1. Company Profile Extractor From Website html Automatically extract comprehensive company details from website HTML. Get instant insights including company name, industry, leadership, contact information, and key business attributes. Perfect for market research, lead generation, competitive analysis, and business intelligence.\n2. Build outbound lead lists from any website Extract people and company profiles from search results, directories, company websites, and more. One-click extraction.\n3. The #1 GMB Scraper for Google My Business. Extract business names, emails, phones, and addresses from any Google My Business profile. Export to CSV/XLSX. Get started for free.\n4. Company Researcher is a free and open-source tool that helps you instantly understand any company inside out. Simply input a company&#x27;s URL, and the tool gathers comprehensive information from across the web, presenting you with detailed insights about the organization, its products, funding, social presence, and more.\n5. Extract metadata like title tags, descriptions, and keywords from your URLs. Input your URLs to receive structured data that improves SEO and content analysis."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "company information extraction tool"
+      },
+      "result": "Search results for 'company information extraction tool':\n1. AI-powered tools like Thunderbit make data extraction easy, fast, and accurate, perfect for teams replacing manual copy-paste in 2025.\n2. These data extraction tools empower businesses to seamlessly collect data from various sources, including websites, databases, and documents, enhancing decision-making and strategic planning. By leveraging free data extraction software, companies can automate tedious data scraping tasks, reduce manual errors, and save valuable time.\n3. Explore the top data extraction software for documents, emails, and scanned files. Compare features, pros, cons, and their benefits for faster workflows.\n4. Find the best data extraction tools for your business in 2026. What, why, how, and the best data extraction software for your objectives.\n5. Compare leading data extraction tools in 2026. Optimize your data workflows with these top-rated solutions."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 933,
+    "completion_tokens": 176,
+    "total_tokens": 1109
+  }
+}

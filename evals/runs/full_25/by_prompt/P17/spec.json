@@ -1,0 +1,142 @@
+{
+  "id": "ac2cc9da-0143-49d8-83d5-4ed61a494bd7",
+  "name": "Monitor Google Drive Submissions",
+  "description": "Monitor a shared Google Drive folder called 'Submissions' and perform plagiarism checks on uploaded files.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Google Drive API",
+      "description": "Research the Google Drive API to determine how to monitor the 'Submissions' folder.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "API Documentation",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Set Up Google Drive Webhook",
+      "description": "Set up a webhook to monitor the 'Submissions' folder for new file uploads.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Webhook Setup Complete",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Determine File Type and Extract Text",
+      "description": "Determine the file type of the uploaded file and extract the text if necessary.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File Type and Text Extracted",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Run Plagiarism Check",
+      "description": "Run a plagiarism check against a reference database based on the file type.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Plagiarism Report Generated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Send Plagiarism Report via Email",
+      "description": "Send the plagiarism report to the folder owner via email.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_004",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Email Sent",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_006",
+      "name": "Flag File if Plagiarism Exceeds 30%",
+      "description": "Move the file to a subfolder called 'Flagged' if plagiarism exceeds 30%.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_004",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File Flagged",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

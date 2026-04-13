@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Agent 'task_001' requested user input (\"What's the task or activity you want to automate?\") but no InteractionHandler is configured.",
+  "elapsed_seconds": 0.0,
+  "tool_calls": [],
+  "usage": null
+}

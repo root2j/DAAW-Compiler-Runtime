@@ -1,0 +1,7 @@
+{
+  "id": "P05",
+  "category": "Email & Communication Automation",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Every Monday at 9 AM, pull the top 5 headlines from TechCrunch, summarize each article in 2 sentences, and send the digest to my email address with the subject line \"Weekly Tech Digest \u2014 [Date]\"."
+}

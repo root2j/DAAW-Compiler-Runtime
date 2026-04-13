@@ -1,0 +1,12 @@
+# P05 — Email & Communication Automation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Every Monday at 9 AM, pull the top 5 headlines from TechCrunch, summarize each article in 2 sentences, and send the digest to my email address with the subject line "Weekly Tech Digest — [Date]".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 2 tasks in 4.1s
+          · task_002: Summarize TechCrunch Articles  [deps=-] [tools=-]
+          · task_003: Compose and Send Weekly Digest  [deps=task_002] [tools=file_write, file_read]
+[task failure] task_002 (8.9s, 0 tool calls)
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 13.1s  api_calls=2  tokens=765

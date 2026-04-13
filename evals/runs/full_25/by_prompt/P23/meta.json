@@ -1,0 +1,7 @@
+{
+  "id": "P23",
+  "category": "API Integration & Multi-Service Workflows",
+  "complexity": "Medium",
+  "characteristics": "Conditional",
+  "text": "Integrate a Stripe payment webhook with my system. When a payment succeeds, update the customer's status in my database to \"Paid\", send a receipt email, and log the transaction in a Google Sheet. When a payment fails, send a reminder email to the customer with a retry link and alert the finance team via Slack."
+}

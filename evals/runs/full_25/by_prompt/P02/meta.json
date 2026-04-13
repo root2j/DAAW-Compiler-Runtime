@@ -1,0 +1,7 @@
+{
+  "id": "P02",
+  "category": "Email & Communication Automation",
+  "complexity": "Medium",
+  "characteristics": "Conditional Branching",
+  "text": "Monitor my Gmail inbox every 30 minutes. When a new email arrives from a client (domain: @acmecorp.com), extract any attached invoices as PDF, save them to a Google Drive folder called \"Invoices 2026\", and send me a Slack notification with the sender name, subject, and attachment filename. If the email has no attachment, just log the subject and sender to a Google Sheet."
+}

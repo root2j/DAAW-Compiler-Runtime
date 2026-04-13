@@ -1,0 +1,74 @@
+{
+  "id": "77274a49-4c39-4ff5-92f2-fd10b1857024",
+  "name": "Extract Tables from PDF Report",
+  "description": "Extract tables from a 50-page PDF report and save them as separate sheets in an Excel workbook.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Tools for Table Extraction",
+      "description": "Determine the best tool for extracting tables from a PDF report.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "List of tools for table extraction",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract Tables from PDF Report",
+      "description": "Use the determined tool to extract tables from the PDF report.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Extracted tables in CSV format",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Convert CSV to Excel Workbook",
+      "description": "Convert the extracted tables from CSV to a single Excel workbook.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "shell_command"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Excel workbook with extracted tables",
+      "timeout_seconds": 600,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

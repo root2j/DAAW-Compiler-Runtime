@@ -1,0 +1,15 @@
+# P20 — File Management & Document Processing
+# complexity: Simple
+# characteristics: Linear
+# prompt: Take a 50-page PDF report and extract all tables from it. Convert each table into a separate sheet in a single Excel workbook. Name each sheet "Table_1", "Table_2", etc. Save the workbook as "extracted_tables.xlsx".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 13.8s
+          · task_001: Research Tools for Table Extraction  [deps=-] [tools=web_search]
+          · task_002: Extract Tables from PDF Report  [deps=task_001] [tools=file_read, shell_command]
+          · task_003: Convert CSV to Excel Workbook  [deps=task_002] [tools=file_write, shell_command]
+[task success] task_001 (5.4s, 0 tool calls)
+[task failure] task_002 (20.4s, 0 tool calls)
+[critic PASS] task_001  — Relevant web search query returned, indicating task success
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 46.5s  api_calls=7  tokens=3363

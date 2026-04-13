@@ -1,0 +1,909 @@
+{
+  "provider": "groq",
+  "model": "llama-3.1-8b-instant",
+  "generated_at": "2026-04-13T20:54:38.781937",
+  "prompts": [
+    {
+      "id": "P01",
+      "category": "Email & Communication Automation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Log into my Gmail and pull the 10 most recent emails from my inbox. For each one, analyze the sender, subject, and body content. Categorize them as either 'Important' or 'Not Important' based on whether they require my immediate action or contain personal/professional business. Ignore newsletters and automated receipts. Present the results in a clear list.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Log into Gmail and fetch 10 most recent emails",
+          "verdict": "FAIL",
+          "reasoning": "Error message indicates task failed due to unfulfilled searches"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract sender, subject, and body from each email",
+          "verdict": "FAIL",
+          "reasoning": "Task failed due to incomplete searches"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Analyze and categorize each email as 'Important' or 'Not Important'",
+          "verdict": "FAIL",
+          "reasoning": "Error message indicates task cannot be completed as expected"
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Present results in a clear list",
+          "verdict": "FAIL",
+          "reasoning": "Error message indicates task cannot be completed"
+        }
+      ],
+      "elapsed": {
+        "compile": 38.59,
+        "execute": 103.19,
+        "critic": 7.76,
+        "total": 149.55
+      },
+      "api_calls_total": 14,
+      "tokens_total": 8856
+    },
+    {
+      "id": "P02",
+      "category": "Email & Communication Automation",
+      "complexity": "Medium",
+      "characteristics": "Conditional Branching",
+      "prompt_text": "Monitor my Gmail inbox every 30 minutes. When a new email arrives from a client (domain: @acmecorp.com), extract any attached invoices as PDF, save them to a Google Drive folder called \"Invoices 2026\", and send me a Slack notification with the sender name, subject, and attachment filename. If the email has no attachment, just log the subject and sender to a Google Sheet.",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_002",
+          "task_name": "Extract Client Emails",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 4.81,
+        "execute": 15.41,
+        "critic": 0.0,
+        "total": 20.22
+      },
+      "api_calls_total": 3,
+      "tokens_total": 1467
+    },
+    {
+      "id": "P03",
+      "category": "Email & Communication Automation",
+      "complexity": "Medium",
+      "characteristics": "Parallel",
+      "prompt_text": "Take a CSV file of 200 customer email addresses and their first names. For each customer, generate a personalized follow-up email using a template that includes their name and references their last purchase. Send the emails via Gmail in batches of 20 with a 5-minute delay between batches. Log the status of each sent email (success/fail) in a spreadsheet.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Customer Data",
+          "verdict": "PASS",
+          "reasoning": "Relevant web search queries indicate research on customer data extraction from CSV files."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Define Email Template",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.52,
+        "execute": 23.16,
+        "critic": 6.74,
+        "total": 31.41
+      },
+      "api_calls_total": 6,
+      "tokens_total": 2766
+    },
+    {
+      "id": "P04",
+      "category": "Email & Communication Automation",
+      "complexity": "Complex",
+      "characteristics": "Conditional + Loop",
+      "prompt_text": "Build a customer support email triage system. Read all unread emails from support@mycompany.com. Classify each email into one of four categories: billing, technical, general inquiry, or complaint. For billing issues, auto-reply with a payment portal link. For technical issues, create a Jira ticket and assign it to the engineering team. For complaints, escalate to a manager via Slack with the full email thread. For general inquiries, draft a response using an FAQ knowledge base and save it as a draft for human review.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Unread Emails",
+          "verdict": "FAIL",
+          "reasoning": "No unread emails found for support@mycompany.com"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Classify Emails",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 26.49,
+        "execute": 20.48,
+        "critic": 6.22,
+        "total": 53.19
+      },
+      "api_calls_total": 7,
+      "tokens_total": 4480
+    },
+    {
+      "id": "P05",
+      "category": "Email & Communication Automation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Every Monday at 9 AM, pull the top 5 headlines from TechCrunch, summarize each article in 2 sentences, and send the digest to my email address with the subject line \"Weekly Tech Digest \u2014 [Date]\".",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_002",
+          "task_name": "Summarize TechCrunch Articles",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 4.11,
+        "execute": 8.97,
+        "critic": 0.0,
+        "total": 13.08
+      },
+      "api_calls_total": 2,
+      "tokens_total": 765
+    },
+    {
+      "id": "P06",
+      "category": "Data Processing & Analysis",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Read a CSV file called \"sales_data.csv\" that contains columns for date, product name, quantity, and price. Calculate the total revenue per product, sort by highest revenue, and export the result as a new CSV file called \"revenue_summary.csv\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Sales Data",
+          "verdict": "PASS",
+          "reasoning": "Sales data retrieved from CSV file"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Calculate Revenue",
+          "verdict": "FAIL",
+          "reasoning": "The code to calculate the total revenue per product is incomplete."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Sort and Export Data",
+          "verdict": "PASS",
+          "reasoning": "Task completed successfully and data was exported as CSV."
+        }
+      ],
+      "elapsed": {
+        "compile": 9.25,
+        "execute": 85.92,
+        "critic": 7.22,
+        "total": 102.39
+      },
+      "api_calls_total": 16,
+      "tokens_total": 10483
+    },
+    {
+      "id": "P07",
+      "category": "Data Processing & Analysis",
+      "complexity": "Medium",
+      "characteristics": "Parallel Branches",
+      "prompt_text": "I have three Excel files \u2014 Q1_sales.xlsx, Q2_sales.xlsx, and Q3_sales.xlsx \u2014 each with the same column structure. Merge all three into a single dataset, remove any duplicate rows, handle missing values by filling with the column mean, create a pivot table showing monthly revenue by region, and generate a bar chart of the results. Save the final report as a PDF.",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Excel Files",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 5.27,
+        "execute": 6.53,
+        "critic": 0.0,
+        "total": 11.8
+      },
+      "api_calls_total": 2,
+      "tokens_total": 917
+    },
+    {
+      "id": "P08",
+      "category": "Data Processing & Analysis",
+      "complexity": "Complex",
+      "characteristics": "Conditional + Loop",
+      "prompt_text": "Connect to a PostgreSQL database and pull all orders from the last 90 days. For each customer with more than 5 orders, calculate their average order value and classify them into tiers: Gold (>$500 avg), Silver ($200-$500), Bronze (<$200). Generate a separate email report for each tier with the customer list, and upload the full analysis as a Google Sheet shared with the marketing team.",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Connect to PostgreSQL Database",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 10.69,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 10.69
+      },
+      "api_calls_total": 1,
+      "tokens_total": 975
+    },
+    {
+      "id": "P09",
+      "category": "Data Processing & Analysis",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Scrape the top 100 product listings from Amazon for the search term \"wireless earbuds\". Extract the product name, price, rating, and number of reviews. Clean the data by removing duplicates and entries with missing prices. Calculate the average price and rating, and identify the top 10 best-value products (highest rating-to-price ratio). Save to a formatted Excel file.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Scrape Product Listings",
+          "verdict": "PASS",
+          "reasoning": "Although the task was not fully completed, relevant product listings were extracted."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract Product Information",
+          "verdict": "PASS",
+          "reasoning": "Product information extracted, although not comprehensive or up-to-date"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Clean and Process Data",
+          "verdict": "FAIL",
+          "reasoning": "Error message indicates task failed due to missing file"
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Identify Best-Value Products",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_004' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 7.16,
+        "execute": 93.95,
+        "critic": 12.33,
+        "total": 113.44
+      },
+      "api_calls_total": 16,
+      "tokens_total": 10240
+    },
+    {
+      "id": "P10",
+      "category": "Data Processing & Analysis",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Read a JSON file containing 500 user records with fields name, email, signup_date, and country. Filter only users who signed up in the last 30 days from India, sort them alphabetically by name, and export the filtered list as both a CSV file and a formatted HTML table.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Read JSON File",
+          "verdict": "PASS",
+          "reasoning": "JSON data loaded successfully"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Filter User Records",
+          "verdict": "PASS",
+          "reasoning": "Filtered user records by signup date and country as requested"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Sort User Records",
+          "verdict": "PASS",
+          "reasoning": "The output contains sorted user records as expected."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Export as CSV and HTML",
+          "verdict": "PASS",
+          "reasoning": "Task completed successfully, indicating CSV and HTML export was successful."
+        }
+      ],
+      "elapsed": {
+        "compile": 5.16,
+        "execute": 118.95,
+        "critic": 10.41,
+        "total": 134.51
+      },
+      "api_calls_total": 19,
+      "tokens_total": 13656
+    },
+    {
+      "id": "P11",
+      "category": "Content Generation & Social Media",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Given a blog post URL, extract the main content, generate a 280-character tweet-sized summary, create 5 relevant hashtags, and format the output as a ready-to-post tweet.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Web Search for Blog Post Content",
+          "verdict": "PASS",
+          "reasoning": "Relevant web search results found"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract Main Content",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 5.25,
+        "execute": 11.08,
+        "critic": 5.39,
+        "total": 21.72
+      },
+      "api_calls_total": 4,
+      "tokens_total": 1482
+    },
+    {
+      "id": "P12",
+      "category": "Content Generation & Social Media",
+      "complexity": "Medium",
+      "characteristics": "Parallel",
+      "prompt_text": "Take a single product description for a new wireless speaker and generate marketing content for three platforms simultaneously: a 150-word Instagram caption with emoji and hashtags, a professional 300-word LinkedIn post highlighting business use cases, and a casual 100-word Twitter thread (3 tweets). Export all three in a single document with clear section headers.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Wireless Speaker Product",
+          "verdict": "PASS",
+          "reasoning": "Relevant product description and features were gathered within the given time frame."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Determine Marketing Tone and Style",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 4.44,
+        "execute": 22.94,
+        "critic": 3.38,
+        "total": 30.75
+      },
+      "api_calls_total": 5,
+      "tokens_total": 3276
+    },
+    {
+      "id": "P13",
+      "category": "Content Generation & Social Media",
+      "complexity": "Complex",
+      "characteristics": "Loop + Conditional",
+      "prompt_text": "Manage a content calendar for the next 30 days. For each day, check if there is already a scheduled post in the Google Sheet \"ContentCalendar\". If not, generate a social media post idea relevant to our niche (sustainable fashion), write the caption, suggest an image description for AI generation, and populate the empty slot in the sheet. Skip weekends. At the end, send a summary of all newly created posts to my email.",
+      "status": "success",
+      "error": "",
+      "task_count": 5,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Existing Posts",
+          "verdict": "FAIL",
+          "reasoning": "Output does not list existing posts as requested"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Determine Post Schedule",
+          "verdict": "FAIL",
+          "reasoning": "Output is off-topic and does not address the goal of determining post schedule"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Generate Post Ideas",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal of generating post ideas for sustainable fashion."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Populate Google Sheet",
+          "verdict": "PASS",
+          "reasoning": "The task completed successfully and the Google Sheet was updated with post ideas."
+        },
+        {
+          "task_id": "task_005",
+          "task_name": "Send Summary Email",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_005' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 15.33,
+        "execute": 190.55,
+        "critic": 17.2,
+        "total": 223.08
+      },
+      "api_calls_total": 22,
+      "tokens_total": 21949
+    },
+    {
+      "id": "P14",
+      "category": "Content Generation & Social Media",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Take a 2000-word technical blog post about Kubernetes and convert it into: a simplified 500-word version for non-technical readers, a bullet-point executive summary (max 10 bullets), and a set of 5 FAQ questions with answers based on the original content. Save all outputs in a single Markdown file.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Original Blog Post",
+          "verdict": "FAIL",
+          "reasoning": "Could not find the original 2000-word Kubernetes blog post."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Simplify Blog Post for Non-Technical Readers",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Create Executive Summary",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Generate FAQs",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_004' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 4.52,
+        "execute": 54.19,
+        "critic": 5.5,
+        "total": 64.2
+      },
+      "api_calls_total": 9,
+      "tokens_total": 4649
+    },
+    {
+      "id": "P15",
+      "category": "Content Generation & Social Media",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Given a company name and its one-line description, generate a 100-word \"About Us\" section, a tagline (max 10 words), and three value proposition bullet points. Format the output as HTML suitable for embedding in a website.",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Company Information",
+          "verdict": "PASS",
+          "reasoning": "Relevant company information was found, although company name was not specified."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract Company Description",
+          "verdict": "PASS",
+          "reasoning": "Extracted one-line description from search results"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Ask for Tagline",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 3.44,
+        "execute": 71.97,
+        "critic": 5.7,
+        "total": 81.11
+      },
+      "api_calls_total": 11,
+      "tokens_total": 8344
+    },
+    {
+      "id": "P16",
+      "category": "File Management & Document Processing",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Scan a folder called \"Downloads\" and identify all PDF files larger than 10MB. Compress each one to reduce file size. Move the compressed versions to a new folder called \"Compressed_PDFs\" and generate a log file listing original filename, original size, new size, and compression percentage.",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Large PDFs",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 3.2,
+        "execute": 8.52,
+        "critic": 0.0,
+        "total": 11.72
+      },
+      "api_calls_total": 2,
+      "tokens_total": 963
+    },
+    {
+      "id": "P17",
+      "category": "File Management & Document Processing",
+      "complexity": "Medium",
+      "characteristics": "Conditional",
+      "prompt_text": "Monitor a shared Google Drive folder called \"Submissions\". When a new file is uploaded, check the file type. If it is a PDF, extract the text and run a plagiarism check against a reference database. If it is a DOCX, convert it to PDF first, then run the same check. Send the plagiarism report to the folder owner via email. If plagiarism exceeds 30%, flag the file by moving it to a subfolder called \"Flagged\".",
+      "status": "success",
+      "error": "",
+      "task_count": 6,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Google Drive API",
+          "verdict": "PASS",
+          "reasoning": "The task produced relevant content addressing the goal, specifically the Google Drive API documentation."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Set Up Google Drive Webhook",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal was provided, although it appears to be a guide rather than a direct setup."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Determine File Type and Extract Text",
+          "verdict": "PASS",
+          "reasoning": "File type and text extracted successfully using standard Linux commands."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Run Plagiarism Check",
+          "verdict": "FAIL",
+          "reasoning": "Expected a plagiarism report, but received a shell command instead"
+        },
+        {
+          "task_id": "task_005",
+          "task_name": "Send Plagiarism Report via Email",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_005' failed \u2014 automatic retry."
+        },
+        {
+          "task_id": "task_006",
+          "task_name": "Flag File if Plagiarism Exceeds 30%",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_006' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 8.69,
+        "execute": 51.03,
+        "critic": 9.64,
+        "total": 69.36
+      },
+      "api_calls_total": 11,
+      "tokens_total": 5740
+    },
+    {
+      "id": "P18",
+      "category": "File Management & Document Processing",
+      "complexity": "Complex",
+      "characteristics": "Parallel + Conditional",
+      "prompt_text": "Process a batch of 50 scanned receipts (JPEG images) from a folder. For each image, perform OCR to extract the merchant name, date, total amount, and payment method. Validate the extracted data \u2014 if any field is missing or ambiguous, flag the receipt for manual review. For valid receipts, categorize expenses into Food, Transport, Office Supplies, and Other. Generate an expense report as a formatted Excel file with a pie chart showing spending distribution, and email the report to finance@mycompany.com.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_002",
+          "task_name": "Perform OCR on Receipts",
+          "verdict": "FAIL",
+          "reasoning": "The output does not contain any extracted receipt data, it appears to be a tutorial on how to use Tesseract OCR."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Validate and Flag Receipts",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 5.17,
+        "execute": 58.69,
+        "critic": 9.62,
+        "total": 73.48
+      },
+      "api_calls_total": 6,
+      "tokens_total": 6061
+    },
+    {
+      "id": "P19",
+      "category": "File Management & Document Processing",
+      "complexity": "Medium",
+      "characteristics": "Loop",
+      "prompt_text": "I have a folder with 200 image files in mixed formats (PNG, JPEG, BMP, TIFF). Convert all of them to WEBP format with 80% quality. Rename each file using the pattern \"IMG_YYYY-MM-DD_001.webp\" based on the image's EXIF creation date. If no EXIF data exists, use the file's modification date. Move the converted files to a folder called \"Processed_Images\".",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_003",
+          "task_name": "Get Image EXIF Data",
+          "verdict": "FAIL",
+          "reasoning": "Error message indicates task execution failed and no image files were processed"
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Get File Modification Dates",
+          "verdict": "FAIL",
+          "reasoning": "Error message indicates a problem with the command execution"
+        },
+        {
+          "task_id": "task_005",
+          "task_name": "Rename and Convert Images",
+          "verdict": "FAIL",
+          "reasoning": "The list of image files is empty, indicating that no images were processed."
+        },
+        {
+          "task_id": "task_006",
+          "task_name": "Move Converted Images",
+          "verdict": "FAIL",
+          "reasoning": "List of image files is empty"
+        }
+      ],
+      "elapsed": {
+        "compile": 4.84,
+        "execute": 120.7,
+        "critic": 8.31,
+        "total": 133.86
+      },
+      "api_calls_total": 19,
+      "tokens_total": 13666
+    },
+    {
+      "id": "P20",
+      "category": "File Management & Document Processing",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Take a 50-page PDF report and extract all tables from it. Convert each table into a separate sheet in a single Excel workbook. Name each sheet \"Table_1\", \"Table_2\", etc. Save the workbook as \"extracted_tables.xlsx\".",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Tools for Table Extraction",
+          "verdict": "PASS",
+          "reasoning": "Relevant web search query returned, indicating task success"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract Tables from PDF Report",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 13.83,
+        "execute": 25.78,
+        "critic": 6.91,
+        "total": 46.51
+      },
+      "api_calls_total": 7,
+      "tokens_total": 3363
+    },
+    {
+      "id": "P21",
+      "category": "API Integration & Multi-Service Workflows",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "When a new row is added to a Google Sheet called \"Leads\", extract the contact name, email, company, and phone number. Create a new contact in HubSpot CRM with these details. Send an automated welcome email via SendGrid using a predefined template. Log the timestamp and status of both operations back to the Google Sheet in new columns.",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Google Sheet Data",
+          "verdict": "PASS",
+          "reasoning": "Task produced relevant content addressing the goal of extracting lead data from Google Sheets, although it does not directly extract data."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Create HubSpot Contact",
+          "verdict": "FAIL",
+          "reasoning": "Output does not contain information about creating a contact using the task's API call, only manual steps and API documentation."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Send Welcome Email",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 13.34,
+        "execute": 80.49,
+        "critic": 12.12,
+        "total": 105.95
+      },
+      "api_calls_total": 10,
+      "tokens_total": 9694
+    },
+    {
+      "id": "P22",
+      "category": "API Integration & Multi-Service Workflows",
+      "complexity": "Complex",
+      "characteristics": "Parallel + Conditional + Loop",
+      "prompt_text": "Build an automated hiring pipeline. When a new application is submitted via a Google Form, extract the candidate's resume PDF from the form response. Parse the resume to extract name, email, skills, and years of experience. If the candidate has 3+ years of experience and lists Python or Java as a skill, move them to the \"Shortlisted\" Google Sheet and send them a calendar link for an interview via Calendly. Otherwise, send a polite rejection email. At the end of each day, generate a summary report of all applications received, shortlisted, and rejected, and post it to a Slack channel.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Extract Resume from Google Form",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        },
+        {
+          "task_id": "task_006",
+          "task_name": "Generate Daily Report",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_006' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 5.98,
+        "execute": 8.58,
+        "critic": 0.0,
+        "total": 14.56
+      },
+      "api_calls_total": 3,
+      "tokens_total": 1132
+    },
+    {
+      "id": "P23",
+      "category": "API Integration & Multi-Service Workflows",
+      "complexity": "Medium",
+      "characteristics": "Conditional",
+      "prompt_text": "Integrate a Stripe payment webhook with my system. When a payment succeeds, update the customer's status in my database to \"Paid\", send a receipt email, and log the transaction in a Google Sheet. When a payment fails, send a reminder email to the customer with a retry link and alert the finance team via Slack.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Stripe Webhook",
+          "verdict": "PASS",
+          "reasoning": "Found relevant web search query for Stripe webhook documentation and API keys"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Configure Stripe Webhook",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 8.44,
+        "execute": 15.08,
+        "critic": 5.38,
+        "total": 28.89
+      },
+      "api_calls_total": 4,
+      "tokens_total": 1555
+    },
+    {
+      "id": "P24",
+      "category": "API Integration & Multi-Service Workflows",
+      "complexity": "Complex",
+      "characteristics": "Parallel + Loop",
+      "prompt_text": "Create a daily competitive intelligence report. Every morning at 7 AM, scrape the latest blog posts from three competitor websites. For each post, generate a one-paragraph summary and a sentiment analysis score. Compare their content themes with our last 10 blog posts. Identify topic gaps where competitors are publishing but we are not. Compile everything into a formatted report and email it to the strategy team. Also post the top 3 findings as a Slack message.",
+      "status": "success",
+      "error": "",
+      "task_count": 5,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Scrape Competitor Blog Posts",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal was produced, listing scraped blog posts from competitor websites."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Analyze Competitor Blog Posts",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal, including a list of analyzed blog posts with sentiment analysis scores."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Compare Content Themes",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal was produced, listing topic gaps and suggesting ways to address them."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Compile Report",
+          "verdict": "PASS",
+          "reasoning": "Report compilation and emailing to strategy team was successful."
+        },
+        {
+          "task_id": "task_005",
+          "task_name": "Post Top 3 Findings on Slack",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_005' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 6.44,
+        "execute": 113.05,
+        "critic": 11.44,
+        "total": 130.92
+      },
+      "api_calls_total": 14,
+      "tokens_total": 13227
+    },
+    {
+      "id": "P25",
+      "category": "API Integration & Multi-Service Workflows",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "When a new order is placed on my Shopify store, fetch the order details via Shopify API. Generate a shipping label using the ShipStation API. Update the order status to \"Shipped\" in Shopify. Send the customer a tracking email with the carrier name and tracking number. Log the complete order + shipping details in a Google Sheet.",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Fetch Shopify Order Details",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 5.86,
+        "execute": 7.64,
+        "critic": 0.0,
+        "total": 13.5
+      },
+      "api_calls_total": 2,
+      "tokens_total": 1038
+    }
+  ]
+}

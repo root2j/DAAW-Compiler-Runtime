@@ -1,0 +1,20 @@
+# P01 — Email & Communication Automation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Log into my Gmail and pull the 10 most recent emails from my inbox. For each one, analyze the sender, subject, and body content. Categorize them as either 'Important' or 'Not Important' based on whether they require my immediate action or contain personal/professional business. Ignore newsletters and automated receipts. Present the results in a clear list.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 38.6s
+          · task_001: Log into Gmail and fetch 10 most recent emails  [deps=-] [tools=web_search]
+          · task_002: Extract sender, subject, and body from each email  [deps=task_001] [tools=web_search]
+          · task_003: Analyze and categorize each email as 'Important' or 'Not Important'  [deps=task_002] [tools=web_search]
+          · task_004: Present results in a clear list  [deps=task_003] [tools=web_search]
+[task success] task_001 (72.3s, 10 tool calls)
+[task success] task_002 (12.8s, 10 tool calls)
+[task success] task_003 (10.9s, 3 tool calls)
+[task success] task_004 (7.2s, 3 tool calls)
+[critic FAIL] task_001  — Error message indicates task failed due to unfulfilled searches
+[critic FAIL] task_002  — Task failed due to incomplete searches
+[critic FAIL] task_003  — Error message indicates task cannot be completed as expected
+[critic FAIL] task_004  — Error message indicates task cannot be completed
+[DONE] total 149.5s  api_calls=14  tokens=8856

@@ -1,0 +1,7 @@
+{
+  "id": "P14",
+  "category": "Content Generation & Social Media",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Take a 2000-word technical blog post about Kubernetes and convert it into: a simplified 500-word version for non-technical readers, a bullet-point executive summary (max 10 bullets), and a set of 5 FAQ questions with answers based on the original content. Save all outputs in a single Markdown file."
+}

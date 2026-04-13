@@ -1,0 +1,120 @@
+{
+  "id": "c5647e3b-dab7-45b8-8b35-432155f6234d",
+  "name": "Manage Content Calendar",
+  "description": "Create a content calendar for the next 30 days with social media post ideas and populate a Google Sheet.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Gather Existing Posts",
+      "description": "Check Google Sheet for existing posts",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "List of existing posts",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Determine Post Schedule",
+      "description": "Identify days with no scheduled posts",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "List of days with no scheduled posts",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Generate Post Ideas",
+      "description": "Create social media post ideas for sustainable fashion",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "List of post ideas",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Populate Google Sheet",
+      "description": "Fill in empty slots in Google Sheet with post ideas",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Updated Google Sheet",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Send Summary Email",
+      "description": "Send a summary of newly created posts to your email",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_004",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Email sent",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

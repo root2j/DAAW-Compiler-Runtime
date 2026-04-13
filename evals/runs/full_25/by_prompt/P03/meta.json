@@ -1,0 +1,7 @@
+{
+  "id": "P03",
+  "category": "Email & Communication Automation",
+  "complexity": "Medium",
+  "characteristics": "Parallel",
+  "text": "Take a CSV file of 200 customer email addresses and their first names. For each customer, generate a personalized follow-up email using a template that includes their name and references their last purchase. Send the emails via Gmail in batches of 20 with a 5-minute delay between batches. Log the status of each sent email (success/fail) in a spreadsheet."
+}

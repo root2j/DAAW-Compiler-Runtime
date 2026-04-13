@@ -1,0 +1,7 @@
+{
+  "id": "P06",
+  "category": "Data Processing & Analysis",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Read a CSV file called \"sales_data.csv\" that contains columns for date, product name, quantity, and price. Calculate the total revenue per product, sort by highest revenue, and export the result as a new CSV file called \"revenue_summary.csv\"."
+}

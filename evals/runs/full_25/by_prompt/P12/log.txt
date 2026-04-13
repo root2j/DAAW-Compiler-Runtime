@@ -1,0 +1,18 @@
+# P12 — Content Generation & Social Media
+# complexity: Medium
+# characteristics: Parallel
+# prompt: Take a single product description for a new wireless speaker and generate marketing content for three platforms simultaneously: a 150-word Instagram caption with emoji and hashtags, a professional 300-word LinkedIn post highlighting business use cases, and a casual 100-word Twitter thread (3 tweets). Export all three in a single document with clear section headers.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 6 tasks in 4.4s
+          · task_001: Research Wireless Speaker Product  [deps=-] [tools=web_search]
+          · task_002: Determine Marketing Tone and Style  [deps=-] [tools=-]
+          · task_003: Create Instagram Caption  [deps=task_001, task_002] [tools=web_search, file_write]
+          · task_004: Create LinkedIn Post  [deps=task_001, task_002] [tools=web_search, file_write]
+          · task_005: Create Twitter Thread  [deps=task_001, task_002] [tools=web_search, file_write]
+          · task_006: Export Marketing Content  [deps=task_003, task_004, task_005] [tools=file_write]
+[task failure] task_002 (0.0s, 0 tool calls)
+[task success] task_001 (22.9s, 2 tool calls)
+[critic PASS] task_001  — Relevant product description and features were gathered within the given time fr
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 30.8s  api_calls=5  tokens=3276

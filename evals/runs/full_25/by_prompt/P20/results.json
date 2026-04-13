@@ -1,0 +1,22 @@
+{
+  "task_001": {
+    "status": "success",
+    "output": "<web_search{\"query\": \"best tools for extracting tables from PDF reports\"}></function>",
+    "error_message": "",
+    "elapsed_seconds": 5.38,
+    "tool_calls": [],
+    "usage": {
+      "prompt_tokens": 337,
+      "completion_tokens": 20,
+      "total_tokens": 357
+    }
+  },
+  "task_002": {
+    "status": "failure",
+    "output": null,
+    "error_message": "Error code: 400 - {'error': {'message': \"tool call validation failed: attempted to call tool 'brave_search' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=brave_search>{\"query\": \"alternative tools for extracting tables from PDF reports\"}</function>'}}",
+    "elapsed_seconds": 20.39,
+    "tool_calls": [],
+    "usage": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search>{\\\"query\\\": \\\"Google Drive API Drive activity API setup guide\\\"}</function>\n<web_search>{\\\"query\\\": \\\"Google Drive API credentials setup\\\"}</function>\n<web_search>{\\\"query\\\": \\\"Google Drive API notifications setup\\\"}</function>\n<web_search>{\\\"query\\\": \\\"Google Drive API API notifications examples\\\"}</function>\n<web_search>{\\\"query\\\": \\\"Google Drive API Drive activity API code examples\\\"}</function>\n\n{\n  \"Webhook Setup\": {\n    \"folder monitoring\": \"To monitor the 'Submissions' folder using the Google Drive API, enable the Drive activity API in the Google Cloud Console, create credentials for the API, set up notifications for the 'Submissions' folder, and use the API to retrieve notifications.\",\n    \"steps\": [\n      \"Enable the Drive activity API in the Google Cloud Console\",\n      \"Create credentials for the API using OAuth client ID or service account key\",\n      \"Set up notifications for the 'Submissions' folder using the Drive activity API\",\n      \"Use the API to retrieve notifications and update the webhook accordingly\"\n    ],\n    \"credentials\": {\n      \"type\": \"OAuth client ID\",\n      \"instructions\": \"To create credentials using OAuth client ID, go to the Google Cloud Console, select the project, navigate to API Library, search for Drive activity API, click on Enable, then create credentials for the API.\"\n    }\n  }\n}",
+  "error_message": "",
+  "elapsed_seconds": 8.01,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 532,
+    "completion_tokens": 290,
+    "total_tokens": 822
+  }
+}

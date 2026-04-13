@@ -1,0 +1,7 @@
+{
+  "id": "P18",
+  "category": "File Management & Document Processing",
+  "complexity": "Complex",
+  "characteristics": "Parallel + Conditional",
+  "text": "Process a batch of 50 scanned receipts (JPEG images) from a folder. For each image, perform OCR to extract the merchant name, date, total amount, and payment method. Validate the extracted data \u2014 if any field is missing or ambiguous, flag the receipt for manual review. For valid receipts, categorize expenses into Food, Transport, Office Supplies, and Other. Generate an expense report as a formatted Excel file with a pie chart showing spending distribution, and email the report to finance@mycompany.com."
+}

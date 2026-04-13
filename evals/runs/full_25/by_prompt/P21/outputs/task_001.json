@@ -1,0 +1,48 @@
+{
+  "status": "success",
+  "output": "Based on the search results, I can infer that the task of extracting lead data from Google Sheets can be achieved through various methods, including:\n\n1. Using Google Sheets functions such as QUERY, FILTER, VLOOKUP, INDEX-MATCH, and ARRAYFORMULA to pull data from another sheet based on criteria.\n2. Utilizing the IMPORTRANGE function to reference cells or ranges of cells in another spreadsheet.\n3. Linking Google Sheets to extract data from other spreadsheets.\n4. Automating lead extraction from Google Maps directly to Google Sheets using tools like n8n workflow.\n\nTo extract lead data from Google Sheets, I would recommend using the following steps:\n\n1. Identify the relevant data in the Google Sheet that needs to be extracted.\n2. Use Google Sheets functions such as QUERY, FILTER, VLOOKUP, INDEX-MATCH, and ARRAYFORMULA to pull the data from another sheet based on criteria.\n3. Utilize the IMPORTRANGE function to reference cells or ranges of cells in another spreadsheet.\n4. Link Google Sheets to extract data from other spreadsheets.\n5. Automate lead extraction from Google Maps directly to Google Sheets using tools like n8n workflow.\n\nAssuming that the lead data is stored in a Google Sheet with the following structure:\n\n| Lead ID | Name | Email | Company | Intent |\n| --- | --- | --- | --- | --- |\n| 1 | John Doe | johndoe@example.com | ABC Corporation | Sales |\n| 2 | Jane Smith | janesmith@example.com | DEF Company | Marketing |\n\nThe extracted lead data can be stored in a new Google Sheet with the following structure:\n\n| Lead ID | Name | Email | Company | Intent |\n| --- | --- | --- | --- | --- |\n| 1 | John Doe | johndoe@example.com | ABC Corporation | Sales |\n| 2 | Jane Smith | janesmith@example.com | DEF Company | Marketing |\n\nThe extracted lead data can be used for various purposes, such as sales follow-up, marketing research, or lead nurturing.",
+  "error_message": "",
+  "elapsed_seconds": 39.2,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "google sheets extract data from sheet into new sheet"
+      },
+      "result": "Search results for 'google sheets extract data from sheet into new sheet':\n1. Reference data from other sheets Want advanced Google Workspace features for your business? Try Google Workspace today! Within a single spreadsheet, you can replicate data and copy it from one sheet to another.\n2. Learn 6 easy ways to automatically copy data from one sheet to another in Google Sheets using formulas, QUERY, scripts, and more.\n3. Wrangling data spread across multiple tabs in a Google Sheet can quickly turn a clean workbook into a cluttered mess. This article will show you exactly how to pull values from another worksheet, turning your scattered information into a powerful, organized system. We&#x27;ll cover everything from the simplest cell link to more advanced dynamic lookups that automatically update your reports.\n4. Enter the Formula 3. Practical Use Cases of Linking Google Sheets Financial Reporting: Consolidate financial data from multiple departments into one master spreadsheet for comprehensive analysis and reporting. Sales Tracking: Link sales data from various regions to create a unified sales dashboard.\n5. We discuss three different procedures, step-by-step, to pull data from another sheet based on criteria in Google Sheets."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "google sheets extract lead data"
+      },
+      "result": "Search results for 'google sheets extract lead data':\n1. Learn how to automatically pull live web data into Google Sheets using built-in functions. Save time, reduce errors, and turn your spreadsheet into a dynamic dashboard.\n2. Learn how to effectively pull leads from LinkedIn into Google Sheets. Discover essential tools, step-by-step methods, and best practices for B2B lead generation.\n3. Step-by-step guide for beginners to export leads quickly. Learn common challenges, best practices, and how Thunderbit&#x27;s AI scraper helps you capture and organize leads into Excel, Google Sheets, or your CRM.\n4. Google Sheets has some kick-ass functions that can do a lot of heavy lifting. As a part of my online work, I often need to go to some websites and extract specific data points or sections from them. For example, I sometimes have to copy and paste a table from a web page into Google Sheets or fetch the article title or product name from a web page into Google Sheets. Since I spend a lot of my ...\n5. All processed data is automatically added to your Google Sheets CRM with lead quality ratings and email guesses ready for outreach. Input Sources: Google Sheets monitoring, manual trigger, or webhook API Processing: Apify LinkedIn scraper + intelligent data enrichment Output: Complete CRM-ready lead profiles with email intelligence"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "google sheets pull data from another sheet based on criteria"
+      },
+      "result": "Search results for 'google sheets pull data from another sheet based on criteria':\n1. We discuss three different procedures, step-by-step, to pull data from another sheet based on criteria in Google Sheets.\n2. Learn how to pull data from another tab in Google Sheets using QUERY, FILTER, VLOOKUP, INDEX-MATCH, and ARRAYFORMULA based on criteria.\n3. This tutorial explains how to pull data from another sheet in Google Sheets based on criteria, including an example.\n4. Build Your First 10-Minute Google Sheets Report Convert one recurring report today into a criteria-driven view that pulls data from another tab based on specific criteria. Use FILTER for exact matches, or use QUERY for sorting and aggregation. Set it to update automatically as new rows come in.\n5. In this video, I&#x27;ll show you how to pull data from another worksheet in Google Sheets based on specific criteria using formulas like FILTER, VLOOKUP, and QUERY. This is perfect for building ..."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "google sheets extract data from other sheet"
+      },
+      "result": "Search results for 'google sheets extract data from other sheet':\n1. Note: If a sheet name contains spaces or other non-alphanumeric symbols, include single quotes around it (as in the second example). Get data from other spreadsheets Important: To reference a cell or range of cells in another spreadsheet, you must use the IMPORTRANGE function. To pull data from other spreadsheets, use the IMPORTRANGE function.\n2. Pulling data based on criteria means extracting specific data from one sheet/tab onto another sheet or tab. This process involves using formulas that follow certain rules. Some formulas return multiple results, while others give just one. This is super handy when dealing with large datasets and focusing on specific data.\n3. Linking Google Sheets refers to the process of connecting data between sheets or different spreadsheets using formulas, allowing information to update automatically in real time.\n4. We discuss three different procedures, step-by-step, to pull data from another sheet based on criteria in Google Sheets.\n5. Learn how to pull data from another tab in Google Sheets with simple to advanced methods. Streamline your workflow and keep your data organized efficiently."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "google sheets lead data extraction"
+      },
+      "result": "Search results for 'google sheets lead data extraction':\n1. Google Maps Data Extraction Workflow for Lead Generation This workflow is ideal for sales teams, marketers, entrepreneurs, and researchers looking to efficiently gather detailed business information from Google Maps for:\n2. AI Agent (OpenAI) \u2192 Extracts and structures lead details (name, email, company, intent). HTTP Request Node \u2192 Performs live enrichment (e.g., company/domain lookup). Code Node \u2192 Cleans and formats the extracted lead data. Google Sheets Integration \u2192 Appends each qualified lead into a sheet for sales follow-up.\n3. We&#x27;ll guide you through using tools like Google Forms to gather lead information and Google Sheets to store and analyze that data.\n4. Automate lead extraction from Google Maps directly to Google Sheets. Simplify sales &amp; marketing research with this seamless workflow.\n5. Automate B2B lead generation by extracting business contact information directly from Google Maps search results using this powerful n8n workflow and saving data to Google Sheets."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1603,
+    "completion_tokens": 419,
+    "total_tokens": 2022
+  }
+}
