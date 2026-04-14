@@ -1,0 +1,10 @@
+{
+  "task_001": {
+    "status": "failure",
+    "output": null,
+    "error_message": "Error code: 400 - {'error': {'message': \"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=python_exec>{\"code\": \"import random, string\\nimport csv\\nnames = [\\'\\'.join(random.choice(string.ascii_lowercase) for _ in range(5)) for _ in range(50)]\\nages = [random.randint(0, 100) for _ in range(50)]\\nwith open(\\'output.csv\\', \\'w\\', newline=\\'\\') as csvfile:\\n    writer = csv.writer(csvfile)\\n    writer.writerow([\\'Name\\', \\'Age\\'])\\n    for name, age in zip(names, ages):\\n        writer.writerow([name, age])\"}</function>'}}",
+    "elapsed_seconds": 7.66,
+    "tool_calls": [],
+    "usage": null
+  }
+}

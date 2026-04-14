@@ -1,0 +1,95 @@
+{
+  "id": "1f9821ae-4856-4e34-971f-a2288d57387d",
+  "name": "Fetch and Count Public APIs",
+  "description": "Fetch list of public APIs and count those in the Animals category",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch Public APIs List",
+      "description": "Fetch list of public APIs from https://api.publicapis.org/entries",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "json response",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Parse API List",
+      "description": "Parse the list of public APIs to extract the Animals category",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "list of Animals category APIs",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Count and Report Animals APIs",
+      "description": "Count the number of Animals category APIs and report their names",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "count and list of Animals category APIs",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Results",
+      "description": "Save the count and list of Animals category APIs to a file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "file saved with results",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

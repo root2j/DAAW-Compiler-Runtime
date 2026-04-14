@@ -1,0 +1,7 @@
+# P03 — Web Research & Summarization
+# complexity: Medium
+# characteristics: Linear
+# prompt: Find the 3 most recent SpaceX launches by searching the web. For each launch, note the mission name, date, and whether it was successful. Write the results to a file called "spacex_launches.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RuntimeError: Compiler failed after 3 attempts: No tasks generated. The workflow must have at least one task.

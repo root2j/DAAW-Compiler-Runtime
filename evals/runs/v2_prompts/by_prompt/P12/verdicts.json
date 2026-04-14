@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_003",
+    "task_name": "Calculate BTC Value",
+    "verdict": "PASS",
+    "reasoning": "BTC value calculated successfully"
+  },
+  {
+    "task_id": "task_004",
+    "task_name": "Write BTC Value to File",
+    "verdict": "PASS",
+    "reasoning": "Result written to btc_value.txt as requested"
+  }
+]

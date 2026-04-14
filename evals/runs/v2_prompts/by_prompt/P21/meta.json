@@ -1,0 +1,7 @@
+{
+  "id": "P21",
+  "category": "Automation Simulation",
+  "complexity": "Complex",
+  "characteristics": "Linear",
+  "text": "Search the web for the latest tech news headlines (top 5). For each headline, use the LLM to classify the sentiment (positive, negative, neutral) and the tech sector (AI, hardware, software, crypto, other). Write the classified results as a structured JSON file called \"tech_news_analysis.json\"."
+}

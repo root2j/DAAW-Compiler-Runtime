@@ -1,0 +1,95 @@
+{
+  "id": "9115530e-1dfd-4e90-bd62-803dd9a217e1",
+  "name": "Tokyo New York London Weather Comparison",
+  "description": "Research the current weather in Tokyo, New York, and London. Compare the temperatures and summarize which city is warmest and which is coldest right now.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Current Weather in Tokyo, New York, and London",
+      "description": "Use web_search to find the current weather in Tokyo, New York, and London.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Current weather data for Tokyo, New York, and London",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract Temperature Data from Weather Information",
+      "description": "Use python_exec to extract temperature data from the weather information.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Temperature data for Tokyo, New York, and London",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Compare Temperatures and Determine Warmest and Coldest Cities",
+      "description": "Use python_exec to compare the temperatures and determine which city is warmest and which is coldest.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Summary of warmest and coldest cities",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Weather Comparison Summary",
+      "description": "Save the weather comparison summary to a file.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Weather comparison summary saved to file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

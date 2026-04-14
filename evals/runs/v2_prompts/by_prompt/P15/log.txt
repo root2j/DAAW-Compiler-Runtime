@@ -1,0 +1,15 @@
+# P15 — File Operations & Text Processing
+# complexity: Medium
+# characteristics: Linear
+# prompt: Create a JSON configuration file for a hypothetical web application with settings for database host, port, cache TTL, and feature flags. Then read the file, validate that all required fields are present, and generate a documentation page summarizing each setting. Save as "config_docs.md".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 16.6s
+          · task_001: Create JSON configuration file  [deps=-] [tools=python_exec]
+          · task_002: Read configuration file  [deps=task_001] [tools=file_read]
+          · task_003: Validate configuration file  [deps=task_002] [tools=python_exec]
+          · task_004: Generate documentation page  [deps=task_003] [tools=python_exec]
+          · task_005: Save documentation page  [deps=task_004] [tools=file_write]
+[task failure] task_001 (8.8s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[DONE] total 25.5s  api_calls=3  tokens=1735

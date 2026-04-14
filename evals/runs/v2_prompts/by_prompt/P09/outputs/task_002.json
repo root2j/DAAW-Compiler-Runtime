@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 400 - {'error': {'message': 'tool call validation failed: attempted to call tool \\'http_request url=\"https://api.publicapis.org/entries\"\\' which was not in request.tools', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=http_request url=\"https://api.publicapis.org/entries\">{\"categories\": \"Animals\"} </function>\\n\\n'}}",
+  "elapsed_seconds": 4.52,
+  "tool_calls": [],
+  "usage": null
+}

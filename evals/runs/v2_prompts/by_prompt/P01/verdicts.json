@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Web Search",
+    "verdict": "PASS",
+    "reasoning": "The task produced relevant content addressing the goal, listing the top 5 programming languages in 2026 by popularity along with their average salaries and job roles."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Python Execution",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

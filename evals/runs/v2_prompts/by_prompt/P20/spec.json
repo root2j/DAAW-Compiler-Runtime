@@ -1,0 +1,76 @@
+{
+  "id": "7c232201-1552-48cb-b859-9e2e8f9df27e",
+  "name": "Generate and Save Password Guide",
+  "description": "Generate a random password and save web search results to a file.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Random Password",
+      "description": "Use Python to generate a random 16-character password.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Password generated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search for Password Security Tips",
+      "description": "Search the web for current password security best practices.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Web search results found",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save Password Guide to File",
+      "description": "Write both the generated password and the security tips to \"password_guide.txt\".",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File saved successfully",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

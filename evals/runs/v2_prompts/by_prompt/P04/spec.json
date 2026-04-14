@@ -1,0 +1,95 @@
+{
+  "id": "c66d5e73-b449-4d03-8b6c-edba27ba3d67",
+  "name": "Tourist Attractions Comparison",
+  "description": "Research top tourist attractions in Paris and Rome, save comparison to file.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Web Search: Paris and Rome Tourist Attractions",
+      "description": "Search for top tourist attractions in Paris and Rome.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "list of top tourist attractions in Paris and Rome",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract and Process Attraction Data",
+      "description": "Extract and process attraction data from search results.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "processed attraction data",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create Comparison Table",
+      "description": "Create a comparison table with attraction data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "comparison table",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Comparison to File",
+      "description": "Save the comparison to a file called 'travel_comparison.md'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "file saved successfully",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

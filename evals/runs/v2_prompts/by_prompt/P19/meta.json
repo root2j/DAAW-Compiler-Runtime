@@ -1,0 +1,7 @@
+{
+  "id": "P19",
+  "category": "Automation Simulation",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Check what the current date and time is using Python. Then search the web for \"what happened on this day in history\" and write 3 interesting historical events to \"today_in_history.txt\"."
+}

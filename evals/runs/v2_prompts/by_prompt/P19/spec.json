@@ -1,0 +1,95 @@
+{
+  "id": "856221c3-9b65-4f6a-9c59-1b5d50708111",
+  "name": "Current Date and History",
+  "description": "Check current date and time, search for historical events, and save results to file.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Get Current Date and Time",
+      "description": "Use Python to get the current date and time.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "str",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search for Historical Events",
+      "description": "Search the web for historical events on this day.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "str",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Analyze and Process Historical Events",
+      "description": "Use Python to analyze and process the historical events found.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "str",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Historical Events to File",
+      "description": "Write 3 interesting historical events to \"today_in_history.txt\".",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "str",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

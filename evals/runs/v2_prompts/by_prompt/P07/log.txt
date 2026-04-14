@@ -1,0 +1,17 @@
+# P07 — Data Processing & Computation
+# complexity: Medium
+# characteristics: Linear
+# prompt: Write a JSON file containing 5 employee records with name, department, and salary. Then read the file, calculate the average salary, find the highest-paid employee, and write a summary report to "salary_report.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 5 tasks in 12.3s
+          · task_001: Gather employee data  [deps=-] [tools=web_search]
+          · task_002: Create employee records  [deps=task_001] [tools=file_write]
+          · task_003: Read employee records  [deps=task_002] [tools=file_read]
+          · task_004: Calculate average salary and find highest-paid employee  [deps=task_003] [tools=python_exec]
+          · task_005: Write salary report  [deps=task_004] [tools=file_write]
+[task success] task_001 (38.1s, 5 tool calls)
+[task failure] task_002 (3.4s, 0 tool calls)
+[critic PASS] task_001  — Output contains relevant employee data
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 61.4s  api_calls=7  tokens=5434

@@ -1,0 +1,7 @@
+# P05 — Data Processing & Computation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Write a Python script that generates a list of the first 20 Fibonacci numbers, then calculate their average. Print the list and the average.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RuntimeError: Compiler failed after 3 attempts: No tasks generated. The workflow must have at least one task.

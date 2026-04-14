@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for Open-Source Alternatives",
+    "verdict": "PASS",
+    "reasoning": "List of top 3 open-source alternatives to Microsoft Excel found"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Gather Information on Alternatives",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

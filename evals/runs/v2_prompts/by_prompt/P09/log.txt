@@ -1,0 +1,16 @@
+# P09 — API Interaction & HTTP
+# complexity: Simple
+# characteristics: Linear
+# prompt: Fetch the list of public APIs from https://api.publicapis.org/entries and count how many APIs are in the "Animals" category. Report the count and list their names.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 2.5s
+          · task_001: Fetch Public APIs List  [deps=-] [tools=http_request]
+          · task_002: Parse API List  [deps=task_001] [tools=python_exec]
+          · task_003: Count and Report Animals APIs  [deps=task_002] [tools=python_exec]
+          · task_004: Save Results  [deps=task_003] [tools=file_write]
+[task success] task_001 (50.2s, 6 tool calls)
+[task failure] task_002 (4.5s, 0 tool calls)
+[critic FAIL] task_001  — Error message indicates a connection issue with the URL
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 64.4s  api_calls=10  tokens=6193

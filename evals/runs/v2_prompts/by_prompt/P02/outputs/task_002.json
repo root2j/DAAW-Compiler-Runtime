@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 400 - {'error': {'message': \"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=python_exec>{\"code\": \"import json\\ndata = \\'\\'\\'{\\'Tokyo\\': {\\'temperature\\': {\\'high\\': 22, \\'low\\': 15}, \\'weather\\': \\'partly cloudy\\'}, \\n\\'New York\\': {\\'temperature\\': {\\'high\\': 18, \\'low\\': 8}, \\'weather\\': \\'partly sunny\\'}, \\n\\'London\\': {\\'temperature\\': {\\'high\\': 12, \\'low\\': 6}, \\'weather\\': \\'overcast\\'}}\\n\\n# Extract temperature data\\ntemperature_data = {}\\nfor city in data.keys():\\n    temperature_data[city] = data[city][\\'temperature\\']\\n\\n# Print temperature data\\nprint(json.dumps(temperature_data, indent=4))\"}</function>'}}",
+  "elapsed_seconds": 12.38,
+  "tool_calls": [],
+  "usage": null
+}

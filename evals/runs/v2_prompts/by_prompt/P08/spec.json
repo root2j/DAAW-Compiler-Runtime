@@ -1,0 +1,73 @@
+{
+  "id": "a2367f75-e86e-4512-9231-9f8246ee4085",
+  "name": "Generate Multiplication Table",
+  "description": "Generate a multiplication table, save it to a file, and find the most frequent product.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Multiplication Table Generation",
+      "description": "Use Python to generate a multiplication table",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Python code to generate multiplication table",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Save Multiplication Table to File",
+      "description": "Save the generated multiplication table to a file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Multiplication table saved to file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Read and Analyze Multiplication Table",
+      "description": "Read the saved multiplication table and find the most frequent product",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Most frequent product found",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

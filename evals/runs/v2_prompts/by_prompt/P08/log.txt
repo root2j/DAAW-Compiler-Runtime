@@ -1,0 +1,17 @@
+# P08 — Data Processing & Computation
+# complexity: Medium
+# characteristics: Linear
+# prompt: Generate a multiplication table (1-10) using Python, save it to a file, then read the file back and find which product appears most frequently in the table.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 18.8s
+          · task_001: Research Multiplication Table Generation  [deps=-] [tools=python_exec]
+          · task_002: Save Multiplication Table to File  [deps=task_001] [tools=file_write]
+          · task_003: Read and Analyze Multiplication Table  [deps=task_002] [tools=file_read, python_exec]
+[task success] task_001 (16.0s, 1 tool calls)
+[task success] task_002 (14.9s, 2 tool calls)
+[task failure] task_003 (5.3s, 0 tool calls)
+[critic PASS] task_001  — The task produced relevant content addressing the goal, and the task was complet
+[critic PASS] task_002  — Task completed successfully according to the success criteria.
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 64.1s  api_calls=11  tokens=5650

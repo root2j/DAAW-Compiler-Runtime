@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Gather employee data",
+    "verdict": "PASS",
+    "reasoning": "Output contains relevant employee data"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Create employee records",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]
