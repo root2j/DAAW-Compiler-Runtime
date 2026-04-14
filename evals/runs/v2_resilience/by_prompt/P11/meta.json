@@ -1,0 +1,7 @@
+{
+  "id": "P11",
+  "category": "API Interaction & HTTP",
+  "complexity": "Medium",
+  "characteristics": "Parallel",
+  "text": "Fetch data from these two public APIs simultaneously: https://catfact.ninja/fact (cat fact) and https://uselessfacts.jsph.pl/api/v2/facts/random (random fact). Compare the lengths of both facts and declare which source gave the longer fact. Save results to \"facts_comparison.txt\"."
+}

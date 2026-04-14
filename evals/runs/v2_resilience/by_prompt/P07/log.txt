@@ -1,0 +1,7 @@
+# P07 — Data Processing & Computation
+# complexity: Medium
+# characteristics: Linear
+# prompt: Write a JSON file containing 5 employee records with name, department, and salary. Then read the file, calculate the average salary, find the highest-paid employee, and write a summary report to "salary_report.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99913, Requested 845. Please try again in 10m54.912s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}

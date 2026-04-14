@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for latest tech news",
+    "verdict": "PASS",
+    "reasoning": "Found at least 5 headlines as per the success criteria."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Classify sentiment and sector",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

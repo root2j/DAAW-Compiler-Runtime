@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search>{\"query\": \"database host default setting\"}\"</function>\n<web_search>{\"query\": \"database port default setting\"}\"</function>\n<web_search>{\"query\": \"cache TTL default setting\"}\"</function>\n<web_search>{\"query\": \"feature flags default setting\"}\"</function>\n\n<http_request>{\"url\": \"https://www.postgresql.org/docs/current/static/libpq-connect.html\", \"method\": \"GET\", \"headers\": {}}</function>\n\n<http_request>{\"url\": \"https://docs.mongodb.com/manual/reference/program/mongod/\", \"method\": \"GET\", \"headers\": {}}</function>\n\n<http_request>{\"url\": \"https://redis.io/commands/TTL\", \"method\": \"GET\", \"headers\": {}}</function>\n\n<http_request>{\"url\": \"https://docs.microsoft.com/en-us/azure/azure-functions/default-http-settings\", \"method\": \"GET\", \"headers\": {}}</function>",
+  "error_message": "",
+  "elapsed_seconds": 1.11,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 571,
+    "completion_tokens": 197,
+    "total_tokens": 768
+  }
+}

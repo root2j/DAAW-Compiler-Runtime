@@ -1,0 +1,95 @@
+{
+  "id": "77681d2d-7ce1-41b9-9884-83d383f2ecc1",
+  "name": "Find Open-Source Excel Alternatives",
+  "description": "Search for top 3 open-source Excel alternatives and create a comparison table",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for Excel Alternatives",
+      "description": "Find top 3 open-source alternatives to Microsoft Excel",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "List of top 3 open-source Excel alternatives",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract Alternative Details",
+      "description": "Extract latest version, license, and unique feature for each alternative",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "List of dictionaries containing alternative details",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create Comparison Table",
+      "description": "Create a markdown comparison table from the extracted details",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Markdown comparison table",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Comparison Table",
+      "description": "Save the comparison table to spreadsheet_alternatives.md",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "spreadsheet_alternatives.md file created",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Research top programming languages",
+    "verdict": "PASS",
+    "reasoning": "Relevant content addressing the goal, although the 5th language is assumed."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Find key advantages and criticisms",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

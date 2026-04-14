@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Fetch Random Joke",
+    "verdict": "PASS",
+    "reasoning": "Joke retrieved successfully"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Find Comedian",
+    "verdict": "PASS",
+    "reasoning": "Comedian found, relevant content addressing the goal"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Write Joke and Research",
+    "verdict": "PASS",
+    "reasoning": "Task completed successfully and a file was written."
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Find Bitcoin API",
+    "verdict": "PASS",
+    "reasoning": "Found a free Bitcoin price API endpoint URL"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Fetch Bitcoin Price",
+    "verdict": "FAIL",
+    "reasoning": "Current Bitcoin price not fetched"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Calculate 0.5 BTC Value",
+    "verdict": "PASS",
+    "reasoning": "The task successfully calculated the value of 0.5 BTC in USD."
+  },
+  {
+    "task_id": "task_004",
+    "task_name": "Write Result to File",
+    "verdict": "PASS",
+    "reasoning": "The task is complete, indicating successful execution."
+  }
+]

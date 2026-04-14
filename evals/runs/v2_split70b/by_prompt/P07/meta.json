@@ -1,0 +1,7 @@
+{
+  "id": "P07",
+  "category": "Data Processing & Computation",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Write a JSON file containing 5 employee records with name, department, and salary. Then read the file, calculate the average salary, find the highest-paid employee, and write a summary report to \"salary_report.txt\"."
+}

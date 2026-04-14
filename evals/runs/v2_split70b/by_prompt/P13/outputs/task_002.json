@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "output": "The file 'generated_text.txt' now contains the text 'Text generated successfully.'",
+  "error_message": "",
+  "elapsed_seconds": 10.53,
+  "tool_calls": [
+    {
+      "tool": "file_write",
+      "args": {
+        "content": "<dependency=task_001.output>",
+        "path": "generated_text.txt"
+      },
+      "result": "Wrote 28 characters to generated_text.txt"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 416,
+    "completion_tokens": 17,
+    "total_tokens": 433
+  }
+}

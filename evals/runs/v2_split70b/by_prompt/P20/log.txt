@@ -1,0 +1,17 @@
+# P20 — Automation Simulation
+# complexity: Medium
+# characteristics: Linear
+# prompt: Use Python to generate a random 16-character password containing uppercase, lowercase, digits, and special characters. Then search the web for current password security best practices. Write both the generated password and the security tips to "password_guide.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 1.1s
+          · task_001: Generate Random Password  [deps=-] [tools=python_exec]
+          · task_002: Search Web for Password Security Tips  [deps=task_001] [tools=web_search]
+          · task_003: Write Password and Security Tips to File  [deps=task_002] [tools=file_write]
+[task success] task_001 (6.5s, 1 tool calls)
+[task success] task_002 (22.7s, 2 tool calls)
+[task success] task_003 (8.3s, 1 tool calls)
+[critic PASS] task_001  — Password generated with the specified criteria
+[critic PASS] task_002  — Found relevant security tips from NIST 800-63B
+[critic PASS] task_003  — Generated password and security tips were written to 'password_guide.txt' as int
+[DONE] total 60.6s  api_calls=11  tokens=6089

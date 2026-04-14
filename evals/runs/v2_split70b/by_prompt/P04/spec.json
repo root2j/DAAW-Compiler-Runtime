@@ -1,0 +1,73 @@
+{
+  "id": "08a7e867-a423-4dd6-84ae-9361d9fd7541",
+  "name": "Travel Comparison",
+  "description": "Research and compare top tourist attractions in Paris and Rome",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Tourist Attractions",
+      "description": "Find top 3 tourist attractions in Paris and Rome",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "List of 6 tourist attractions with descriptions",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Process and Format Data",
+      "description": "Format the list of tourist attractions for comparison",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Formatted list of tourist attractions",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create Comparison File",
+      "description": "Create a markdown file with the comparison of tourist attractions",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "travel_comparison.md file created",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

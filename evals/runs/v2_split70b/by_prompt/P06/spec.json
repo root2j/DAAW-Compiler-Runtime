@@ -1,0 +1,73 @@
+{
+  "id": "ac5381cb-4330-4038-baaa-1935b3561bc7",
+  "name": "Inventory Value Calculation",
+  "description": "Create a CSV file with sample products and calculate the total inventory value",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create Sample Products CSV",
+      "description": "Create a CSV file with 10 sample products",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "CSV file created with 10 sample products",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read CSV and Calculate Inventory Value",
+      "description": "Read the CSV file and calculate the total inventory value",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Total inventory value calculated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save Inventory Value to File",
+      "description": "Save the total inventory value to a file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Total inventory value saved to file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

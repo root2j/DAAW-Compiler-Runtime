@@ -1,0 +1,18 @@
+# P13 — File Operations & Text Processing
+# complexity: Simple
+# characteristics: Linear
+# prompt: Create a text file with a 5-paragraph lorem ipsum placeholder. Then read the file, count the total number of words and sentences, and print the statistics.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 1.2s
+          · task_001: Generate Lorem Ipsum Text  [deps=-] [tools=python_exec]
+          · task_002: Save Text to File  [deps=task_001] [tools=file_write]
+          · task_003: Read File and Count Words and Sentences  [deps=task_002] [tools=file_read, python_exec]
+          · task_004: Print Statistics  [deps=task_003] [tools=python_exec]
+[task success] task_001 (80.6s, 7 tool calls)
+[task success] task_002 (10.5s, 1 tool calls)
+[task failure] task_003 (164.9s, 11 tool calls)
+[critic FAIL] task_001  — Output does not contain lorem ipsum text
+[critic PASS] task_002  — File saved successfully with relevant content
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 259.5s  api_calls=23  tokens=27366

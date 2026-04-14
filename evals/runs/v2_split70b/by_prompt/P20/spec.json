@@ -1,0 +1,72 @@
+{
+  "id": "2c2a6e7a-f5fa-4bf3-ab1c-9970a7cfefd9",
+  "name": "Generate Password and Search Security Tips",
+  "description": "Create a strong password and find current security best practices",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Random Password",
+      "description": "Create a 16-character password with uppercase, lowercase, digits, and special characters",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Password generated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search Web for Password Security Tips",
+      "description": "Find current password security best practices",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Security tips found",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write Password and Security Tips to File",
+      "description": "Save the generated password and security tips to 'password_guide.txt'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File written successfully",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

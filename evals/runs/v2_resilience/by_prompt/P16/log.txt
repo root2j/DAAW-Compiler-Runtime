@@ -1,0 +1,7 @@
+# P16 — Multi-Step Research & Analysis
+# complexity: Medium
+# characteristics: Linear
+# prompt: Search the web for the top 3 open-source alternatives to Microsoft Excel. For each, find the latest version number, license type, and one unique feature. Create a markdown comparison table and save it to "spreadsheet_alternatives.md".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99856, Requested 4497. Please try again in 1h2m40.991999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}

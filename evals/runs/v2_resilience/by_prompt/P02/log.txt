@@ -1,0 +1,20 @@
+# P02 — Web Research & Summarization
+# complexity: Simple
+# characteristics: Linear
+# prompt: Research the current weather in Tokyo, New York, and London. Compare the temperatures and summarize which city is warmest and which is coldest right now.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 1.4s
+          · task_001: Gather weather data  [deps=-] [tools=web_search, http_request]
+          · task_002: Extract and compare temperatures  [deps=task_001] [tools=python_exec]
+          · task_003: Summarize results  [deps=task_002] [tools=python_exec]
+          · task_004: Save results  [deps=task_003] [tools=file_write]
+[task success] task_001 (58.9s, 6 tool calls)
+[task success] task_002 (18.4s, 0 tool calls)
+[task success] task_003 (16.1s, 0 tool calls)
+[task success] task_004 (36.7s, 3 tool calls)
+[critic PASS] task_001  — Obtained current weather data for all three cities: Tokyo, New York, and London.
+[critic PASS] task_002  — Compared temperatures and identified warmest and coldest cities as per the task 
+[critic PASS] task_003  — Summary of comparison results created successfully
+[critic PASS] task_004  — Summary saved to a file as per task goal
+[DONE] total 144.8s  api_calls=18  tokens=13368

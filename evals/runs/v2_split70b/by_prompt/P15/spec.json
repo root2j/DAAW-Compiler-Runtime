@@ -1,0 +1,98 @@
+{
+  "id": "7f764428-bbd4-40f4-8a46-77065323bdd1",
+  "name": "Create Web App Config and Docs",
+  "description": "Generate config file and documentation for web application",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Gather Configuration Settings",
+      "description": "Research default settings for database host, port, cache TTL, and feature flags",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Found all required configuration settings",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Generate Configuration File",
+      "description": "Create a JSON configuration file with the gathered settings",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Configuration file generated successfully",
+      "timeout_seconds": 120,
+      "max_retries": 1
+    },
+    {
+      "id": "task_003",
+      "name": "Validate Configuration File",
+      "description": "Read the configuration file and validate that all required fields are present",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "All required fields are present in the configuration file",
+      "timeout_seconds": 120,
+      "max_retries": 1
+    },
+    {
+      "id": "task_004",
+      "name": "Generate Documentation",
+      "description": "Generate a documentation page summarizing each setting in the configuration file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Documentation page generated successfully as config_docs.md",
+      "timeout_seconds": 120,
+      "max_retries": 1
+    }
+  ],
+  "metadata": {}
+}

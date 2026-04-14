@@ -1,0 +1,74 @@
+{
+  "id": "972aaee9-79fb-4c39-84b5-6bd22217789e",
+  "name": "Joke Research",
+  "description": "Fetch a random joke and research its origin",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch Random Joke",
+      "description": "Get a random joke from the joke API",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Joke retrieved",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Find Comedian",
+      "description": "Search for the comedian who originated the joke style",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Comedian found",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write Joke and Research",
+      "description": "Write the joke and research to a file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File written",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

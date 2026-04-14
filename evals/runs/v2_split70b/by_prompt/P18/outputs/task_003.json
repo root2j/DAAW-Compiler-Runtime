@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 400 - {'error': {'message': \"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=python_exec>{\"code\": \"import json\\nresults = [json.loads(i) for i in open(\\'task_002.output\\', \\'r\\')]\\nframeworks = [\\'Flask\\', \\'Django\\', \\'FastAPI\\', \\'PySpider\\', \\'React\\', \\'Vue\\', \\'Angular\\']\\nstar_counts = {}\\nfor i in results:\\n    for j in i[\\'packages\\']:\\n        if j in frameworks:\\n            star_counts[j] = int(j[\\'stars\\'])\\nframeworks.sort(key=lambda x: star_counts[x], reverse=True)\\nprint(\\'Framework\\\\tStars\\')\\nfor i in frameworks:\\n    print(f\\'{i}\\\\t{star_counts[i]}\\')\"}</function>'}}",
+  "elapsed_seconds": 7.74,
+  "tool_calls": [],
+  "usage": null
+}

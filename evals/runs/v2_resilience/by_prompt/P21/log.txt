@@ -1,0 +1,7 @@
+# P21 — Automation Simulation
+# complexity: Complex
+# characteristics: Linear
+# prompt: Search the web for the latest tech news headlines (top 5). For each headline, use the LLM to classify the sentiment (positive, negative, neutral) and the tech sector (AI, hardware, software, crypto, other). Write the classified results as a structured JSON file called "tech_news_analysis.json".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99824, Requested 4513. Please try again in 1h2m27.168s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}

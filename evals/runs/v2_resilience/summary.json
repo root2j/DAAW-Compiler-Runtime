@@ -1,0 +1,475 @@
+{
+  "provider": "groq",
+  "model": "llama-3.1-8b-instant",
+  "generated_at": "2026-04-14T15:21:27.145130",
+  "prompts": [
+    {
+      "id": "P01",
+      "category": "Web Research & Summarization",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the top 5 programming languages in 2026 by popularity. For each language, find one key advantage and one common criticism. Present the results as a numbered list.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Search for top programming languages",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal, although the exact ranking may vary."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Find key advantages and criticisms",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal, listing key advantages and criticisms for top programming languages."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Format results as a numbered list",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal, presented as a numbered list with key advantages and criticisms."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Save results to file",
+          "verdict": "PASS",
+          "reasoning": "File containing the numbered list has been successfully saved to a file."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.53,
+        "execute": 171.02,
+        "critic": 11.67,
+        "total": 184.22
+      },
+      "api_calls_total": 15,
+      "tokens_total": 10446
+    },
+    {
+      "id": "P02",
+      "category": "Web Research & Summarization",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Research the current weather in Tokyo, New York, and London. Compare the temperatures and summarize which city is warmest and which is coldest right now.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather weather data",
+          "verdict": "PASS",
+          "reasoning": "Obtained current weather data for all three cities: Tokyo, New York, and London."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract and compare temperatures",
+          "verdict": "PASS",
+          "reasoning": "Compared temperatures and identified warmest and coldest cities as per the task goal."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Summarize results",
+          "verdict": "PASS",
+          "reasoning": "Summary of comparison results created successfully"
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Save results",
+          "verdict": "PASS",
+          "reasoning": "Summary saved to a file as per task goal"
+        }
+      ],
+      "elapsed": {
+        "compile": 1.36,
+        "execute": 130.05,
+        "critic": 13.41,
+        "total": 144.81
+      },
+      "api_calls_total": 18,
+      "tokens_total": 13368
+    },
+    {
+      "id": "P03",
+      "category": "Web Research & Summarization",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Find the 3 most recent SpaceX launches by searching the web. For each launch, note the mission name, date, and whether it was successful. Write the results to a file called \"spacex_launches.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Search for SpaceX launches",
+          "verdict": "PASS",
+          "reasoning": "Found 3 SpaceX launches, although launch dates were missing"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract launch information",
+          "verdict": "PASS",
+          "reasoning": "Extracted launch information for 3 launches, although specific dates and success statuses were not provided."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Write launch information to file",
+          "verdict": "PASS",
+          "reasoning": "Launch information was written to a file"
+        }
+      ],
+      "elapsed": {
+        "compile": 1.14,
+        "execute": 45.47,
+        "critic": 8.3,
+        "total": 54.91
+      },
+      "api_calls_total": 10,
+      "tokens_total": 5746
+    },
+    {
+      "id": "P04",
+      "category": "Web Research & Summarization",
+      "complexity": "Medium",
+      "characteristics": "Parallel",
+      "prompt_text": "Research the top 3 tourist attractions in both Paris and Rome (6 total). Present them side by side with a brief description of each. Save the comparison to a file called \"travel_comparison.md\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99932, Requested 841. Please try again in 11m7.872s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.49,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P05",
+      "category": "Data Processing & Computation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Write a Python script that generates a list of the first 20 Fibonacci numbers, then calculate their average. Print the list and the average.",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99926, Requested 742. Please try again in 9m37.152s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.26,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P06",
+      "category": "Data Processing & Computation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Create a CSV file with 10 sample products (name, price, quantity). Then read it back and calculate the total inventory value (price * quantity for each product, summed).",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99919, Requested 837. Please try again in 10m53.184s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.26,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P07",
+      "category": "Data Processing & Computation",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Write a JSON file containing 5 employee records with name, department, and salary. Then read the file, calculate the average salary, find the highest-paid employee, and write a summary report to \"salary_report.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99913, Requested 845. Please try again in 10m54.912s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.22,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P08",
+      "category": "Data Processing & Computation",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Generate a multiplication table (1-10) using Python, save it to a file, then read the file back and find which product appears most frequently in the table.",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99907, Requested 748. Please try again in 9m25.92s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.19,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P09",
+      "category": "API Interaction & HTTP",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Fetch the list of public APIs from https://api.publicapis.org/entries and count how many APIs are in the \"Animals\" category. Report the count and list their names.",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99901, Requested 4486. Please try again in 1h3m10.368s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.31,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P10",
+      "category": "API Interaction & HTTP",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Fetch a random joke from https://official-joke-api.appspot.com/random_joke, then search the web for the comedian who originated that style of joke. Write both the joke and your research to \"joke_research.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99894, Requested 4495. Please try again in 1h3m12.096s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.69,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P11",
+      "category": "API Interaction & HTTP",
+      "complexity": "Medium",
+      "characteristics": "Parallel",
+      "prompt_text": "Fetch data from these two public APIs simultaneously: https://catfact.ninja/fact (cat fact) and https://uselessfacts.jsph.pl/api/v2/facts/random (random fact). Compare the lengths of both facts and declare which source gave the longer fact. Save results to \"facts_comparison.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99888, Requested 864. Please try again in 10m49.728s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.28,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P12",
+      "category": "API Interaction & HTTP",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Fetch the current Bitcoin price from a public API (search the web for a free Bitcoin price API endpoint first). Then use Python to calculate what 0.5 BTC would be worth. Write the result to \"btc_value.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99882, Requested 847. Please try again in 10m29.856s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.34,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P13",
+      "category": "File Operations & Text Processing",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Create a text file with a 5-paragraph lorem ipsum placeholder. Then read the file, count the total number of words and sentences, and print the statistics.",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99875, Requested 4482. Please try again in 1h2m44.448s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.31,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P14",
+      "category": "File Operations & Text Processing",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Write a Python script that generates 50 random names with ages (18-65) as a CSV file. Then read the CSV, group by age decade (teens, twenties, thirties, etc.), and count how many people are in each group. Save the analysis as \"age_groups.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99869, Requested 776. Please try again in 9m17.28s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.3,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P15",
+      "category": "File Operations & Text Processing",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Create a JSON configuration file for a hypothetical web application with settings for database host, port, cache TTL, and feature flags. Then read the file, validate that all required fields are present, and generate a documentation page summarizing each setting. Save as \"config_docs.md\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99863, Requested 856. Please try again in 10m21.216s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.42,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P16",
+      "category": "Multi-Step Research & Analysis",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the top 3 open-source alternatives to Microsoft Excel. For each, find the latest version number, license type, and one unique feature. Create a markdown comparison table and save it to \"spreadsheet_alternatives.md\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99856, Requested 4497. Please try again in 1h2m40.991999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.42,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P17",
+      "category": "Multi-Step Research & Analysis",
+      "complexity": "Complex",
+      "characteristics": "Parallel + Linear",
+      "prompt_text": "Research the GDP of the top 5 economies in the world. For each country, also find their population. Use Python to calculate GDP per capita for each. Sort by GDP per capita (highest first) and save the ranked list to \"gdp_analysis.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99850, Requested 854. Please try again in 10m8.256s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.64,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P18",
+      "category": "Multi-Step Research & Analysis",
+      "complexity": "Complex",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the 5 most popular Python web frameworks in 2026. For each framework, find its GitHub star count (search for it). Use Python to create a bar chart description (text-based, not image) ranking them by stars. Save everything to \"python_frameworks_report.md\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99842, Requested 862. Please try again in 10m8.256s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 1.26,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P19",
+      "category": "Automation Simulation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Check what the current date and time is using Python. Then search the web for \"what happened on this day in history\" and write 3 interesting historical events to \"today_in_history.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99836, Requested 753. Please try again in 8m28.896s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.19,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P20",
+      "category": "Automation Simulation",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Use Python to generate a random 16-character password containing uppercase, lowercase, digits, and special characters. Then search the web for current password security best practices. Write both the generated password and the security tips to \"password_guide.txt\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99830, Requested 761. Please try again in 8m30.624s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.2,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    },
+    {
+      "id": "P21",
+      "category": "Automation Simulation",
+      "complexity": "Complex",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the latest tech news headlines (top 5). For each headline, use the LLM to classify the sentiment (positive, negative, neutral) and the tech sector (AI, hardware, software, crypto, other). Write the classified results as a structured JSON file called \"tech_news_analysis.json\".",
+      "status": "failure",
+      "error": "compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99824, Requested 4513. Please try again in 1h2m27.168s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "task_count": 0,
+      "verdicts": [],
+      "elapsed": {
+        "compile": 0.24,
+        "execute": 0.0,
+        "critic": 0.0,
+        "total": 0.0
+      },
+      "api_calls_total": 0,
+      "tokens_total": 0
+    }
+  ]
+}

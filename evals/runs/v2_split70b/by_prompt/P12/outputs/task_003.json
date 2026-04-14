@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "output": "The value of 0.5 BTC is approximately 37329.855 USD.",
+  "error_message": "",
+  "elapsed_seconds": 13.92,
+  "tool_calls": [
+    {
+      "tool": "python_exec",
+      "args": {
+        "code": "import json; import requests; response = requests.get('https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD'); data = json.loads(response.content); btc_value = data['USD']; print(btc_value * 0.5)"
+      },
+      "result": "stdout:\n37329.855\r\n\nexit_code: 0"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 696,
+    "completion_tokens": 18,
+    "total_tokens": 714
+  }
+}

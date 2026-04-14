@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Research GDP and Population Data",
+    "verdict": "PASS",
+    "reasoning": "Relevant web search queries and HTTP requests were made to find GDP and population data for top 5 economies."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Calculate GDP per Capita",
+    "verdict": "PASS",
+    "reasoning": "The task produced a JSON object containing GDP per capita for each country."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Sort and Save Ranked List",
+    "verdict": "PASS",
+    "reasoning": "The task produced a relevant output addressing the goal, with a ranked list saved to a file."
+  }
+]

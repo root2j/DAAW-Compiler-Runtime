@@ -1,0 +1,7 @@
+{
+  "id": "P12",
+  "category": "API Interaction & HTTP",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Fetch the current Bitcoin price from a public API (search the web for a free Bitcoin price API endpoint first). Then use Python to calculate what 0.5 BTC would be worth. Write the result to \"btc_value.txt\"."
+}

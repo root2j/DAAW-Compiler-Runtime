@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for SpaceX launches",
+    "verdict": "PASS",
+    "reasoning": "Found at least 3 SpaceX launches"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract launch information",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

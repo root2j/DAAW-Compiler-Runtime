@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 400 - {'error': {'message': \"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=file_write>{\"path\": \"spreadsheet_alternatives.md\", \"content\": \"dependency_outputs.task_003.output\"}<function>'}}",
+  "elapsed_seconds": 0.36,
+  "tool_calls": [],
+  "usage": null
+}

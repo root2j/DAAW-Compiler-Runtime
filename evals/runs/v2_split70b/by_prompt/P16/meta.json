@@ -1,0 +1,7 @@
+{
+  "id": "P16",
+  "category": "Multi-Step Research & Analysis",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Search the web for the top 3 open-source alternatives to Microsoft Excel. For each, find the latest version number, license type, and one unique feature. Create a markdown comparison table and save it to \"spreadsheet_alternatives.md\"."
+}

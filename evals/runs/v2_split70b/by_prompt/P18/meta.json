@@ -1,0 +1,7 @@
+{
+  "id": "P18",
+  "category": "Multi-Step Research & Analysis",
+  "complexity": "Complex",
+  "characteristics": "Linear",
+  "text": "Search the web for the 5 most popular Python web frameworks in 2026. For each framework, find its GitHub star count (search for it). Use Python to create a bar chart description (text-based, not image) ranking them by stars. Save everything to \"python_frameworks_report.md\"."
+}

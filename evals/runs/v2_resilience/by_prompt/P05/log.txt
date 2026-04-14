@@ -1,0 +1,7 @@
+# P05 — Data Processing & Computation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Write a Python script that generates a list of the first 20 Fibonacci numbers, then calculate their average. Print the list and the average.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99926, Requested 742. Please try again in 9m37.152s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
