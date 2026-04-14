@@ -104,3 +104,39 @@ async def mock_search(query: str) -> str:
 )
 async def mock_google_search(query: str) -> str:
     return await mock_web_search(query)
+
+
+@tool_registry.register(
+    name="http_request",
+    description="Send an HTTP request to any public URL (GET/POST/PUT/DELETE/PATCH)",
+    parameters={
+        "type": "object",
+        "properties": {
+            "method": {"type": "string", "description": "HTTP method"},
+            "url": {"type": "string", "description": "Full URL"},
+            "headers": {"type": "object", "description": "Request headers"},
+            "json_body": {"type": "object", "description": "JSON body"},
+            "params": {"type": "object", "description": "Query parameters"},
+        },
+        "required": ["method", "url"],
+    },
+)
+async def mock_http_request(
+    method: str = "GET", url: str = "", **kwargs,
+) -> str:
+    return f"[MOCK] HTTP {method} {url} → 200 OK (mock response)"
+
+
+@tool_registry.register(
+    name="python_exec",
+    description="Execute Python code in a sandboxed subprocess for calculations/data processing",
+    parameters={
+        "type": "object",
+        "properties": {
+            "code": {"type": "string", "description": "Python code to execute"},
+        },
+        "required": ["code"],
+    },
+)
+async def mock_python_exec(code: str = "") -> str:
+    return f"[MOCK] Executed Python ({len(code)} chars) → stdout: (mock output)"
