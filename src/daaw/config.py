@@ -36,6 +36,13 @@ class AppConfig:
     max_critic_retries: int = 3
     max_planner_retries: int = 3
     circuit_breaker_threshold: int = 3
+    # Split-provider: use a stronger model for the compiler (planner) while
+    # keeping a cheaper/faster model for task execution. When set, these
+    # override the CLI/UI provider+model for the compile phase only.
+    #   DAAW_COMPILER_PROVIDER=groq
+    #   DAAW_COMPILER_MODEL=llama-3.3-70b-versatile
+    compiler_provider: str = ""
+    compiler_model: str = ""
 
 
 _config: AppConfig | None = None
@@ -56,6 +63,8 @@ def get_config() -> AppConfig:
             notify_webhook_url=os.environ.get("NOTIFY_WEBHOOK_URL", ""),
             notify_webhook_type=os.environ.get("NOTIFY_WEBHOOK_TYPE", "generic"),
             artifact_store_dir=os.environ.get("DAAW_STORE_DIR", ".daaw_store"),
+            compiler_provider=os.environ.get("DAAW_COMPILER_PROVIDER", ""),
+            compiler_model=os.environ.get("DAAW_COMPILER_MODEL", ""),
         )
     return _config
 

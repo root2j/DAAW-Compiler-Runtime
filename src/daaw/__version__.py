@@ -8,7 +8,7 @@ vs. local, etc.).
 from __future__ import annotations
 
 # Semantic version of the DAAW Compiler-Runtime.
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 # Short build tag shown in the UI next to the version — bump with features.
-BUILD_TAG = "http+python+prompt"
+BUILD_TAG = "split-provider+temp-escalation"

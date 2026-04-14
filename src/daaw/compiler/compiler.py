@@ -28,8 +28,10 @@ class Compiler:
     ):
         self._llm = llm_client
         self._config = config
-        self._provider = provider
-        self._model = model
+        # Split-provider: if DAAW_COMPILER_PROVIDER is set, the compile
+        # phase uses a stronger model while execution keeps the default.
+        self._provider = config.compiler_provider or provider
+        self._model = config.compiler_model or model
 
     def _build_system_prompt(self) -> str:
         available_tools = ", ".join(
@@ -43,8 +45,14 @@ class Compiler:
         """Compile a user goal into a WorkflowSpec with retry on parse failure."""
         system_prompt = self._build_system_prompt()
 
+        # Temperature escalation: start conservative, increase on each
+        # retry so the model explores a wider distribution and is more
+        # likely to escape a "return empty tasks" attractor.
+        _TEMPS = [0.4, 0.6, 0.85, 1.0]
+
         last_error = ""
         for attempt in range(self._config.max_planner_retries):
+            temp = _TEMPS[min(attempt, len(_TEMPS) - 1)]
             # Build messages fresh each attempt to keep context small.
             # Retries include only the error, not the full bad response
             # (which can push small models OOM).
@@ -63,7 +71,7 @@ class Compiler:
                 self._provider,
                 messages,
                 model=self._model,
-                temperature=0.4,
+                temperature=temp,
                 max_tokens=4096,
                 response_format={"type": "json_object"},
             )
@@ -121,8 +129,10 @@ class Compiler:
         Returns the final validated ``WorkflowSpec``.
         """
         system_prompt = self._build_system_prompt()
+        _TEMPS = [0.4, 0.6, 0.85, 1.0]
         last_error = ""
         for attempt in range(self._config.max_planner_retries):
+            temp = _TEMPS[min(attempt, len(_TEMPS) - 1)]
             messages = [
                 LLMMessage(role="system", content=system_prompt),
                 LLMMessage(
@@ -139,7 +149,7 @@ class Compiler:
                 self._provider,
                 messages,
                 model=self._model,
-                temperature=0.4,
+                temperature=temp,
                 max_tokens=4096,
                 response_format={"type": "json_object"},
             ):
