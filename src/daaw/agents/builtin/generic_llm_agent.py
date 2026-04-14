@@ -172,14 +172,35 @@ class GenericLLMAgent(BaseAgent):
                 resp = _LLMR(content=full_content, model=model or "",
                              usage=final_usage, raw=None, tool_calls=[])
             else:
-                resp = await self.llm_client.chat(
-                    provider,
-                    messages,
-                    model=model,
-                    temperature=0.7,
-                    max_tokens=4096,
-                    tools=tool_schemas if tool_schemas else None,
-                )
+                try:
+                    resp = await self.llm_client.chat(
+                        provider,
+                        messages,
+                        model=model,
+                        temperature=0.7,
+                        max_tokens=4096,
+                        tools=tool_schemas if tool_schemas else None,
+                    )
+                except Exception as chat_err:
+                    err_str = str(chat_err).lower()
+                    # Groq/OpenAI return 400 when the model generates a
+                    # malformed tool call ("tool_use_failed", "Failed to
+                    # call a function"). Retry once without the tools
+                    # parameter so the model falls back to plain text.
+                    if tool_schemas and any(k in err_str for k in (
+                        "tool_use_failed", "failed to call a function",
+                        "not in request.tools",
+                    )):
+                        resp = await self.llm_client.chat(
+                            provider,
+                            messages,
+                            model=model,
+                            temperature=0.7,
+                            max_tokens=4096,
+                            tools=None,  # retry without tools
+                        )
+                    else:
+                        raise
 
             # Check for Llama-style text tool calls in content even if
             # no structured tool_calls were returned (Groq 400 prevention).
@@ -250,9 +271,37 @@ class GenericLLMAgent(BaseAgent):
                     tool_call_id=tc_id,
                 ))
 
-        # Exhausted tool rounds — treat as failure so the Critic can retry
+        # Exhausted tool rounds — salvage whatever the agent accumulated
+        # rather than discarding 10+ rounds of useful tool results.
+        # Concatenate the last assistant content + last tool result as the
+        # output so the downstream task and critic can still use the data.
+        salvaged_parts: list[str] = []
+        for msg in reversed(messages):
+            if msg.role == "assistant" and msg.content and msg.content.strip():
+                salvaged_parts.insert(0, msg.content.strip())
+                break
+        # Include the last 3 tool results (most recent, most relevant).
+        recent_tool_results = [
+            tr["result"] for tr in tool_results_log[-3:]
+            if tr.get("result")
+        ]
+        if recent_tool_results:
+            salvaged_parts.append(
+                "Tool results (last 3):\n" + "\n---\n".join(recent_tool_results)
+            )
+        salvaged = "\n\n".join(salvaged_parts) if salvaged_parts else None
+
+        if salvaged and len(salvaged) > 50:
+            # Enough content to be useful — return as partial success.
+            return AgentResult(
+                output=salvaged,
+                status="success",
+                metadata={"tool_calls": tool_results_log,
+                           "note": f"Partial: tool loop hit {MAX_TOOL_ROUNDS} rounds"},
+            )
+
         return AgentResult(
-            output=None,
+            output=salvaged,
             status="failure",
             error_message=(
                 f"Max tool call rounds ({MAX_TOOL_ROUNDS}) reached without a final response. "
