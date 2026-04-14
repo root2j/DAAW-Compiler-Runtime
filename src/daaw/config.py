@@ -43,6 +43,10 @@ class AppConfig:
     #   DAAW_COMPILER_MODEL=llama-3.3-70b-versatile
     compiler_provider: str = ""
     compiler_model: str = ""
+    # Claude Code API gateway (separate from the main gateway so both can
+    # coexist — Ollama for execution, Claude for compilation).
+    claude_api_url: str = ""
+    claude_api_token: str = ""
 
 
 _config: AppConfig | None = None
@@ -65,6 +69,8 @@ def get_config() -> AppConfig:
             artifact_store_dir=os.environ.get("DAAW_STORE_DIR", ".daaw_store"),
             compiler_provider=os.environ.get("DAAW_COMPILER_PROVIDER", ""),
             compiler_model=os.environ.get("DAAW_COMPILER_MODEL", ""),
+            claude_api_url=os.environ.get("DAAW_CLAUDE_API_URL", ""),
+            claude_api_token=os.environ.get("DAAW_CLAUDE_API_TOKEN", ""),
         )
     return _config
 

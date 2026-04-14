@@ -55,6 +55,17 @@ class UnifiedLLMClient:
                 default_model=self._config.gateway_model,
             )
 
+        # Claude Code API gateway — separate from `gateway` so both can
+        # coexist (Ollama for execution, Claude for compilation).
+        if self._config.claude_api_url:
+            from daaw.llm.providers.gateway_provider import GatewayProvider
+
+            self._providers["claude_api"] = GatewayProvider(
+                gateway_url=self._config.claude_api_url,
+                token=self._config.claude_api_token,
+                default_model="claude-sonnet-4-5-20250929",
+            )
+
     def available_providers(self) -> list[str]:
         return list(self._providers.keys())
 
