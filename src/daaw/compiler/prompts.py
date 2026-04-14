@@ -11,21 +11,32 @@ Schema:
 {{"name":"str","description":"str","tasks":[{{"id":"task_001","name":"str","description":"str","role":"generic_llm","tools_allowed":["tool_name"],"dependencies":[{{"task_id":"task_001"}}],"success_criteria":"str","timeout_seconds":300,"max_retries":2}}],"metadata":{{}}}}
 
 RULES:
-- ALWAYS generate 2-4 tasks. NEVER just 1 task.
-- First task: research/gather information (use web_search tool)
-- Middle tasks: analyze, process, or transform the data
-- Last task: produce the final output
+- Generate 3-6 tasks. Each task should do ONE thing. NEVER collapse a multi-step goal into 1-2 tasks.
+- THINK STEP BY STEP: identify every distinct action the goal requires, then make each one a task.
+- Common pattern for data workflows:
+    Task 1: fetch / read input data (use web_search, http_request, or file_read)
+    Task 2: process / transform / calculate (use python_exec for computation)
+    Task 3: analyze / filter / classify the results
+    Task 4: produce final output (use file_write to save, or format for display)
+- Common pattern for API integration workflows:
+    Task 1: fetch data from source API (use http_request)
+    Task 2: transform / enrich the data (use python_exec if calculation needed)
+    Task 3: push results to destination API or service (use http_request)
+    Task 4: send notification / confirmation (use http_request or web_search)
 - role MUST be "generic_llm" for most tasks.
 - EXCEPTION: if the goal REQUIRES information only the user can supply
-  (personal preferences, credentials, approval, ambiguous choices between
-  options), insert ONE task with role "user_proxy" BEFORE the task that
-  needs that information, and put the question in its "description".
-  Do NOT use user_proxy if the information can reasonably be inferred or
-  looked up with tools.
-- tools_allowed picks from: {available_tools} (user_proxy tasks have [])
+  (personal preferences, credentials, approval), insert ONE task with
+  role "user_proxy" and put the question in "description".
+- tools_allowed picks from: {available_tools}
+  * Use "web_search" for internet research
+  * Use "http_request" for API calls (REST endpoints, webhooks, services)
+  * Use "python_exec" for calculations, CSV/JSON processing, data transforms
+  * Use "file_read" / "file_write" for local file operations
+  * Use "shell_command" for system commands
+  * Assign 1-3 tools per task. Tasks with no tools get [] (LLM-only).
 - Use dependencies to chain tasks: task_002 depends on task_001, etc.
-- timeout_seconds: 300 for web_search tasks, 600 for user_proxy tasks
-  (user may take a while to reply), 120 for others
+  * Tasks that CAN run in parallel SHOULD have the same dependencies (fan-out).
+- timeout_seconds: 300 for web_search/http_request tasks, 120 for python_exec, 60 for others
 """
 
 PLANNER_REFINEMENT_PROMPT = """\
