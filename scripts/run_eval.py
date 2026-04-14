@@ -85,7 +85,7 @@ def parse_prompts(md_path: Path) -> list[Prompt]:
     i = 0
     while i < len(lines):
         line = lines[i]
-        m_cat = re.match(r"### Category \d+:\s*(.+?)\s*\(", line)
+        m_cat = re.match(r"### Category \d+:\s*(.+?)(?:\s*\(|$)", line)
         if m_cat:
             current_category = m_cat.group(1).strip()
             i += 1
