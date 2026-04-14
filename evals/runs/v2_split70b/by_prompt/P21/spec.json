@@ -1,0 +1,72 @@
+{
+  "id": "a5b6c8de-98ed-4397-b230-9946873ec1e1",
+  "name": "Tech News Analysis",
+  "description": "Analyze the latest tech news headlines",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for latest tech news",
+      "description": "Find the top 5 latest tech news headlines",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Found at least 5 headlines",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Classify sentiment and sector",
+      "description": "Classify the sentiment and tech sector for each headline",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Classified all headlines",
+      "timeout_seconds": 120,
+      "max_retries": 1
+    },
+    {
+      "id": "task_003",
+      "name": "Write classified results to JSON",
+      "description": "Write the classified results to a JSON file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "JSON file written successfully",
+      "timeout_seconds": 120,
+      "max_retries": 1
+    }
+  ],
+  "metadata": {}
+}

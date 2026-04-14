@@ -1,0 +1,95 @@
+{
+  "id": "3ab1901f-7baa-4ca5-a6fb-c013871b6e2b",
+  "name": "Python Web Frameworks Report",
+  "description": "Generate a report on the most popular Python web frameworks in 2026",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for popular Python web frameworks",
+      "description": "Find the 5 most popular Python web frameworks in 2026",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "List of 5 popular Python web frameworks",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Find GitHub star count for each framework",
+      "description": "Search for GitHub star count of each framework",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "List of frameworks with their GitHub star counts",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create bar chart description",
+      "description": "Use Python to create a text-based bar chart ranking the frameworks by GitHub stars",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Text-based bar chart description",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save report to file",
+      "description": "Save the report to python_frameworks_report.md",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Report saved to python_frameworks_report.md",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

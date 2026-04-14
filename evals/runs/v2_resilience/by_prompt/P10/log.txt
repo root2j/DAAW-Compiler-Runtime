@@ -1,0 +1,7 @@
+# P10 — API Interaction & HTTP
+# complexity: Medium
+# characteristics: Linear
+# prompt: Fetch a random joke from https://official-joke-api.appspot.com/random_joke, then search the web for the comedian who originated that style of joke. Write both the joke and your research to "joke_research.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99894, Requested 4495. Please try again in 1h3m12.096s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}

@@ -1,0 +1,7 @@
+# P18 — Multi-Step Research & Analysis
+# complexity: Complex
+# characteristics: Linear
+# prompt: Search the web for the 5 most popular Python web frameworks in 2026. For each framework, find its GitHub star count (search for it). Use Python to create a bar chart description (text-based, not image) ranking them by stars. Save everything to "python_frameworks_report.md".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99842, Requested 862. Please try again in 10m8.256s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}

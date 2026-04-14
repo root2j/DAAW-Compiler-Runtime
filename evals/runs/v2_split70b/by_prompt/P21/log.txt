@@ -1,0 +1,15 @@
+# P21 — Automation Simulation
+# complexity: Complex
+# characteristics: Linear
+# prompt: Search the web for the latest tech news headlines (top 5). For each headline, use the LLM to classify the sentiment (positive, negative, neutral) and the tech sector (AI, hardware, software, crypto, other). Write the classified results as a structured JSON file called "tech_news_analysis.json".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 1.0s
+          · task_001: Search for latest tech news  [deps=-] [tools=web_search]
+          · task_002: Classify sentiment and sector  [deps=task_001] [tools=python_exec]
+          · task_003: Write classified results to JSON  [deps=task_002] [tools=file_write]
+[task success] task_001 (3.6s, 3 tool calls)
+[task failure] task_002 (0.6s, 0 tool calls)
+[critic PASS] task_001  — Found at least 5 headlines as per the success criteria.
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 5.4s  api_calls=5  tokens=2260

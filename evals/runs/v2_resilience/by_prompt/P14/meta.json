@@ -1,0 +1,7 @@
+{
+  "id": "P14",
+  "category": "File Operations & Text Processing",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Write a Python script that generates 50 random names with ages (18-65) as a CSV file. Then read the CSV, group by age decade (teens, twenties, thirties, etc.), and count how many people are in each group. Save the analysis as \"age_groups.txt\"."
+}

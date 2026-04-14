@@ -1,0 +1,74 @@
+{
+  "id": "b18306b4-dc4d-4012-bca5-5e4660d13a6c",
+  "name": "GDP Analysis Workflow",
+  "description": "Research and analyze GDP and population data for top 5 economies",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research GDP and Population Data",
+      "description": "Find GDP and population data for top 5 economies",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "GDP and population data found for top 5 economies",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Calculate GDP per Capita",
+      "description": "Use Python to calculate GDP per capita for each country",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "GDP per capita calculated for each country",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Sort and Save Ranked List",
+      "description": "Sort countries by GDP per capita and save to file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Ranked list saved to gdp_analysis.txt",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

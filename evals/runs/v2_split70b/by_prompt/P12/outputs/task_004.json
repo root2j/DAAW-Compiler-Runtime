@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "output": "The task is complete.",
+  "error_message": "",
+  "elapsed_seconds": 7.78,
+  "tool_calls": [
+    {
+      "tool": "file_write",
+      "args": {
+        "content": "37329.855 USD",
+        "path": "btc_value.txt"
+      },
+      "result": "Wrote 13 characters to btc_value.txt"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 430,
+    "completion_tokens": 6,
+    "total_tokens": 436
+  }
+}

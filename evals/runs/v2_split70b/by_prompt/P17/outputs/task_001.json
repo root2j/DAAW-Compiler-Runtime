@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search>{\"query\": \"top 5 economies GDP population data\"}\"</function>\n<http_request>{\"method\": \"GET\", \"url\": \"https://www.worldbank.org/en/country\", \"params\": {\"name\": \"gdp\"}}</function>\n<web_search>{\"query\": \"top 5 economies population data 2023\"}\"</function>",
+  "error_message": "",
+  "elapsed_seconds": 0.45,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 572,
+    "completion_tokens": 75,
+    "total_tokens": 647
+  }
+}

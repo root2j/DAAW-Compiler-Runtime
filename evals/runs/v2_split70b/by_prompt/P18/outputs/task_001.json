@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "output": "<web_search>{\"query\": \"popular python web frameworks 2026\"}</function>\n\n<web_search>{\"query\": \"top 5 python web frameworks\"}</function>",
+  "error_message": "",
+  "elapsed_seconds": 0.44,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 340,
+    "completion_tokens": 36,
+    "total_tokens": 376
+  }
+}

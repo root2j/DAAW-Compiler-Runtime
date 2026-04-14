@@ -1,0 +1,745 @@
+{
+  "provider": "groq",
+  "model": "llama-3.1-8b-instant",
+  "generated_at": "2026-04-14T13:12:58.017888",
+  "prompts": [
+    {
+      "id": "P01",
+      "category": "Web Research & Summarization",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the top 5 programming languages in 2026 by popularity. For each language, find one key advantage and one common criticism. Present the results as a numbered list.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research top programming languages",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal, although the 5th language is assumed."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Find key advantages and criticisms",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 4.73,
+        "execute": 81.17,
+        "critic": 0.41,
+        "total": 86.31
+      },
+      "api_calls_total": 5,
+      "tokens_total": 2126
+    },
+    {
+      "id": "P02",
+      "category": "Web Research & Summarization",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Research the current weather in Tokyo, New York, and London. Compare the temperatures and summarize which city is warmest and which is coldest right now.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Current Weather Data",
+          "verdict": "FAIL",
+          "reasoning": "Task was not fully completed as search results did not provide specific current temperatures for each city"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract and Compare Temperatures",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.3,
+        "execute": 31.01,
+        "critic": 0.33,
+        "total": 32.64
+      },
+      "api_calls_total": 7,
+      "tokens_total": 4621
+    },
+    {
+      "id": "P03",
+      "category": "Web Research & Summarization",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Find the 3 most recent SpaceX launches by searching the web. For each launch, note the mission name, date, and whether it was successful. Write the results to a file called \"spacex_launches.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Search for SpaceX launches",
+          "verdict": "PASS",
+          "reasoning": "Found at least 3 SpaceX launches"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract launch information",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.22,
+        "execute": 6.36,
+        "critic": 0.51,
+        "total": 8.09
+      },
+      "api_calls_total": 5,
+      "tokens_total": 2709
+    },
+    {
+      "id": "P04",
+      "category": "Web Research & Summarization",
+      "complexity": "Medium",
+      "characteristics": "Parallel",
+      "prompt_text": "Research the top 3 tourist attractions in both Paris and Rome (6 total). Present them side by side with a brief description of each. Save the comparison to a file called \"travel_comparison.md\".",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Tourist Attractions",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal, listing 3 tourist attractions in Paris and Rome."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Process and Format Data",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.11,
+        "execute": 40.97,
+        "critic": 7.56,
+        "total": 49.64
+      },
+      "api_calls_total": 5,
+      "tokens_total": 5234
+    },
+    {
+      "id": "P05",
+      "category": "Data Processing & Computation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Write a Python script that generates a list of the first 20 Fibonacci numbers, then calculate their average. Print the list and the average.",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research Fibonacci sequence",
+          "verdict": "PASS",
+          "reasoning": "Found relevant information on Fibonacci sequence generation"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Generate Fibonacci numbers",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.42,
+        "execute": 180.36,
+        "critic": 0.42,
+        "total": 182.2
+      },
+      "api_calls_total": 16,
+      "tokens_total": 19932
+    },
+    {
+      "id": "P06",
+      "category": "Data Processing & Computation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Create a CSV file with 10 sample products (name, price, quantity). Then read it back and calculate the total inventory value (price * quantity for each product, summed).",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Create Sample Products CSV",
+          "verdict": "PASS",
+          "reasoning": "CSV file created with 10 sample products"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Read CSV and Calculate Inventory Value",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.06,
+        "execute": 186.3,
+        "critic": 2.28,
+        "total": 189.64
+      },
+      "api_calls_total": 14,
+      "tokens_total": 20350
+    },
+    {
+      "id": "P07",
+      "category": "Data Processing & Computation",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Write a JSON file containing 5 employee records with name, department, and salary. Then read the file, calculate the average salary, find the highest-paid employee, and write a summary report to \"salary_report.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Create Employee Records",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.66,
+        "execute": 0.72,
+        "critic": 0.0,
+        "total": 2.38
+      },
+      "api_calls_total": 2,
+      "tokens_total": 829
+    },
+    {
+      "id": "P08",
+      "category": "Data Processing & Computation",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Generate a multiplication table (1-10) using Python, save it to a file, then read the file back and find which product appears most frequently in the table.",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Generate Multiplication Table",
+          "verdict": "PASS",
+          "reasoning": "Task completed successfully and generated a multiplication table"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Save Table to File",
+          "verdict": "PASS",
+          "reasoning": "Task completion message indicates successful file saving"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Read File and Find Most Frequent Product",
+          "verdict": "FAIL",
+          "reasoning": "The task requires a file 'products.txt' which does not exist."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Save Final Answer",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_004' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.3,
+        "execute": 119.0,
+        "critic": 8.39,
+        "total": 128.69
+      },
+      "api_calls_total": 17,
+      "tokens_total": 13405
+    },
+    {
+      "id": "P09",
+      "category": "API Interaction & HTTP",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Fetch the list of public APIs from https://api.publicapis.org/entries and count how many APIs are in the \"Animals\" category. Report the count and list their names.",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Fetch Public APIs",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.22,
+        "execute": 5.83,
+        "critic": 0.0,
+        "total": 7.05
+      },
+      "api_calls_total": 3,
+      "tokens_total": 1245
+    },
+    {
+      "id": "P10",
+      "category": "API Interaction & HTTP",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Fetch a random joke from https://official-joke-api.appspot.com/random_joke, then search the web for the comedian who originated that style of joke. Write both the joke and your research to \"joke_research.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Fetch Random Joke",
+          "verdict": "PASS",
+          "reasoning": "Joke retrieved successfully"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Find Comedian",
+          "verdict": "PASS",
+          "reasoning": "Comedian found, relevant content addressing the goal"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Write Joke and Research",
+          "verdict": "PASS",
+          "reasoning": "Task completed successfully and a file was written."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.11,
+        "execute": 97.08,
+        "critic": 0.81,
+        "total": 99.0
+      },
+      "api_calls_total": 12,
+      "tokens_total": 11173
+    },
+    {
+      "id": "P11",
+      "category": "API Interaction & HTTP",
+      "complexity": "Medium",
+      "characteristics": "Parallel",
+      "prompt_text": "Fetch data from these two public APIs simultaneously: https://catfact.ninja/fact (cat fact) and https://uselessfacts.jsph.pl/api/v2/facts/random (random fact). Compare the lengths of both facts and declare which source gave the longer fact. Save results to \"facts_comparison.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Fetch Cat Fact and Random Fact",
+          "verdict": "PASS",
+          "reasoning": "Both API requests were successful and relevant data was fetched."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Compare Fact Lengths",
+          "verdict": "PASS",
+          "reasoning": "Output contains the comparison result"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Save Comparison Results",
+          "verdict": "PASS",
+          "reasoning": "Results were saved to facts_comparison.txt with a status of success"
+        }
+      ],
+      "elapsed": {
+        "compile": 1.39,
+        "execute": 60.17,
+        "critic": 8.34,
+        "total": 69.91
+      },
+      "api_calls_total": 10,
+      "tokens_total": 8344
+    },
+    {
+      "id": "P12",
+      "category": "API Interaction & HTTP",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Fetch the current Bitcoin price from a public API (search the web for a free Bitcoin price API endpoint first). Then use Python to calculate what 0.5 BTC would be worth. Write the result to \"btc_value.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Find Bitcoin API",
+          "verdict": "PASS",
+          "reasoning": "Found a free Bitcoin price API endpoint URL"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Fetch Bitcoin Price",
+          "verdict": "FAIL",
+          "reasoning": "Current Bitcoin price not fetched"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Calculate 0.5 BTC Value",
+          "verdict": "PASS",
+          "reasoning": "The task successfully calculated the value of 0.5 BTC in USD."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Write Result to File",
+          "verdict": "PASS",
+          "reasoning": "The task is complete, indicating successful execution."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.52,
+        "execute": 115.5,
+        "critic": 8.59,
+        "total": 125.61
+      },
+      "api_calls_total": 18,
+      "tokens_total": 14341
+    },
+    {
+      "id": "P13",
+      "category": "File Operations & Text Processing",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Create a text file with a 5-paragraph lorem ipsum placeholder. Then read the file, count the total number of words and sentences, and print the statistics.",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Generate Lorem Ipsum Text",
+          "verdict": "FAIL",
+          "reasoning": "Output does not contain lorem ipsum text"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Save Text to File",
+          "verdict": "PASS",
+          "reasoning": "File saved successfully with relevant content"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Read File and Count Words and Sentences",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.16,
+        "execute": 256.11,
+        "critic": 2.23,
+        "total": 259.5
+      },
+      "api_calls_total": 23,
+      "tokens_total": 27366
+    },
+    {
+      "id": "P14",
+      "category": "File Operations & Text Processing",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Write a Python script that generates 50 random names with ages (18-65) as a CSV file. Then read the CSV, group by age decade (teens, twenties, thirties, etc.), and count how many people are in each group. Save the analysis as \"age_groups.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 1,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Generate Random Names",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.3,
+        "execute": 0.62,
+        "critic": 0.0,
+        "total": 1.92
+      },
+      "api_calls_total": 2,
+      "tokens_total": 751
+    },
+    {
+      "id": "P15",
+      "category": "File Operations & Text Processing",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Create a JSON configuration file for a hypothetical web application with settings for database host, port, cache TTL, and feature flags. Then read the file, validate that all required fields are present, and generate a documentation page summarizing each setting. Save as \"config_docs.md\".",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Gather Configuration Settings",
+          "verdict": "PASS",
+          "reasoning": "Found relevant content addressing the goal, including HTTP requests to relevant documentation pages."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Generate Configuration File",
+          "verdict": "FAIL",
+          "reasoning": "The output contains HTTP requests and web searches, but no configuration file was generated."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Validate Configuration File",
+          "verdict": "PASS",
+          "reasoning": "Required fields are present in the configuration file"
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Generate Documentation",
+          "verdict": "PASS",
+          "reasoning": "Documentation page generated successfully as config_docs.md"
+        }
+      ],
+      "elapsed": {
+        "compile": 1.34,
+        "execute": 32.05,
+        "critic": 15.75,
+        "total": 49.14
+      },
+      "api_calls_total": 9,
+      "tokens_total": 6191
+    },
+    {
+      "id": "P16",
+      "category": "Multi-Step Research & Analysis",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the top 3 open-source alternatives to Microsoft Excel. For each, find the latest version number, license type, and one unique feature. Create a markdown comparison table and save it to \"spreadsheet_alternatives.md\".",
+      "status": "success",
+      "error": "",
+      "task_count": 4,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Search for Excel Alternatives",
+          "verdict": "PASS",
+          "reasoning": "Relevant content addressing the goal was provided, although it includes a non-exclusively open-source alternative."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Extract Alternative Details",
+          "verdict": "PASS",
+          "reasoning": "Extracted latest version, license, and unique feature for each alternative"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Create Comparison Table",
+          "verdict": "PASS",
+          "reasoning": "The output indicates a successful generation of a markdown comparison table."
+        },
+        {
+          "task_id": "task_004",
+          "task_name": "Save Comparison Table",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_004' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.38,
+        "execute": 43.64,
+        "critic": 9.47,
+        "total": 54.48
+      },
+      "api_calls_total": 10,
+      "tokens_total": 6899
+    },
+    {
+      "id": "P17",
+      "category": "Multi-Step Research & Analysis",
+      "complexity": "Complex",
+      "characteristics": "Parallel + Linear",
+      "prompt_text": "Research the GDP of the top 5 economies in the world. For each country, also find their population. Use Python to calculate GDP per capita for each. Sort by GDP per capita (highest first) and save the ranked list to \"gdp_analysis.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Research GDP and Population Data",
+          "verdict": "PASS",
+          "reasoning": "Relevant web search queries and HTTP requests were made to find GDP and population data for top 5 economies."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Calculate GDP per Capita",
+          "verdict": "PASS",
+          "reasoning": "The task produced a JSON object containing GDP per capita for each country."
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Sort and Save Ranked List",
+          "verdict": "PASS",
+          "reasoning": "The task produced a relevant output addressing the goal, with a ranked list saved to a file."
+        }
+      ],
+      "elapsed": {
+        "compile": 0.97,
+        "execute": 29.75,
+        "critic": 7.09,
+        "total": 37.81
+      },
+      "api_calls_total": 8,
+      "tokens_total": 5089
+    },
+    {
+      "id": "P18",
+      "category": "Multi-Step Research & Analysis",
+      "complexity": "Complex",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the 5 most popular Python web frameworks in 2026. For each framework, find its GitHub star count (search for it). Use Python to create a bar chart description (text-based, not image) ranking them by stars. Save everything to \"python_frameworks_report.md\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Search for popular Python web frameworks",
+          "verdict": "PASS",
+          "reasoning": "List of 5 popular Python web frameworks found in JSON format"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Find GitHub star count for each framework",
+          "verdict": "FAIL",
+          "reasoning": "Output does not contain relevant information about GitHub star counts of the frameworks"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Create bar chart description",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.22,
+        "execute": 13.81,
+        "critic": 11.36,
+        "total": 26.39
+      },
+      "api_calls_total": 6,
+      "tokens_total": 2396
+    },
+    {
+      "id": "P19",
+      "category": "Automation Simulation",
+      "complexity": "Simple",
+      "characteristics": "Linear",
+      "prompt_text": "Check what the current date and time is using Python. Then search the web for \"what happened on this day in history\" and write 3 interesting historical events to \"today_in_history.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Get Current Date and Time",
+          "verdict": "PASS",
+          "reasoning": "Current date and time obtained using Python"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Search for Historical Events",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.22,
+        "execute": 5.44,
+        "critic": 0.31,
+        "total": 6.97
+      },
+      "api_calls_total": 5,
+      "tokens_total": 2066
+    },
+    {
+      "id": "P20",
+      "category": "Automation Simulation",
+      "complexity": "Medium",
+      "characteristics": "Linear",
+      "prompt_text": "Use Python to generate a random 16-character password containing uppercase, lowercase, digits, and special characters. Then search the web for current password security best practices. Write both the generated password and the security tips to \"password_guide.txt\".",
+      "status": "success",
+      "error": "",
+      "task_count": 3,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Generate Random Password",
+          "verdict": "PASS",
+          "reasoning": "Password generated with the specified criteria"
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Search Web for Password Security Tips",
+          "verdict": "PASS",
+          "reasoning": "Found relevant security tips from NIST 800-63B"
+        },
+        {
+          "task_id": "task_003",
+          "task_name": "Write Password and Security Tips to File",
+          "verdict": "PASS",
+          "reasoning": "Generated password and security tips were written to 'password_guide.txt' as intended"
+        }
+      ],
+      "elapsed": {
+        "compile": 1.11,
+        "execute": 37.58,
+        "critic": 21.92,
+        "total": 60.61
+      },
+      "api_calls_total": 11,
+      "tokens_total": 6089
+    },
+    {
+      "id": "P21",
+      "category": "Automation Simulation",
+      "complexity": "Complex",
+      "characteristics": "Linear",
+      "prompt_text": "Search the web for the latest tech news headlines (top 5). For each headline, use the LLM to classify the sentiment (positive, negative, neutral) and the tech sector (AI, hardware, software, crypto, other). Write the classified results as a structured JSON file called \"tech_news_analysis.json\".",
+      "status": "success",
+      "error": "",
+      "task_count": 2,
+      "verdicts": [
+        {
+          "task_id": "task_001",
+          "task_name": "Search for latest tech news",
+          "verdict": "PASS",
+          "reasoning": "Found at least 5 headlines as per the success criteria."
+        },
+        {
+          "task_id": "task_002",
+          "task_name": "Classify sentiment and sector",
+          "verdict": "FAIL",
+          "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+        }
+      ],
+      "elapsed": {
+        "compile": 1.02,
+        "execute": 4.23,
+        "critic": 0.16,
+        "total": 5.41
+      },
+      "api_calls_total": 5,
+      "tokens_total": 2260
+    }
+  ]
+}

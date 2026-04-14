@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "output": "Based on the search results, the current password security best practices according to NIST 800-63B are:\n1. Use longer passwords rather than enforcing a combination of character types.\n2. Simplified complexity rules.\n3. End of mandatory password resets.\n4. Shift toward passkeys and biometric authentication.\n5. Emphasis on password security and usability.",
+  "error_message": "",
+  "elapsed_seconds": 22.67,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "current password security best practices 2024"
+      },
+      "result": "Search results for 'current password security best practices 2024':\n1. Here are the most important password practices you should adopt to align with new NIST guidelines and bolster your cybersecurity strategy.\n2. Do you want to keep your cybersecurity updated with the new NIST password guidelines? Learn about NIST 800-63b and how you can apply it in your company.\n3. Guru Baran - September 27, 2024 The National Institute of Standards and Technology (NIST) has released updated guidelines for password security, marking a significant shift from traditional password practices. These new recommendations, outlined in NIST Special Publication 800-63B, aim to enhance cybersecurity while improving user experience.\n4. Updated NIST Password Guidelines Replace Complexity with Password Length Posted By Steve Alder on Sep 30, 2024 The National Institute of Standards and Technology (NIST) has updated its password security guidelines and now recommends longer passwords rather than enforcing a combination of at least 1 uppercase and lowercase letter, number, and special character. Combining multiple character ...\n5. Learn about the latest NIST password guidelines for 2024, including simplified complexity rules, the end of mandatory password resets, and the shift toward passkeys and biometric authentication."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "NIST 800-63B password security best practices"
+      },
+      "result": "Search results for 'NIST 800-63B password security best practices':\n1. NIST is responsible for developing information security standards and guidelines, including minimum requirements for federal systems, but such standards and guidelines shall not apply to national security systems without the express approval of appropriate federal officials exercising policy authority over such systems.\n2. The result is a modern password policy that aligns with NIST&#x27;s latest standards - one that is more secure against attackers and easier on users. Enzoic&#x27;s solutions make it practical to embrace these best practices, helping your organization improve password security and comply with the new NIST 800-63B Rev 4 without compromising usability.\n3. The National Institute of Standards and Technology (NIST) is a well-recognized name in global cybersecurity guidance. Its SP 800-63 Digital Identity Guidelines, particularly SP 800-63B, define how organizations should manage authentication, including passwords, multi-factor authentication, and credential lifecycle controls. While originally developed for U.S. federal agencies, these guidelines ...\n4. The National Institute of Standards and Technology (NIST) has released updated guidelines for password security, marking a significant shift from traditional password practices. These new recommendations, outlined in NIST Special Publication 800-63B, aim to enhance cybersecurity while improving user experience. One of the most notable changes is NIST&#x27;s stance on password complexity. Contrary ...\n5. The National Institute of Standards and Technology sets the benchmark for password security through its Special Publication 800-63B. These guidelines shape how federal agencies, contractors, and private organizations protect digital assets."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1007,
+    "completion_tokens": 74,
+    "total_tokens": 1081
+  }
+}

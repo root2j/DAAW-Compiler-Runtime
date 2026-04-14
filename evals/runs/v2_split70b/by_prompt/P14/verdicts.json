@@ -1,0 +1,8 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Generate Random Names",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_001' failed \u2014 automatic retry."
+  }
+]

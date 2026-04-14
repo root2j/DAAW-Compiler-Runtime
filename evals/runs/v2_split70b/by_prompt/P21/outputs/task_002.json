@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 400 - {'error': {'message': \"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=python_exec>{\"code\": \"import nltk\\nfrom nltk.sentiment import SentimentIntensityAnalyzer\\nfrom nltk.tokenize import word_tokenize\\nimport re\\nimport json\\nnltk.download(\\'vader_lexicon\\')\\nnltk.download(\\'punkt\\')\\nsia = SentimentIntensityAnalyzer()\\nsector_map = {\\'tech\\': [\\'tech\\', \\'software\\', \\'technology\\', \\'silicon\\', \\' valley\\', \\'startup\\'], \\'non-tech\\': []}\\ndef classify_headline(headline):\\n    sentiment = sia.polarity_scores(headline)\\n    words = word_tokenize(headline.lower())\\n    tech_words = any(re.search(word, headline) for word in sector_map[\\'tech\\'])\\n    if tech_words:\\n        return {\\'sentiment\\': sentiment, \\'sector\\': \\'tech\\'}\\n    else:\\n        return {\\'sentiment\\': sentiment, \\'sector\\': \\'non-tech\\'}\\nwith open(\\'headlines.json\\', \\'r\\') as f:\\n    headlines = json.load(f)\\nresults = [classify_headline(headline) for headline in headlines]\\nprint(results)\"}</function>'}}",
+  "elapsed_seconds": 0.61,
+  "tool_calls": [],
+  "usage": null
+}

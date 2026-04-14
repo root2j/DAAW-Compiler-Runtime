@@ -1,0 +1,17 @@
+# P11 — API Interaction & HTTP
+# complexity: Medium
+# characteristics: Parallel
+# prompt: Fetch data from these two public APIs simultaneously: https://catfact.ninja/fact (cat fact) and https://uselessfacts.jsph.pl/api/v2/facts/random (random fact). Compare the lengths of both facts and declare which source gave the longer fact. Save results to "facts_comparison.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 1.4s
+          · task_001: Fetch Cat Fact and Random Fact  [deps=-] [tools=http_request]
+          · task_002: Compare Fact Lengths  [deps=task_001] [tools=python_exec]
+          · task_003: Save Comparison Results  [deps=task_002] [tools=file_write]
+[task success] task_001 (30.3s, 2 tool calls)
+[task success] task_002 (21.0s, 1 tool calls)
+[task success] task_003 (8.8s, 1 tool calls)
+[critic PASS] task_001  — Both API requests were successful and relevant data was fetched.
+[critic PASS] task_002  — Output contains the comparison result
+[critic PASS] task_003  — Results were saved to facts_comparison.txt with a status of success
+[DONE] total 69.9s  api_calls=10  tokens=8344

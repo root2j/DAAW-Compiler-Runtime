@@ -1,0 +1,7 @@
+# P19 — Automation Simulation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Check what the current date and time is using Python. Then search the web for "what happened on this day in history" and write 3 interesting historical events to "today_in_history.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kja7k862fcattbev6bsrhprf` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99836, Requested 753. Please try again in 8m28.896s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
