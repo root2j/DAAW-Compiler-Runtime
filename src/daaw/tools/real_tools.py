@@ -354,3 +354,52 @@ async def python_exec(code: str = "") -> str:
             os.unlink(script_path)
         except OSError:
             pass
+
+
+# ---------------------------------------------------------------------------
+# Aliases for commonly LLM-hallucinated tool names
+# ---------------------------------------------------------------------------
+# The 8B model frequently calls `brave_search` or `search` instead of
+# `web_search`. Without aliases registered in the REAL tool registry,
+# Groq rejects the tool_call at the API level (400 "attempted to call
+# tool 'brave_search' which was not in request.tools") before our agent
+# code ever sees it. Registering them here puts them in the tool schemas
+# we send to the provider so the call succeeds.
+
+@tool_registry.register(
+    name="brave_search",
+    description="Search the web for information (alias for web_search)",
+    parameters={
+        "type": "object",
+        "properties": {"query": {"type": "string", "description": "Search query"}},
+        "required": ["query"],
+    },
+)
+async def real_brave_search(query: str) -> str:
+    return await real_web_search(query)
+
+
+@tool_registry.register(
+    name="search",
+    description="Search the web for information (alias for web_search)",
+    parameters={
+        "type": "object",
+        "properties": {"query": {"type": "string", "description": "Search query"}},
+        "required": ["query"],
+    },
+)
+async def real_search(query: str) -> str:
+    return await real_web_search(query)
+
+
+@tool_registry.register(
+    name="google_search",
+    description="Search the web for information (alias for web_search)",
+    parameters={
+        "type": "object",
+        "properties": {"query": {"type": "string", "description": "Search query"}},
+        "required": ["query"],
+    },
+)
+async def real_google_search(query: str) -> str:
+    return await real_web_search(query)
