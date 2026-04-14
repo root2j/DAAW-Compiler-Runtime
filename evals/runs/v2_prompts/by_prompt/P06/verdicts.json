@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Create Sample CSV File",
+    "verdict": "PASS",
+    "reasoning": "CSV file creation was successful"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Read CSV File",
+    "verdict": "FAIL",
+    "reasoning": "Output is a string, not a file"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Calculate Total Inventory Value",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Research Multiplication Table Generation",
+    "verdict": "PASS",
+    "reasoning": "The task produced relevant content addressing the goal, and the task was completed according to the success criteria."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Save Multiplication Table to File",
+    "verdict": "PASS",
+    "reasoning": "Task completed successfully according to the success criteria."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Read and Analyze Multiplication Table",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Create lorem ipsum text file",
+    "verdict": "PASS",
+    "reasoning": "Text file created with lorem ipsum content"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Count words and sentences",
+    "verdict": "FAIL",
+    "reasoning": "Error message indicates task failure"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Print statistics",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

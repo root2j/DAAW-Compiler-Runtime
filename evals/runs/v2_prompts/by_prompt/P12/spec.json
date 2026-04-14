@@ -1,0 +1,49 @@
+{
+  "id": "af859fad-76cc-426d-9f81-8cefb467e019",
+  "name": "Bitcoin Price Fetcher",
+  "description": "Fetch Bitcoin price and calculate 0.5 BTC value",
+  "tasks": [
+    {
+      "id": "task_003",
+      "name": "Calculate BTC Value",
+      "description": "Use Python to calculate 0.5 BTC value",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "BTC value calculated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Write BTC Value to File",
+      "description": "Write result to btc_value.txt",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Result written to file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

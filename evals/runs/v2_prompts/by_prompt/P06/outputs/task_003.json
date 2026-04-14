@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Error code: 400 - {'error': {'message': \"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '<function=python_exec>{\"code\": \"import json; items = json.loads(\\'{\"item1\": 10, \"item2\": 20, \"item3\": 30}\\'); total_inventory_value = sum(items.values()); print(total_inventory_value)\"}</function>'}}",
+  "elapsed_seconds": 4.39,
+  "tool_calls": [],
+  "usage": null
+}

@@ -1,0 +1,118 @@
+{
+  "id": "da342f1c-c615-46d4-95e1-b44bb39d981a",
+  "name": "config_workflow",
+  "description": "Create and validate JSON configuration file for web application",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create JSON configuration file",
+      "description": "Create a JSON configuration file for web application",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "configuration file created",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read configuration file",
+      "description": "Read the JSON configuration file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "configuration file read",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Validate configuration file",
+      "description": "Validate that all required fields are present in the configuration file",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "configuration file validated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Generate documentation page",
+      "description": "Generate a documentation page summarizing each setting",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "documentation page generated",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_005",
+      "name": "Save documentation page",
+      "description": "Save the documentation page as 'config_docs.md'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_004",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "documentation page saved",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

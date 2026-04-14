@@ -1,0 +1,7 @@
+{
+  "id": "P05",
+  "category": "Data Processing & Computation",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Write a Python script that generates a list of the first 20 Fibonacci numbers, then calculate their average. Print the list and the average."
+}

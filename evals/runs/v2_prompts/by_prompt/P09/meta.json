@@ -1,0 +1,7 @@
+{
+  "id": "P09",
+  "category": "API Interaction & HTTP",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Fetch the list of public APIs from https://api.publicapis.org/entries and count how many APIs are in the \"Animals\" category. Report the count and list their names."
+}

@@ -1,0 +1,14 @@
+# P12 — API Interaction & HTTP
+# complexity: Medium
+# characteristics: Linear
+# prompt: Fetch the current Bitcoin price from a public API (search the web for a free Bitcoin price API endpoint first). Then use Python to calculate what 0.5 BTC would be worth. Write the result to "btc_value.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 2 tasks in 22.2s
+          · task_003: Calculate BTC Value  [deps=-] [tools=python_exec]
+          · task_004: Write BTC Value to File  [deps=task_003] [tools=file_write]
+[task success] task_003 (43.7s, 2 tool calls)
+[task success] task_004 (8.1s, 1 tool calls)
+[critic PASS] task_003  — BTC value calculated successfully
+[critic PASS] task_004  — Result written to btc_value.txt as requested
+[DONE] total 78.5s  api_calls=10  tokens=7775

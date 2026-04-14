@@ -1,0 +1,7 @@
+# P11 — API Interaction & HTTP
+# complexity: Medium
+# characteristics: Parallel
+# prompt: Fetch data from these two public APIs simultaneously: https://catfact.ninja/fact (cat fact) and https://uselessfacts.jsph.pl/api/v2/facts/random (random fact). Compare the lengths of both facts and declare which source gave the longer fact. Save results to "facts_comparison.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile FAIL] compile: RuntimeError: Compiler failed after 3 attempts: No tasks generated. The workflow must have at least one task.

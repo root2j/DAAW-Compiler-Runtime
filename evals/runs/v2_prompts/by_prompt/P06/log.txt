@@ -1,0 +1,18 @@
+# P06 — Data Processing & Computation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Create a CSV file with 10 sample products (name, price, quantity). Then read it back and calculate the total inventory value (price * quantity for each product, summed).
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 21.9s
+          · task_001: Create Sample CSV File  [deps=-] [tools=file_write]
+          · task_002: Read CSV File  [deps=task_001] [tools=file_read]
+          · task_003: Calculate Total Inventory Value  [deps=task_002] [tools=python_exec]
+          · task_004: Write Total Inventory Value to File  [deps=task_003] [tools=file_write]
+[task success] task_001 (12.5s, 1 tool calls)
+[task success] task_002 (23.2s, 4 tool calls)
+[task failure] task_003 (4.4s, 0 tool calls)
+[critic PASS] task_001  — CSV file creation was successful
+[critic FAIL] task_002  — Output is a string, not a file
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 71.0s  api_calls=13  tokens=6036
