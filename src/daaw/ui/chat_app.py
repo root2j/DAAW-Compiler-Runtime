@@ -441,7 +441,7 @@ def main():
     # Sidebar: provider / model (kept tiny — not the focus)
     with st.sidebar:
         st.caption("Settings")
-        providers = ["groq", "gemini", "openai", "anthropic", "gateway"]
+        providers = ["groq", "gemini", "openai", "anthropic", "gateway", "claude_api"]
         st.session_state.chat_provider = st.selectbox(
             "Provider", providers,
             index=providers.index(st.session_state.chat_provider)
@@ -453,6 +453,7 @@ def main():
             "openai": "gpt-4.1-mini",
             "anthropic": "claude-sonnet-4-6",
             "gateway": "gemma4:e2b-it-q4_K_M",
+            "claude_api": "claude-sonnet-4-5-20250929",
         }
         st.session_state.chat_model = st.text_input(
             "Model",
@@ -463,6 +464,17 @@ def main():
             st.session_state.chat_turns = []
             st.session_state.chat_handle = None
             st.rerun()
+
+        # Show split-provider info if configured.
+        from daaw.config import get_config as _gc
+        _cfg = _gc()
+        if _cfg.compiler_provider:
+            st.caption(
+                f"Compile: **{_cfg.compiler_provider}** / "
+                f"{_cfg.compiler_model or 'default'}  \n"
+                f"Execute: **{st.session_state.chat_provider}** / "
+                f"{st.session_state.chat_model or 'default'}"
+            )
 
     # History
     for t in st.session_state.chat_turns[:-1]:
