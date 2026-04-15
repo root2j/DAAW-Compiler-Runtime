@@ -131,12 +131,19 @@ def _init_state():
 # ---------------------------------------------------------------------------
 # Background pipeline runner
 # ---------------------------------------------------------------------------
-def _start_pipeline(goal: str, provider: str, model: str | None) -> dict | None:
+def _start_pipeline(
+    goal: str,
+    provider: str,
+    model: str | None,
+    compile_provider: str | None = None,
+    compile_model: str | None = None,
+) -> dict | None:
     """Kick off compile -> execute -> critic on a background thread.
 
-    All streaming callbacks write into a single thread-safe queue that the
-    Streamlit render loop drains each rerun; no direct st.* calls from the
-    worker thread (Streamlit isn't thread-safe for widgets).
+    ``compile_provider`` / ``compile_model`` override which LLM is used for
+    the compile (planner) phase. When set, the Compiler uses those instead
+    of the default execution provider. This enables the "Claude plans,
+    Groq executes" split without touching env vars.
     """
     try:
         # Lazy imports so import-time cost of chat_app stays minimal.
@@ -162,6 +169,23 @@ def _start_pipeline(goal: str, provider: str, model: str | None) -> dict | None:
 
         config = get_config()
         llm = UnifiedLLMClient(config)
+
+        # For Local (Ollama) mode, ensure the "gateway" provider points at
+        # Ollama (port 11434) even if .env's GATEWAY_URL points elsewhere.
+        if provider == "gateway" and "gateway" not in llm.available_providers():
+            from daaw.llm.providers.gateway_provider import GatewayProvider
+            llm._providers["gateway"] = GatewayProvider(
+                gateway_url="http://localhost:11434/v1",
+                default_model=model or "gemma4:e2b-it-q4_K_M",
+            )
+        # Same for compile_provider if it needs gateway
+        if compile_provider == "gateway" and "gateway" not in llm.available_providers():
+            from daaw.llm.providers.gateway_provider import GatewayProvider
+            llm._providers["gateway"] = GatewayProvider(
+                gateway_url="http://localhost:11434/v1",
+                default_model=compile_model or "gemma4:e2b-it-q4_K_M",
+            )
+
         if provider not in llm.available_providers():
             return {"error": (
                 f"Provider '{provider}' not configured. "
@@ -198,7 +222,9 @@ def _start_pipeline(goal: str, provider: str, model: str | None) -> dict | None:
                 loop = asyncio.new_event_loop()
                 try:
                     t0 = time.monotonic()
-                    compiler = Compiler(llm, config, provider=provider, model=model)
+                    _cp = compile_provider or provider
+                    _cm = compile_model or model
+                    compiler = Compiler(llm, config, provider=_cp, model=_cm)
                     _send("stage", stage="compile")
                     spec = loop.run_until_complete(
                         compiler.compile_stream(goal, on_token=_on_compile_token),
@@ -438,43 +464,86 @@ def main():
         f'</div>', unsafe_allow_html=True,
     )
 
-    # Sidebar: provider / model (kept tiny — not the focus)
+    # Sidebar: 4 simple modes
+    #
+    # Each mode defines: compile provider+model, execute provider+model,
+    # and whether execution is local (sequential) or cloud (parallel).
+    _MODES = {
+        "Groq (Cloud, Free)": {
+            "desc": "Fast cloud inference. Groq free tier.",
+            "compile_provider": "groq",
+            "compile_model": "llama-3.3-70b-versatile",
+            "exec_provider": "groq",
+            "exec_model": "llama-3.1-8b-instant",
+            "is_local": False,
+        },
+        "Local (Ollama)": {
+            "desc": "Fully offline. Runs on your GPU.",
+            "compile_provider": "gateway",
+            "compile_model": "gemma4:e2b-it-q4_K_M",
+            "exec_provider": "gateway",
+            "exec_model": "gemma4:e2b-it-q4_K_M",
+            "is_local": True,
+            "gateway_url": "http://localhost:11434/v1",
+        },
+        "Claude + Groq (Recommended)": {
+            "desc": "Claude plans, Groq executes. Best quality + speed.",
+            "compile_provider": "claude_api",
+            "compile_model": "claude-sonnet-4-5-20250929",
+            "exec_provider": "groq",
+            "exec_model": "llama-3.1-8b-instant",
+            "is_local": False,
+        },
+        "Claude (Full)": {
+            "desc": "Claude for everything. Highest quality, slowest.",
+            "compile_provider": "claude_api",
+            "compile_model": "claude-sonnet-4-5-20250929",
+            "exec_provider": "claude_api",
+            "exec_model": "claude-sonnet-4-5-20250929",
+            "is_local": False,
+        },
+    }
+    _MODE_NAMES = list(_MODES.keys())
+
     with st.sidebar:
-        st.caption("Settings")
-        providers = ["groq", "gemini", "openai", "anthropic", "gateway", "claude_api"]
-        st.session_state.chat_provider = st.selectbox(
-            "Provider", providers,
-            index=providers.index(st.session_state.chat_provider)
-            if st.session_state.chat_provider in providers else 0,
+        st.caption("Mode")
+        if "chat_mode" not in st.session_state:
+            st.session_state.chat_mode = _MODE_NAMES[2]  # default: Claude + Groq
+        st.session_state.chat_mode = st.radio(
+            "Select mode",
+            _MODE_NAMES,
+            index=_MODE_NAMES.index(st.session_state.chat_mode)
+            if st.session_state.chat_mode in _MODE_NAMES else 2,
+            label_visibility="collapsed",
         )
-        _default_models = {
-            "groq": "llama-3.3-70b-versatile",
-            "gemini": "gemini-2.5-flash-lite",
-            "openai": "gpt-4.1-mini",
-            "anthropic": "claude-sonnet-4-6",
-            "gateway": "gemma4:e2b-it-q4_K_M",
-            "claude_api": "claude-sonnet-4-5-20250929",
-        }
-        st.session_state.chat_model = st.text_input(
-            "Model",
-            value=st.session_state.chat_model
-            or _default_models.get(st.session_state.chat_provider, ""),
+        mode = _MODES[st.session_state.chat_mode]
+        st.caption(mode["desc"])
+
+        st.divider()
+
+        # Show what's configured
+        st.markdown(
+            f'<div style="font-family:JetBrains Mono;font-size:.7rem;'
+            f'color:{C["muted"]};line-height:1.6">'
+            f'Compile: <strong style="color:{C["accent"]}">'
+            f'{mode["compile_provider"]}</strong> / {mode["compile_model"]}<br>'
+            f'Execute: <strong style="color:{C["accent"]}">'
+            f'{mode["exec_provider"]}</strong> / {mode["exec_model"]}'
+            f'</div>', unsafe_allow_html=True,
         )
+
+        st.divider()
         if st.button("Clear conversation", use_container_width=True):
             st.session_state.chat_turns = []
             st.session_state.chat_handle = None
             st.rerun()
 
-        # Show split-provider info if configured.
-        from daaw.config import get_config as _gc
-        _cfg = _gc()
-        if _cfg.compiler_provider:
-            st.caption(
-                f"Compile: **{_cfg.compiler_provider}** / "
-                f"{_cfg.compiler_model or 'default'}  \n"
-                f"Execute: **{st.session_state.chat_provider}** / "
-                f"{st.session_state.chat_model or 'default'}"
-            )
+        # Stash resolved provider/model in session_state so the input
+        # handler can read them without re-parsing the mode dict.
+        st.session_state.chat_provider = mode["exec_provider"]
+        st.session_state.chat_model = mode["exec_model"]
+        st.session_state._compile_provider = mode["compile_provider"]
+        st.session_state._compile_model = mode["compile_model"]
 
     # History
     for t in st.session_state.chat_turns[:-1]:
@@ -516,6 +585,8 @@ def main():
             prompt,
             st.session_state.chat_provider,
             st.session_state.chat_model or None,
+            compile_provider=st.session_state.get("_compile_provider"),
+            compile_model=st.session_state.get("_compile_model"),
         )
         if handle and "error" in handle:
             assistant.error = handle["error"]
