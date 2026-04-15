@@ -208,6 +208,45 @@ class GenericLLMAgent(BaseAgent):
 
             # No tool calls at all — LLM is done
             if not resp.tool_calls and not text_tcs:
+                # Anti-hallucination check: detect pseudo-tool-call syntax
+                # the 8B model loves to emit as text instead of a real call
+                # (e.g. "<web_search query=\"...\">" appearing in content).
+                fake_tool_pattern = re.search(
+                    r"<(web_search|http_request|python_exec|file_read|"
+                    r"file_write|shell_command|WebSearch|brave_search)[\s>]",
+                    resp.content or "",
+                )
+
+                # Enforcement: if the task was assigned tools but never
+                # actually called any, the output is almost certainly
+                # hallucinated. Fail so the critic/retry can catch it.
+                if tools_allowed and not tool_results_log:
+                    if fake_tool_pattern:
+                        err = (
+                            f"Task had tools_allowed={tools_allowed} but no "
+                            f"real tool calls were made. Output contains "
+                            f"pseudo-tool-call text ('{fake_tool_pattern.group()}') "
+                            f"— the model described a tool call instead of "
+                            f"invoking one. Likely hallucination."
+                        )
+                    else:
+                        err = (
+                            f"Task had tools_allowed={tools_allowed} but zero "
+                            f"tool calls were made. Output is unverified "
+                            f"(likely hallucination). If the task genuinely "
+                            f"doesn't need tools, set tools_allowed=[]."
+                        )
+                    return AgentResult(
+                        output=resp.content,
+                        status="failure",
+                        error_message=err,
+                        metadata={
+                            "tool_calls": tool_results_log,
+                            "usage": resp.usage,
+                            "hallucination_suspected": True,
+                        },
+                    )
+
                 return AgentResult(
                     output=resp.content,
                     status="success",
