@@ -247,8 +247,45 @@ class GenericLLMAgent(BaseAgent):
                         },
                     )
 
+                # Data-preservation safety net: if the agent used a
+                # research-style tool (web_search / http_request) and
+                # wrote a vague summary instead of preserving the real
+                # data, append the raw tool results so downstream tasks
+                # can see the actual URLs/content. Only fires for
+                # research tools since math/file ops can legitimately
+                # have short final answers.
+                final_content = resp.content or ""
+                _research_tools = {
+                    "web_search", "http_request", "brave_search",
+                    "search", "google_search", "WebSearch",
+                }
+                used_research_tool = any(
+                    tr["tool"] in _research_tools for tr in tool_results_log
+                )
+                vague_markers = (
+                    "results were found", "results contain",
+                    "search was performed", "information is available",
+                    "publicly available", "search results for",
+                )
+                content_lower = final_content.lower()
+                looks_vague = (
+                    len(final_content.strip()) < 200
+                    or any(m in content_lower for m in vague_markers)
+                    and len(final_content.strip()) < 500
+                )
+                if used_research_tool and looks_vague:
+                    raw_results = "\n\n---\n".join(
+                        f"[{tr['tool']}({', '.join(f'{k}={v!r}' for k,v in (tr.get('args') or {}).items())[:120]})]\n{tr['result']}"
+                        for tr in tool_results_log[-5:]  # last 5 tool calls
+                    )
+                    final_content = (
+                        (final_content + "\n\n" if final_content.strip() else "")
+                        + "Raw tool results (auto-attached — agent "
+                        "summary was too vague):\n\n" + raw_results
+                    )
+
                 return AgentResult(
-                    output=resp.content,
+                    output=final_content,
                     status="success",
                     metadata={"tool_calls": tool_results_log, "usage": resp.usage},
                 )
