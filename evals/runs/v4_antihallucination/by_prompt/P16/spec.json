@@ -1,0 +1,95 @@
+{
+  "id": "1c9632dd-d1d2-45d9-af1f-0a6199670ada",
+  "name": "Excel Alternatives Research",
+  "description": "Search for top 3 open-source Excel alternatives and create a comparison table with version, license, and unique features",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for Excel alternatives",
+      "description": "You MUST call WebSearch to find the top 3 open-source alternatives to Microsoft Excel. Search query should be 'best open source alternatives to Microsoft Excel 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Include at least 3 specific alternative names in your output.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 URLs from WebSearch results and mentions at least 3 specific open-source spreadsheet application names",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Get detailed information",
+      "description": "You MUST call WebSearch multiple times to find the latest version number, license type, and one unique feature for each of the 3 open-source Excel alternatives identified in task_001's output. For each alternative, perform separate searches like '<alternative_name> latest version 2026', '<alternative_name> license', '<alternative_name> unique features'. Output the FULL raw search results verbatim for all searches. Do NOT summarize \u2014 downstream tasks need the actual URLs, titles, and snippets. Output format: Group results by alternative name with all search result details.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains search results with version numbers, license information, and feature details for 3 alternatives, with at least 6 URLs total",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create markdown table",
+      "description": "You MUST call python_exec to parse the search results from task_002 and create a markdown comparison table. Extract the alternative name, latest version number, license type, and one unique feature for each of the 3 alternatives. Write Python code that outputs a markdown table with columns: Alternative Name | Latest Version | License | Unique Feature. The script must print the complete markdown table to stdout. Do NOT invent data \u2014 extract only from task_002's output. If information is missing, use 'N/A'. Output format: markdown table with header row and 3 data rows.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a complete markdown table with 4 columns and at least 3 data rows plus header, formatted with pipe separators",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save to file",
+      "description": "You MUST call file_write to save the markdown table from task_003's output to a file named 'spreadsheet_alternatives.md'. Use the exact table output from task_003 as the file content. The file path must be 'spreadsheet_alternatives.md'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'spreadsheet_alternatives.md' exists and contains a markdown table with at least 3 alternatives",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

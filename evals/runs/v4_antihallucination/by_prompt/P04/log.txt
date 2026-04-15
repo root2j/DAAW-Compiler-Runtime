@@ -1,0 +1,20 @@
+# P04 — Web Research & Summarization
+# complexity: Medium
+# characteristics: Parallel
+# prompt: Research the top 3 tourist attractions in both Paris and Rome (6 total). Present them side by side with a brief description of each. Save the comparison to a file called "travel_comparison.md".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 48.2s
+          · task_001: Research Paris Attractions  [deps=-] [tools=web_search, WebSearch]
+          · task_002: Research Rome Attractions  [deps=-] [tools=web_search, WebSearch]
+          · task_003: Format Side-by-Side Comparison  [deps=task_001, task_002] [tools=-]
+          · task_004: Save Comparison to File  [deps=task_003] [tools=file_write]
+[task success] task_001 (17.9s, 4 tool calls)
+[task success] task_002 (20.7s, 1 tool calls)
+[task success] task_003 (66.2s, 3 tool calls)
+[task success] task_004 (20.1s, 1 tool calls)
+[critic PASS] task_001  — The task output contains at least 3 Paris tourist attraction names with descript
+[critic FAIL] task_002  — Output is an error message instead of actual search results
+[critic PASS] task_003  — The output is a markdown file with a title, Paris and Rome sections containing e
+[critic PASS] task_004  — The task completed as per instructions and the file 'travel_comparison.md' was w
+[DONE] total 165.5s  api_calls=14  tokens=17187

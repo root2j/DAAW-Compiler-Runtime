@@ -1,0 +1,73 @@
+{
+  "id": "163aeaf7-581a-43dc-ab24-62a89457f7a3",
+  "name": "Top 5 Programming Languages 2026 Research",
+  "description": "Search the web for the top 5 programming languages in 2026 by popularity, identify one key advantage and one criticism for each, and present results as a numbered list",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for top programming languages 2026",
+      "description": "You MUST call web_search with the query 'top 5 programming languages 2026 popularity'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Include all search result content with complete URLs and descriptions.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 complete search results with URLs, titles, and content snippets about programming language popularity in 2026",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract top 5 languages with advantages and criticisms",
+      "description": "Analyze task_001's raw search results to identify the top 5 programming languages by popularity in 2026. For each language, extract EXACTLY one key advantage and EXACTLY one common criticism from the search results. Cite which search result each fact came from. Do NOT invent advantages or criticisms \u2014 only use information present in task_001's output. If insufficient information exists for any language, state 'insufficient data' for that field. Output format: For each of the 5 languages, provide: Language name, one advantage (with source), one criticism (with source).",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains exactly 5 programming languages, each with one advantage and one criticism explicitly cited from task_001's search results",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Format and save numbered list",
+      "description": "You MUST call file_write to save the results. Format task_002's data as a clean numbered list (1-5) with each entry containing: the language name, one key advantage, and one common criticism. Use clear formatting with proper line breaks. Save to a file named 'top_5_programming_languages_2026.txt'. The numbered list should be human-readable and well-structured.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'top_5_programming_languages_2026.txt' is created containing a numbered list (1-5) where each entry has a language name, advantage, and criticism",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "goal_type": "web_research_and_analysis"
+  }
+}

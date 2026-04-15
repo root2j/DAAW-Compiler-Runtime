@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for top programming languages 2026",
+    "verdict": "PASS",
+    "reasoning": "The task output contains at least 3 complete search results with URLs, titles, and content snippets about programming language popularity in 2026."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract top 5 languages with advantages and criticisms",
+    "verdict": "PASS",
+    "reasoning": "The task produced relevant content addressing the goal, but with some limitations."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Format and save numbered list",
+    "verdict": "FAIL",
+    "reasoning": "The output is empty, and no file 'top_5_programming_languages_2026.txt' was created."
+  }
+]

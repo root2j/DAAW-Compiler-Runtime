@@ -1,0 +1,96 @@
+{
+  "id": "75d26bb5-3d5b-41ff-a91f-77ccc951b0bb",
+  "name": "Bitcoin Price Calculator",
+  "description": "Find a Bitcoin price API, fetch current BTC price, calculate 0.5 BTC value, and save to file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for Bitcoin Price API",
+      "description": "You MUST call web_search to find a free Bitcoin price API endpoint. Search for 'free bitcoin price api json 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data to extract API endpoints.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least one URL or API endpoint that provides Bitcoin price data in JSON format",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Fetch Bitcoin Price",
+      "description": "You MUST call http_request to fetch the current Bitcoin price from the API endpoint found in task_001's output. Extract the API URL from task_001's results. Do NOT invent URLs. If no URL is present, say 'not found'. Output the complete response body, not a summary. Downstream tasks parse the raw data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains raw JSON response with Bitcoin price data (must include a numeric price value)",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Calculate 0.5 BTC Value",
+      "description": "You MUST call python_exec to calculate the value of 0.5 BTC. Extract the current Bitcoin price from task_002's JSON output. Write Python code that: 1) parses the JSON from task_002, 2) extracts the Bitcoin price (handle common JSON structures like {price: X} or {data: {price: X}}), 3) multiplies by 0.5, 4) prints the result in format 'The value of 0.5 BTC is: $X.XX'. Do NOT invent prices. Output format: The calculated dollar value as a formatted string.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a calculated dollar value in the format 'The value of 0.5 BTC is: $X' where X is a number",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Write Result to File",
+      "description": "You MUST call file_write to save the calculation result from task_003 to a file named 'btc_value.txt'. Use the exact output from task_003 as the file content.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'btc_value.txt' is created with the BTC value calculation from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

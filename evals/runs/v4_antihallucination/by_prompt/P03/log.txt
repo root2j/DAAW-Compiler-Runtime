@@ -1,0 +1,17 @@
+# P03 — Web Research & Summarization
+# complexity: Medium
+# characteristics: Linear
+# prompt: Find the 3 most recent SpaceX launches by searching the web. For each launch, note the mission name, date, and whether it was successful. Write the results to a file called "spacex_launches.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 57.8s
+          · task_001: Search for recent SpaceX launches  [deps=-] [tools=web_search]
+          · task_002: Extract launch details  [deps=task_001] [tools=-]
+          · task_003: Write results to file  [deps=task_002] [tools=file_write]
+[task success] task_001 (16.9s, 3 tool calls)
+[task success] task_002 (3.9s, 0 tool calls)
+[task success] task_003 (11.9s, 1 tool calls)
+[critic FAIL] task_001  — Output does not contain raw search results verbatim, as required.
+[critic FAIL] task_002  — Output does not contain exactly 3 launches with Mission, Date, and Status fields
+[critic PASS] task_003  — Output confirms file_write was called successfully with path 'spacex_launches.tx
+[DONE] total 118.5s  api_calls=11  tokens=7363

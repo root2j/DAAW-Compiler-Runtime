@@ -1,0 +1,7 @@
+{
+  "id": "P04",
+  "category": "Web Research & Summarization",
+  "complexity": "Medium",
+  "characteristics": "Parallel",
+  "text": "Research the top 3 tourist attractions in both Paris and Rome (6 total). Present them side by side with a brief description of each. Save the comparison to a file called \"travel_comparison.md\"."
+}

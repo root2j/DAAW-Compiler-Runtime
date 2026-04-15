@@ -1,0 +1,101 @@
+{
+  "id": "f41b07fd-09e1-4f38-b1c0-d51228468d93",
+  "name": "Fetch and Compare Facts from Two APIs",
+  "description": "Fetch data from cat fact and useless facts APIs simultaneously, compare their lengths, and save the comparison results to a file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch Cat Fact",
+      "description": "You MUST call http_request to fetch data from https://catfact.ninja/fact. Output the complete response body verbatim, not a summary. Downstream tasks need the raw JSON data. Output format: the full JSON response containing the fact text.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the raw JSON response from catfact.ninja API with a 'fact' field",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Fetch Random Fact",
+      "description": "You MUST call http_request to fetch data from https://uselessfacts.jsph.pl/api/v2/facts/random. Output the complete response body verbatim, not a summary. Downstream tasks need the raw JSON data. Output format: the full JSON response containing the fact text.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the raw JSON response from uselessfacts.jsph.pl API with fact text",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Compare Fact Lengths",
+      "description": "You MUST call python_exec to write Python code that: 1) Parses the JSON from task_001 output to extract the cat fact text, 2) Parses the JSON from task_002 output to extract the random fact text, 3) Calculates the length of each fact, 4) Determines which is longer, 5) Outputs a formatted comparison. The code must extract the 'fact' field from task_001 JSON and the 'text' field from task_002 JSON. Output format: A clear statement like 'Cat Fact (X chars): [fact text]. Random Fact (Y chars): [fact text]. Winner: [source] with Z more characters.'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains both fact texts, their character lengths, and declares which source gave the longer fact",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Results to File",
+      "description": "You MUST call file_write to save the comparison results from task_003 to a file named 'facts_comparison.txt'. Write exactly what task_003 output, preserving the complete comparison text including both facts, their lengths, and the winner declaration.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms that facts_comparison.txt was created and contains the comparison results from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "parallel_tasks": [
+      "task_001",
+      "task_002"
+    ],
+    "output_file": "facts_comparison.txt"
+  }
+}

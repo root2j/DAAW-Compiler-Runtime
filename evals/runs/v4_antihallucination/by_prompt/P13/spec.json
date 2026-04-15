@@ -1,0 +1,97 @@
+{
+  "id": "6ab77900-cba1-4d0c-8d85-1fb9749d6b82",
+  "name": "Lorem Ipsum File Statistics Workflow",
+  "description": "Generate a 5-paragraph lorem ipsum text file, then count and report word and sentence statistics",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Lorem Ipsum File",
+      "description": "You MUST call python_exec to generate exactly 5 paragraphs of lorem ipsum text. Use Python's random/string libraries or hardcode sample paragraphs. Then you MUST call file_write to save the generated text to a file named 'lorem_ipsum.txt'. Output the complete file path where it was saved.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains a file path ending in 'lorem_ipsum.txt' and confirms file was written",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read Lorem Ipsum File",
+      "description": "You MUST call file_read to read the file at the path specified in task_001's output. Output the FULL file contents verbatim. Do NOT summarize as 'file was read' \u2014 downstream tasks need the actual text to count words and sentences.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete lorem ipsum text with 5 paragraphs",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Count Words and Sentences",
+      "description": "You MUST call python_exec to count the total number of words and sentences in the text from task_002's output. Count words by splitting on whitespace. Count sentences by counting periods, exclamation marks, and question marks. Output format: JSON object with keys 'total_words' and 'total_sentences' containing integer values. Example: {\"total_words\": 250, \"total_sentences\": 15}",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a JSON object with 'total_words' and 'total_sentences' keys, both with positive integer values",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Display Statistics",
+      "description": "Format and display the statistics from task_003's output in a clear, human-readable format. Include both the total word count and total sentence count. Use the EXACT numbers from task_003 \u2014 do NOT invent or estimate values. Example format: 'Statistics for lorem_ipsum.txt: Total words: 250, Total sentences: 15'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains formatted statistics with both word count and sentence count from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal": "Create a text file with a 5-paragraph lorem ipsum placeholder. Then read the file, count the total number of words and sentences, and print the statistics."
+  }
+}

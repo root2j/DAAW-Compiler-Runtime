@@ -1,0 +1,77 @@
+{
+  "id": "dea93f01-2a88-4b84-bca3-3cdafa53197e",
+  "name": "Fetch joke and research comedian",
+  "description": "Fetch a random joke from the official joke API, research the comedian who originated that style, and save results to joke_research.txt",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch random joke from API",
+      "description": "You MUST call http_request to GET https://official-joke-api.appspot.com/random_joke. Output the FULL raw response body verbatim (do NOT summarize as 'joke was fetched'). Downstream tasks need the actual joke text. Expected output format: JSON object with 'setup' and 'punchline' fields.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains raw JSON response with 'setup' and 'punchline' fields from the API",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search for comedian and joke style",
+      "description": "You MUST call web_search (or WebSearch) to find information about the comedian or comedy style. First, extract the joke text from task_001's output. Then search for who originated this type of joke or similar jokes. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' - downstream tasks need the actual data. If no specific comedian is found, say 'comedian not found' and describe the joke style instead.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains search results with at least one URL starting with https:// OR states 'comedian not found' with style description",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write joke and research to file",
+      "description": "You MUST call file_write to create joke_research.txt. Extract the joke (setup and punchline) from task_001's output and the research findings from task_002's output. Format the file with: 1) The joke text (setup and punchline), 2) A separator line, 3) The research findings about the comedian/style. Use clear formatting with headers.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File joke_research.txt is created containing both the joke text and research findings",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

@@ -1,0 +1,77 @@
+{
+  "id": "ac11b638-839c-4f95-beff-f38bb7ebd0ca",
+  "name": "Random Names Age Analysis Workflow",
+  "description": "Generate random names with ages, analyze by age decade, and save results",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Random Names CSV",
+      "description": "You MUST call python_exec to generate a CSV string containing 50 random names with ages between 18-65. Use Python's random module to generate random names (create random combinations from lists of first/last names or use simple name generation). Generate complete CSV content with header 'name,age' and 50 data rows. Then you MUST call file_write to save the CSV content to 'people.csv'. Output format: 'CSV file created at people.csv with 50 entries'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output confirms CSV file 'people.csv' was written and contains 50 rows with name and age columns",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Analyze Age Groups",
+      "description": "You MUST call file_read to read 'people.csv' created in task_001. Then you MUST call python_exec to parse the CSV and group people by age decade: teens (18-19), twenties (20-29), thirties (30-39), forties (40-49), fifties (50-59), sixties (60-65). Count how many people are in each group. Output the COMPLETE analysis results verbatim showing each age group name and its count. Do NOT summarize as 'analysis complete' \u2014 output the actual age group names and counts in a structured text format ready to be saved to a file. Example output format: 'Teens (18-19): 5\\nTwenties (20-29): 12\\n...'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains specific counts for each age decade (teens, twenties, thirties, forties, fifties, sixties) with exact numbers formatted as readable text",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save Analysis Results",
+      "description": "You MUST call file_write to save the age group analysis from task_002's output to the file 'age_groups.txt'. Use the exact analysis text from task_002 that contains the age decade counts. Output: 'Analysis saved to age_groups.txt'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms 'age_groups.txt' was successfully written",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "compiler",
+    "goal": "Write a Python script that generates 50 random names with ages (18-65) as a CSV file. Then read the CSV, group by age decade (teens, twenties, thirties, etc.), and count how many people are in each group. Save the analysis as age_groups.txt."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "P10",
+  "category": "API Interaction & HTTP",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Fetch a random joke from https://official-joke-api.appspot.com/random_joke, then search the web for the comedian who originated that style of joke. Write both the joke and your research to \"joke_research.txt\"."
+}

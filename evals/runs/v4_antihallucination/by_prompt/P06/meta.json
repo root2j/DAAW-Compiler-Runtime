@@ -1,0 +1,7 @@
+{
+  "id": "P06",
+  "category": "Data Processing & Computation",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Create a CSV file with 10 sample products (name, price, quantity). Then read it back and calculate the total inventory value (price * quantity for each product, summed)."
+}

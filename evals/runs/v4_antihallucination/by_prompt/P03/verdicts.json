@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for recent SpaceX launches",
+    "verdict": "FAIL",
+    "reasoning": "Output does not contain raw search results verbatim, as required."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract launch details",
+    "verdict": "FAIL",
+    "reasoning": "Output does not contain exactly 3 launches with Mission, Date, and Status fields filled in, sorted by date with newest first"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Write results to file",
+    "verdict": "PASS",
+    "reasoning": "Output confirms file_write was called successfully with path 'spacex_launches.txt' and content from task_002"
+  }
+]

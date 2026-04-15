@@ -1,0 +1,7 @@
+{
+  "id": "P03",
+  "category": "Web Research & Summarization",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Find the 3 most recent SpaceX launches by searching the web. For each launch, note the mission name, date, and whether it was successful. Write the results to a file called \"spacex_launches.txt\"."
+}

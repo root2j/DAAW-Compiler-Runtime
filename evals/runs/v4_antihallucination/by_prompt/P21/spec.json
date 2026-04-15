@@ -1,0 +1,73 @@
+{
+  "id": "ca97807b-602f-48dc-8a4f-7b68a1c3c4a2",
+  "name": "Tech News Sentiment and Sector Analysis",
+  "description": "Search for latest tech news headlines, classify them by sentiment and sector, and save as structured JSON",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for latest tech news headlines",
+      "description": "You MUST call web_search with query 'latest tech news headlines April 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Include at least 5 distinct headlines with their sources. Output format: List each result with its title, URL, and snippet text.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 5 search results with complete details including URLs, titles, and text snippets from the web search",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Classify headlines by sentiment and sector",
+      "description": "Extract exactly 5 tech news headlines from task_001's search results. For each headline, classify: (1) sentiment as exactly one of: positive, negative, neutral; (2) sector as exactly one of: AI, hardware, software, crypto, other. Do NOT invent headlines \u2014 use only those from task_001's output. Cite task_001 as your source. Output format: JSON array of objects with structure [{\"headline\": \"exact headline text\", \"url\": \"source URL from task_001\", \"sentiment\": \"positive|negative|neutral\", \"sector\": \"AI|hardware|software|crypto|other\"}, ...]. Ensure valid JSON syntax.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output is valid JSON array with exactly 5 objects, each containing headline (string), url (string starting with https://), sentiment (one of: positive/negative/neutral), and sector (one of: AI/hardware/software/crypto/other)",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write analysis to JSON file",
+      "description": "You MUST call file_write to save the JSON array from task_002 to a file named 'tech_news_analysis.json'. Use the EXACT JSON content from task_002 without modification. The file_path parameter should be 'tech_news_analysis.json' and content parameter should be the complete JSON array from task_002.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "file_write tool called successfully and creates tech_news_analysis.json containing the valid JSON array from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "workflow_type": "web_research_and_analysis"
+  }
+}
