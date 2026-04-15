@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Research GDP and Population Data",
+    "verdict": "PASS",
+    "reasoning": "The task output contains the required data for the top 5 economies in the world, including country names, GDP values, population values, and source URLs."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Calculate GDP per Capita",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

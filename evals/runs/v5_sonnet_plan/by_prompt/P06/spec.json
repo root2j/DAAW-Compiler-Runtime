@@ -1,0 +1,75 @@
+{
+  "id": "11690344-6408-4823-a326-abd798404ed5",
+  "name": "Product Inventory Value Calculator",
+  "description": "Create a CSV file with 10 sample products, read it back, and calculate total inventory value",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create Product CSV File",
+      "description": "You MUST call file_write to create a CSV file named 'products.csv' with exactly 10 sample products. The CSV must have a header row (name,price,quantity) followed by 10 data rows. Use realistic product names (e.g., Laptop, Mouse, Keyboard), prices as decimal numbers (e.g., 999.99), and quantities as integers (e.g., 5). Example row: 'Laptop,999.99,5'. Output the full path of the created file.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the file path 'products.csv' and confirms the file was created with 10 products",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read Product CSV File",
+      "description": "You MUST call file_read to read the 'products.csv' file created in task_001. Output the file contents verbatim. Do NOT summarize as 'file was read' \u2014 the next task needs the actual CSV data to perform calculations. Include all rows including the header.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete CSV text with header row 'name,price,quantity' and 10 data rows visible",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Calculate Total Inventory Value",
+      "description": "You MUST call python_exec to calculate the total inventory value from the CSV data in task_002's output. Write Python code that: 1) Parses the CSV text from task_002 (skip header row), 2) For each product, calculates value = price * quantity, 3) Sums all values, 4) Prints the total. Use the csv module or simple string parsing. Output format: 'Total Inventory Value: $XXXX.XX' with the final sum clearly stated.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains 'Total Inventory Value: $' followed by a numeric value calculated from all 10 products",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "purpose": "Demonstrate CSV file creation, reading, and computation workflow"
+  }
+}

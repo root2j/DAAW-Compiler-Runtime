@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for Bitcoin Price API",
+    "verdict": "PASS",
+    "reasoning": "The task output contains at least one API endpoint URL that starts with https:// and references Bitcoin price data."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Fetch Current Bitcoin Price",
+    "verdict": "FAIL",
+    "reasoning": "The API request was not sent, only the request configuration was provided."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Calculate 0.5 BTC Value",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

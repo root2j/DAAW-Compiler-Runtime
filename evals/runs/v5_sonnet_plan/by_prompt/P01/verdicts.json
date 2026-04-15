@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for top programming languages 2026",
+    "verdict": "FAIL",
+    "reasoning": "Output does not contain at least 5 search results with complete URLs, titles, and snippets that mention programming languages and popularity rankings for 2026"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Extract top 5 languages with advantages and criticisms",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

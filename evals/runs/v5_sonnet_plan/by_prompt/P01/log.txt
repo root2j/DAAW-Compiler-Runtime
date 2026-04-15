@@ -1,0 +1,15 @@
+# P01 — Web Research & Summarization
+# complexity: Simple
+# characteristics: Linear
+# prompt: Search the web for the top 5 programming languages in 2026 by popularity. For each language, find one key advantage and one common criticism. Present the results as a numbered list.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 52.0s
+          · task_001: Search for top programming languages 2026  [deps=-] [tools=WebSearch]
+          · task_002: Extract top 5 languages with advantages and criticisms  [deps=task_001] [tools=python_exec]
+          · task_003: Format and save numbered list  [deps=task_002] [tools=file_write]
+[task success] task_001 (57.7s, 4 tool calls)
+[task failure] task_002 (49.4s, 0 tool calls)
+[critic FAIL] task_001  — Output does not contain at least 5 search results with complete URLs, titles, an
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 159.8s  api_calls=6  tokens=4551

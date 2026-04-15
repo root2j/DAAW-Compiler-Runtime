@@ -1,0 +1,77 @@
+{
+  "id": "91d24adc-96b5-4091-8c4f-4a3c109a65ce",
+  "name": "config_file_creation_and_documentation",
+  "description": "Create a JSON configuration file with database and feature settings, validate required fields, and generate markdown documentation",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create JSON configuration file",
+      "description": "You MUST call file_write to create a file named 'app_config.json'. The JSON structure must include: 1) database object with 'host' (string) and 'port' (number), 2) cache object with 'ttl_seconds' (number), 3) feature_flags object with at least 2 boolean flags. Use realistic values (e.g., localhost, port 5432, TTL 3600). Output format: 'Successfully created app_config.json with [N] configuration sections'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output confirms app_config.json was created and mentions configuration sections",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read and validate configuration file",
+      "description": "You MUST call file_read to read 'app_config.json' from task_001. Then you MUST call python_exec to write Python code that validates these required fields exist: database.host, database.port, cache.ttl_seconds, feature_flags (as object). Output the FULL raw JSON content verbatim - do NOT summarize as 'file was read' because task_003 needs the actual configuration data. Include validation results listing each required field as PRESENT or MISSING. Output format: 'Validation: PASS/FAIL' line, followed by 'Required fields: [list]', followed by complete JSON file contents.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains validation status, list of required fields checked, and complete JSON content from the file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Generate documentation markdown",
+      "description": "You MUST call file_write to create 'config_docs.md'. Extract the configuration values from task_002's output (which contains the full JSON). Create a markdown document with: 1) # Configuration Documentation header, 2) ## Database Settings section describing host and port with their actual values from task_002, 3) ## Cache Settings section describing ttl_seconds, 4) ## Feature Flags section listing each flag and its state. Do NOT invent values - use only what appears in task_002's output. If a value is not found in task_002, write 'Value not found in config'. Output format: 'Created config_docs.md with [N] setting descriptions'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms config_docs.md was created and specifies number of settings documented",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "task_count": 3,
+    "requires_user_input": false
+  }
+}

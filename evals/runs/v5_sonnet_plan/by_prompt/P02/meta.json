@@ -1,0 +1,7 @@
+{
+  "id": "P02",
+  "category": "Web Research & Summarization",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Research the current weather in Tokyo, New York, and London. Compare the temperatures and summarize which city is warmest and which is coldest right now."
+}

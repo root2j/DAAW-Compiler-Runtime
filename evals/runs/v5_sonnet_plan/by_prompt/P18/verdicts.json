@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for popular Python web frameworks",
+    "verdict": "PASS",
+    "reasoning": "The output contains at least 5 distinct Python web framework names mentioned in search results with full URLs and snippets preserved."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Find GitHub star counts",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

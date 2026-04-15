@@ -1,0 +1,96 @@
+{
+  "id": "2680531d-c65f-48ba-a980-66ef961f275c",
+  "name": "Historical Events Lookup",
+  "description": "Get current date, search for historical events on this day, and save 3 interesting events to a file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Get Current Date",
+      "description": "You MUST call python_exec to get the current date and time. Write Python code that imports datetime and outputs the current date in the format 'Month Day' (e.g., 'April 15'). Use datetime.now() and format it as '%B %d'. Output the FULL result verbatim.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains a date string in 'Month Day' format",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search Historical Events",
+      "description": "You MUST call WebSearch to search for historical events on this day in history. Extract the date from task_001's output and search for 'what happened on [date] in history' or '[date] in history events'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains multiple search results with URLs and snippets about historical events",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Extract 3 Events",
+      "description": "Extract exactly 3 interesting historical events from task_002's search results. For each event, include the year and a brief description (1-2 sentences). Do NOT invent events or use general knowledge \u2014 only use facts directly cited in the search results from task_002. If the search results mention a year and event, cite it. Output format: numbered list like '1. Year: Description' for each event.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains exactly 3 events with years and descriptions, all sourced from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Write to File",
+      "description": "You MUST call file_write to save the events to 'today_in_history.txt'. Use the exact content from task_003 as the file content. The file path should be 'today_in_history.txt'. Do NOT modify the content.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Successfully wrote file with content from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "goal": "Check current date, search historical events, write 3 events to file",
+    "created_at": "2026-04-15"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "P13",
+  "category": "File Operations & Text Processing",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Create a text file with a 5-paragraph lorem ipsum placeholder. Then read the file, count the total number of words and sentences, and print the statistics."
+}

@@ -1,0 +1,76 @@
+{
+  "id": "f4763b41-2e26-48ca-b8b6-15a4ec5750b4",
+  "name": "Lorem Ipsum Statistics Workflow",
+  "description": "Generate a 5-paragraph lorem ipsum file, read it, count words and sentences, and display statistics",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate and save lorem ipsum",
+      "description": "You MUST call python_exec to generate exactly 5 paragraphs of lorem ipsum text. Use the standard Lorem library or generate placeholder text. Then you MUST call file_write to save the generated text to a file named 'lorem_ipsum.txt'. Output the complete generated text verbatim so downstream tasks can verify the content.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the full generated lorem ipsum text and confirms the file was written to lorem_ipsum.txt",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read the lorem ipsum file",
+      "description": "You MUST call file_read to read the contents of 'lorem_ipsum.txt' that was created in task_001. Output the FULL file contents verbatim. Do NOT summarize as 'file was read' \u2014 downstream tasks need the actual text to count words and sentences.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete file contents from lorem_ipsum.txt with all 5 paragraphs visible",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Count words and sentences and display statistics",
+      "description": "You MUST call python_exec to count the total number of words and sentences from the file content provided by task_002. Use Python string operations to: (1) count words by splitting on whitespace, (2) count sentences by splitting on '.', '!', and '?'. Then output the statistics in a clear format like 'Total Words: X, Total Sentences: Y'. The output MUST include both specific numbers.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains specific numeric counts in format 'Total Words: X, Total Sentences: Y' where X and Y are positive integers",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal": "Create lorem ipsum file and calculate word/sentence statistics"
+  }
+}

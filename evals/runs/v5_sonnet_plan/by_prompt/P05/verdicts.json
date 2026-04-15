@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Generate and Test Fibonacci Code",
+    "verdict": "FAIL",
+    "reasoning": "The output does not contain exactly 20 Fibonacci numbers and their calculated average."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Save Python Script to File",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

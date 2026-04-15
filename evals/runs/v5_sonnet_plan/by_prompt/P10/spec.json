@@ -1,0 +1,102 @@
+{
+  "id": "826f51b3-55d8-4112-a506-78b62e370811",
+  "name": "Joke Research Workflow",
+  "description": "Fetch a random joke from API, research the comedian who originated that style, and save results to file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch Random Joke",
+      "description": "You MUST call http_request to GET https://official-joke-api.appspot.com/random_joke. Output the complete response body verbatim, not a summary. Do NOT paraphrase. Downstream tasks need the raw JSON data including setup, punchline, type, and id fields. Output format: the full JSON response from the API.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains valid JSON with 'setup' and 'punchline' fields from the API response",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Analyze Joke Style",
+      "description": "You MUST call python_exec to parse the JSON from task_001's output. Extract: 1) the setup text, 2) the punchline text, 3) the joke type/category field. Then analyze the joke structure and style (pun, one-liner, knock-knock, observational, wordplay, dad joke, etc.). Output format: A text block containing the full joke (setup and punchline) followed by a description of the joke style. Do NOT invent comedian names - only describe the style.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the joke text with setup and punchline clearly shown, plus a description of the joke style/category",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Search for Comedian Origin",
+      "description": "You MUST call web_search to find information about comedians known for the joke style identified in task_002. Search for terms like '[joke style] comedian' or 'who originated [joke style] jokes'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 task_004 needs the actual data including URLs. If no specific comedian is found for that style, say 'no specific comedian identified' and include what you found about the joke style's general origins.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains at least one search result with URL and description that references task_002's joke style, OR explicitly states 'no specific comedian identified' with context",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Write Results to File",
+      "description": "You MUST call file_write to create 'joke_research.txt'. The file content must include: 1) A 'JOKE' section with the complete joke (setup and punchline) from task_002, 2) A 'STYLE' section describing the joke type from task_002, 3) A 'RESEARCH' section with the comedian findings from task_003 including all URLs found in the search results. Format as a readable text document with clear section headers. Cite sources by including the URLs from task_003.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        },
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'joke_research.txt' exists and contains three sections: the joke text, style description, and research findings with at least one URL cited from task_003's search results",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal": "Fetch random joke, research comedian origin, write to joke_research.txt"
+  }
+}

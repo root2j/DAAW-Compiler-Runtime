@@ -1,0 +1,41 @@
+{
+  "status": "success",
+  "output": "Output:\nSearch results for 'current weather Tokyo temperature':\n1. Current Weather Conditions in Tokyo Tokyo, Tokyo is currently Mostly cloudy with a temperature of 73\u00b0.\n2. Currently: 75 \u00b0F. Passing clouds. (Weather station: Tokyo Heliport, Japan). See more current weather\n3. Tokyo Weather Forecasts. Weather Underground provides local &amp; long-range weather forecasts, weatherreports, maps &amp; tropical weather conditions for the Tokyo area.\n4. Tokyo (T\u014dky\u014d) Weather Forecast. Providing a local hourly Tokyo (T\u014dky\u014d) weather forecast of rain, sun, wind, humidity and temperature.\n5. Get Tokyo, 13, JP current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com.\n\nSearch results for 'current weather New York temperature':\n1. Get New York, NY current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com.\n2. Your local forecast office is New York, NY News Headlines Learn All About Being a COCORAHS Observer Become a Volunteer Weather Observer... Join CoCoRaHS Today! New NWS New York, NY Emergency Managers Webpage Current conditions at New York City, Central Park (KNYC) Lat: 40.78\u00b0N Lon: 73.97\u00b0W Elev: 154ft.\n3. New York, NY Weather Forecast, with current conditions, wind, air quality, and what to expect for the next 3 days.\n4. Latest weather forecast for New York City for today&#x27;s, hourly weather forecast, including today&#x27;s temperatures in New York City, wind, rain and more.\n5. Be prepared with the most accurate 10-day forecast for Manhattan, New York City, New York, United States with highs, lows, chance of precipitation from The Weather Channel and Weather.com\n\nSearch results for 'current weather London temperature':\n1. BBC Weather in association with MeteoGroup All times are British Summer Time (Europe/London, GMT+1) unless otherwise stated.\n2. London 7 day weather forecast including weather warnings, temperature, rain, wind, visibility, humidity and UV\n3. Get the London weather forecast. Access hourly, 10 day and 15 day forecasts along with up to the minute reports and videos from AccuWeather.com\n4. Get London, UKI, UK current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com.\n5. London Weather Forecasts. Weather Underground provides local &amp; long-range weather forecasts, weatherreports, maps &amp; tropical weather conditions for the London area.",
+  "error_message": "",
+  "elapsed_seconds": 16.47,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "current weather Tokyo temperature"
+      },
+      "result": "Search results for 'current weather Tokyo temperature':\n1. Current Weather Conditions in Tokyo Tokyo, Tokyo is currently Mostly cloudy with a temperature of 73\u00b0.\n2. Currently: 75 \u00b0F. Passing clouds. (Weather station: Tokyo Heliport, Japan). See more current weather\n3. Tokyo Weather Forecasts. Weather Underground provides local &amp; long-range weather forecasts, weatherreports, maps &amp; tropical weather conditions for the Tokyo area.\n4. Tokyo (T\u014dky\u014d) Weather Forecast. Providing a local hourly Tokyo (T\u014dky\u014d) weather forecast of rain, sun, wind, humidity and temperature.\n5. Get Tokyo, 13, JP current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com."
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "current weather New York temperature"
+      },
+      "result": "Search results for 'current weather New York temperature':\n1. Get New York, NY current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com.\n2. Your local forecast office is New York, NY News Headlines Learn All About Being a COCORAHS Observer Become a Volunteer Weather Observer... Join CoCoRaHS Today! New NWS New York, NY Emergency Managers Webpage Current conditions at New York City, Central Park (KNYC) Lat: 40.78\u00b0N Lon: 73.97\u00b0W Elev: 154ft.\n3. New York, NY Weather Forecast, with current conditions, wind, air quality, and what to expect for the next 3 days.\n4. Latest weather forecast for New York City for today&#x27;s, hourly weather forecast, including today&#x27;s temperatures in New York City, wind, rain and more.\n5. Be prepared with the most accurate 10-day forecast for Manhattan, New York City, New York, United States with highs, lows, chance of precipitation from The Weather Channel and Weather.com"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "current weather London temperature"
+      },
+      "result": "No results found for: current weather London temperature"
+    },
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "current weather London weather"
+      },
+      "result": "Search results for 'current weather London weather':\n1. BBC Weather in association with MeteoGroup All times are British Summer Time (Europe/London, GMT+1) unless otherwise stated.\n2. London 7 day weather forecast including weather warnings, temperature, rain, wind, visibility, humidity and UV\n3. Get the London weather forecast. Access hourly, 10 day and 15 day forecasts along with up to the minute reports and videos from AccuWeather.com\n4. Get London, UKI, UK current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com.\n5. London Weather Forecasts. Weather Underground provides local &amp; long-range weather forecasts, weatherreports, maps &amp; tropical weather conditions for the London area."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1110,
+    "completion_tokens": 558,
+    "total_tokens": 1668
+  }
+}

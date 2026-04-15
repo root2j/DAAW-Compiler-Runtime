@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Fetch Random Joke",
+    "verdict": "PASS",
+    "reasoning": "Output contains valid JSON with 'setup' and 'punchline' fields from the API response"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Analyze Joke Style",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_002' failed \u2014 automatic retry."
+  }
+]

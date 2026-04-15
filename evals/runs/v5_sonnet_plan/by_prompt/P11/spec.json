@@ -1,0 +1,97 @@
+{
+  "id": "d9d23b85-009e-4825-a61b-3e28a0aeccb2",
+  "name": "Fetch and Compare Facts from APIs",
+  "description": "Fetch a cat fact and a random fact from two different APIs, compare their lengths, and save the results to a file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch cat fact",
+      "description": "You MUST call http_request to fetch data from https://catfact.ninja/fact. Output the complete response body verbatim, not a summary. Downstream tasks need the raw JSON data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the raw JSON response from catfact.ninja API with at least a 'fact' field",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Fetch random fact",
+      "description": "You MUST call http_request to fetch data from https://uselessfacts.jsph.pl/api/v2/facts/random. Output the complete response body verbatim, not a summary. Downstream tasks need the raw JSON data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the raw JSON response from uselessfacts.jsph.pl API with at least a 'text' field",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Compare fact lengths",
+      "description": "You MUST call python_exec to write Python code that: (1) Parses the JSON from task_001 to extract the cat fact text (likely in a 'fact' field), (2) Parses the JSON from task_002 to extract the random fact text (likely in a 'text' field), (3) Calculates the length of both facts, (4) Determines which is longer. Output format: A JSON object with keys {cat_fact: str, cat_length: int, random_fact: str, random_length: int, winner: str} where winner is 'cat' or 'random' or 'tie'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output is valid JSON containing cat_fact, cat_length, random_fact, random_length, and winner fields with appropriate values",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save comparison results",
+      "description": "You MUST call file_write to save the comparison results to 'facts_comparison.txt'. Format the content as: 'Cat Fact: [cat_fact] (Length: [cat_length])\\n\\nRandom Fact: [random_fact] (Length: [random_length])\\n\\nWinner: [winner] source gave the longer fact.' Use the data from task_003's JSON output.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'facts_comparison.txt' is created with both facts, their lengths, and the winner declaration",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "planner",
+    "goal": "Fetch data from two public APIs simultaneously, compare fact lengths, and save results"
+  }
+}
