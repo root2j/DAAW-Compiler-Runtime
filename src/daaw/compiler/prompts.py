@@ -40,10 +40,21 @@ ANTI-HALLUCINATION RULES (critical — the executor will lie without these):
 - success_criteria should be VERIFIABLE from the output. Bad: "Found
   information". Good: "Output contains at least one URL that starts
   with https:// and references task_001's search results."
-- For research tasks, the description should specify what to search
-  for in plain words. The executor will call the tool.
 - For computation, the description should say exactly what Python code
   to write (or at least what input/output format).
+
+DATA PRESERVATION RULES (critical — the 8B executor summarizes away
+useful data unless explicitly told not to):
+- Research/search task descriptions MUST include: "Output the FULL raw
+  search results verbatim (URLs, titles, snippets). Do NOT summarize
+  as 'results were found' — downstream tasks need the actual data."
+- API-fetch task descriptions MUST include: "Output the complete
+  response body, not a summary. Downstream tasks parse the raw data."
+- File-read task descriptions MUST include: "Output the file contents
+  verbatim. Truncate only if > 4000 chars."
+- Every task description should end with a concrete output shape
+  example when practical. e.g. "Output format: JSON array of
+  {{url, title, snippet}} objects."
 """
 
 PLANNER_REFINEMENT_PROMPT = """\
