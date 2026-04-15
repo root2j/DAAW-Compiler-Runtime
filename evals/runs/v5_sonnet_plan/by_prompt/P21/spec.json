@@ -1,0 +1,73 @@
+{
+  "id": "ef9ca819-da09-4e4d-8d58-a04c7afebd57",
+  "name": "Tech News Analysis Workflow",
+  "description": "Search for latest tech news headlines, classify sentiment and sector, and save as JSON",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search Latest Tech News",
+      "description": "You MUST call web_search with query 'latest tech news headlines 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Extract the top 5 most recent headlines. Output format: JSON array of {title, url, snippet} objects.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains a JSON array with at least 5 tech news headlines, each having title, url, and snippet fields with actual URLs starting with https://",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Classify Headlines",
+      "description": "For each of the 5 headlines from task_001's output, classify: (1) sentiment as one of: positive, negative, neutral, (2) tech sector as one of: AI, hardware, software, crypto, other. Base your classification on the headline text and snippet content from task_001. Output a JSON array with structure: [{\"headline\": \"...\", \"url\": \"...\", \"sentiment\": \"...\", \"sector\": \"...\"}]. Do NOT invent headlines \u2014 only use the exact headlines from task_001's output. Preserve the original URLs.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a valid JSON array with exactly 5 objects, each having headline, url, sentiment (positive/negative/neutral), and sector (AI/hardware/software/crypto/other) fields, with URLs matching task_001's output",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write Results to File",
+      "description": "You MUST call file_write to save the classified results from task_002 to a file named 'tech_news_analysis.json'. Write the complete JSON array from task_002's output without any modification. The file content must be valid JSON that can be parsed.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Successfully called file_write with filename 'tech_news_analysis.json' and content is the JSON array from task_002 containing 5 classified headlines",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "planner",
+    "goal": "Search web for latest tech news, classify sentiment and sector, write to JSON file"
+  }
+}

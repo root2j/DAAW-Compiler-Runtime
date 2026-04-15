@@ -1,0 +1,98 @@
+{
+  "id": "ee6792ce-d870-445d-81d3-bbdcac2a5e1f",
+  "name": "Bitcoin Price Calculation Workflow",
+  "description": "Fetch current Bitcoin price from a public API and calculate the value of 0.5 BTC",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for Bitcoin Price API",
+      "description": "You MUST call web_search to find a free Bitcoin price API endpoint. Search for 'free Bitcoin price API endpoint JSON 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Extract at least one API endpoint URL that returns Bitcoin price in JSON format. Output format: List of URLs with descriptions.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least one API endpoint URL that starts with https:// and references Bitcoin price data",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Fetch Current Bitcoin Price",
+      "description": "You MUST call http_request to fetch the current Bitcoin price using the API endpoint from task_001's output. Use the most reliable API endpoint found in task_001. Output the complete response body, not a summary. Downstream tasks parse the raw data. The response should contain a numeric Bitcoin price value in USD. If the API requires specific headers or parameters, include them in the request.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the raw API response with a numeric Bitcoin price value in USD (e.g., contains a field like 'price', 'rate', or 'usd' with a number)",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Calculate 0.5 BTC Value",
+      "description": "You MUST call python_exec to calculate the value of 0.5 BTC. Parse the Bitcoin price from task_002's output (look for fields like 'price', 'rate', 'usd', or 'last'). Write Python code that: 1) Extracts the current BTC price as a float, 2) Multiplies it by 0.5, 3) Prints the result in the format 'The value of 0.5 BTC is $X.XX USD' where X.XX is the calculated amount rounded to 2 decimal places. Output format: A single line with the calculated value.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a calculated USD value for 0.5 BTC in the format 'The value of 0.5 BTC is $X.XX USD'",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Write Result to File",
+      "description": "You MUST call file_write to save the calculated BTC value to a file named 'btc_value.txt'. Use the output from task_003 as the content. The file should contain the complete sentence about the value of 0.5 BTC in USD. File path: 'btc_value.txt'. Content: the exact output from task_003.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'btc_value.txt' is created and contains the calculated value of 0.5 BTC in USD",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "goal": "Fetch Bitcoin price, calculate 0.5 BTC value, write to file"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "output": "The search results contain the following 5 distinct Python web framework names mentioned:\n\n1. Reflex\n2. Django\n3. Flask\n4. Gradio\n5. Streamlit\n\nRaw tool results (auto-attached \u2014 agent summary was too vague):\n\n[WebSearch(query='most popular Python web frameworks 2026')]\nSearch results for 'most popular Python web frameworks 2026':\n1. Top Python Web Development Frameworks in 2026 A comprehensive comparison of Reflex, Django, Flask, Gradio, Streamlit, Dash, and FastAPI\u2014the top Python web frameworks in 2026 for full-stack and data apps.\n2. 5 top Python web frameworks # 1- Flask # Flask is undoubtedly one of the leading Python frameworks in 2026. Available under the BSD license and inspired by the Sinatra Ruby framework, Flask depends on the WSGI toolkit and the Jinja2 template. The basic functionality of a Flask framework is to help lay a stable web application base. Once this is done, you can use any extensions of your choice ...\n3. Compare the best Python frameworks for web development, backend APIs, machine learning, and data science. Expert guide to Django, FastAPI, TensorFlow &amp; more.\n4. Explore the top Python frameworks for web development, including Django, Flask, Pyramid, and Tornado. Learn their features, use cases, and examples.\n5. Explore the best Python frameworks for web development in 2026, and discover the top tools for building robust, innovative web applications.",
+  "error_message": "",
+  "elapsed_seconds": 3.66,
+  "tool_calls": [
+    {
+      "tool": "WebSearch",
+      "args": {
+        "query": "most popular Python web frameworks 2026"
+      },
+      "result": "Search results for 'most popular Python web frameworks 2026':\n1. Top Python Web Development Frameworks in 2026 A comprehensive comparison of Reflex, Django, Flask, Gradio, Streamlit, Dash, and FastAPI\u2014the top Python web frameworks in 2026 for full-stack and data apps.\n2. 5 top Python web frameworks # 1- Flask # Flask is undoubtedly one of the leading Python frameworks in 2026. Available under the BSD license and inspired by the Sinatra Ruby framework, Flask depends on the WSGI toolkit and the Jinja2 template. The basic functionality of a Flask framework is to help lay a stable web application base. Once this is done, you can use any extensions of your choice ...\n3. Compare the best Python frameworks for web development, backend APIs, machine learning, and data science. Expert guide to Django, FastAPI, TensorFlow &amp; more.\n4. Explore the top Python frameworks for web development, including Django, Flask, Pyramid, and Tornado. Learn their features, use cases, and examples.\n5. Explore the best Python frameworks for web development in 2026, and discover the top tools for building robust, innovative web applications."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 702,
+    "completion_tokens": 37,
+    "total_tokens": 739
+  }
+}

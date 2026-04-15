@@ -1,0 +1,98 @@
+{
+  "id": "2c4c4d7f-4175-4ab5-9674-6241a911e50c",
+  "name": "paris_rome_travel_comparison",
+  "description": "Research top 3 tourist attractions in Paris and Rome, compare them side by side, and save to a markdown file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "research_paris_attractions",
+      "description": "You MUST call web_search to find the top 3 tourist attractions in Paris. Search for 'top 3 tourist attractions Paris 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Output format: Include all URLs, titles, and description snippets from the search results.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 URLs with titles and snippets mentioning Paris tourist attractions",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "research_rome_attractions",
+      "description": "You MUST call web_search to find the top 3 tourist attractions in Rome. Search for 'top 3 tourist attractions Rome 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Output format: Include all URLs, titles, and description snippets from the search results.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 URLs with titles and snippets mentioning Rome tourist attractions",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "analyze_and_format_comparison",
+      "description": "Extract the top 3 tourist attractions from task_001 (Paris) and task_002 (Rome) based on the search results. For each attraction, extract: name, brief description (2-3 sentences). Create a side-by-side markdown comparison table with columns: Attraction Name, City, Description. Do NOT invent attraction names or descriptions \u2014 cite only what appears in task_001 and task_002 outputs. If fewer than 3 attractions are clearly identifiable, say 'insufficient data' for missing entries. Output format: Markdown table with headers | Attraction | City | Description |",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output is a valid markdown table with 6 rows (3 Paris + 3 Rome) containing attraction names and descriptions sourced from previous tasks",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "save_to_file",
+      "description": "You MUST call file_write to save the markdown comparison from task_003 to a file named 'travel_comparison.md'. Use the exact output from task_003 as the file content. The file path should be 'travel_comparison.md'. Do NOT modify or summarize the content \u2014 write it verbatim.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'travel_comparison.md' is created and contains the markdown table from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "goal": "Research top 3 tourist attractions in Paris and Rome, compare them, and save to file"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "id": "724907e8-c484-4b56-a831-a7024def542f",
+  "name": "Multiplication Table Analysis",
+  "description": "Generate a multiplication table (1-10), save it to a file, read it back, and find the most frequent product",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate multiplication table",
+      "description": "You MUST call python_exec to generate a complete multiplication table for numbers 1-10. Write Python code that creates a multiplication table (10x10) and saves it to a file named 'multiplication_table.txt'. Each row should contain products like '1x1=1, 1x2=2, ..., 1x10=10'. Output the complete file path where the table was saved.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains confirmation that a file named 'multiplication_table.txt' was created with the multiplication table data",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read multiplication table file",
+      "description": "You MUST call file_read to read the contents of 'multiplication_table.txt' that was created in task_001. Output the file contents verbatim. Do NOT summarize as 'file was read' \u2014 downstream tasks need the actual multiplication table data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete multiplication table data from the file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Analyze frequency of products",
+      "description": "You MUST call python_exec to analyze the multiplication table data from task_002. Write Python code that parses all the products from the multiplication table and counts which product value appears most frequently. The code should extract all product values, count their occurrences, and identify the most frequent one(s). Output the analysis results including: the most frequent product value(s), how many times it appears, and a frequency distribution of all products.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output identifies the most frequent product value and how many times it appears in the multiplication table",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save analysis results",
+      "description": "You MUST call file_write to save the frequency analysis results from task_003 to a file named 'multiplication_analysis.txt'. The file should contain the most frequent product value, its count, and any additional frequency statistics. Format the output clearly for human readability.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms that 'multiplication_analysis.txt' was created with the frequency analysis results",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal_type": "computational_analysis"
+  }
+}

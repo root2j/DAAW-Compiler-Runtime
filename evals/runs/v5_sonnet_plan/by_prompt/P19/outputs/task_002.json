@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "output": "The current date is April 15. Historical events for April 15 include:\n\n* Historical events for the 15th of April. See what famous, interesting and notable events happened throughout history on April 15.\n* Discover what happened on April 15 with HISTORY&amp;#8217;s summaries of major events, anniversaries, famous births and notable deaths.\n* On This Day In History - April 15: anniversaries, birthdays, major events, and time capsules. This day&#x27;s facts in the arts, politics, and sciences.\n* April 15 is the 105th day of the year (106th in leap years) in the Gregorian calendar; 260 days remain until the end of the year.\n* Discover all the significant facts and events that took place on April 15th throughout history. Explore this remarkable day in history with captivating stories and intriguing historical moments.\n\nSearch results for 'what happened on April 15 in history or April 15 in history events':\n* A Dictionary of the English Language, the first home phone, the Titanic sinks and other historical events, facts, birthdays and deaths from April 15.\n* Discover what happened on April 15 with HISTORY&amp;#8217;s summaries of major events, anniversaries, famous births and notable deaths.\n* Discover all the significant facts and events that took place on April 15th throughout history. Explore this remarkable day in history with captivating stories and intriguing historical moments.\n* On This Day In History - April 15: anniversaries, birthdays, major events, and time capsules. This day&#x27;s facts in the arts, politics, and sciences.\n* April 15 is the 105th day of the year (106th in leap years) in the Gregorian calendar; 260 days remain until the end of the year.",
+  "error_message": "",
+  "elapsed_seconds": 5.52,
+  "tool_calls": [
+    {
+      "tool": "WebSearch",
+      "args": {
+        "query": "historical events on April 15"
+      },
+      "result": "Search results for 'historical events on April 15':\n1. Historical events for the 15th of April. See what famous, interesting and notable events happened throughout history on April 15.\n2. Discover what happened on April 15 with HISTORY&amp;#8217;s summaries of major events, anniversaries, famous births and notable deaths.\n3. On This Day In History - April 15: anniversaries, birthdays, major events, and time capsules. This day&#x27;s facts in the arts, politics, and sciences.\n4. April 15 is the 105th day of the year (106th in leap years) in the Gregorian calendar; 260 days remain until the end of the year.\n5. Discover all the significant facts and events that took place on April 15th throughout history. Explore this remarkable day in history with captivating stories and intriguing historical moments."
+    },
+    {
+      "tool": "WebSearch",
+      "args": {
+        "query": "what happened on April 15 in history or April 15 in history events"
+      },
+      "result": "Search results for 'what happened on April 15 in history or April 15 in history events':\n1. A Dictionary of the English Language, the first home phone, the Titanic sinks and other historical events, facts, birthdays and deaths from April 15.\n2. Discover what happened on April 15 with HISTORY&amp;#8217;s summaries of major events, anniversaries, famous births and notable deaths.\n3. Discover all the significant facts and events that took place on April 15th throughout history. Explore this remarkable day in history with captivating stories and intriguing historical moments.\n4. On This Day In History - April 15: anniversaries, birthdays, major events, and time capsules. This day&#x27;s facts in the arts, politics, and sciences.\n5. April 15 is the 105th day of the year (106th in leap years) in the Gregorian calendar; 260 days remain until the end of the year."
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 881,
+    "completion_tokens": 377,
+    "total_tokens": 1258
+  }
+}

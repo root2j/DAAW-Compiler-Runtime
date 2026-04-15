@@ -1,0 +1,76 @@
+{
+  "id": "b1019d72-36b1-43c0-9934-5bd01caee62d",
+  "name": "Top Programming Languages 2026 Research",
+  "description": "Search for the top 5 programming languages in 2026 by popularity, extract key advantages and criticisms, and format as a numbered list",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for top programming languages 2026",
+      "description": "You MUST call WebSearch to find information about the most popular programming languages in 2026 by popularity. Search for terms like 'top programming languages 2026 popularity' or 'most popular programming languages 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data with complete URLs, titles, and text snippets.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 5 search results with complete URLs, titles, and snippets that mention programming languages and popularity rankings for 2026",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract top 5 languages with advantages and criticisms",
+      "description": "You MUST call python_exec to parse and analyze the search results from task_001. Extract the top 5 programming languages by popularity in 2026. For each language, identify one key advantage and one common criticism mentioned in the search results. Do NOT invent or hallucinate information \u2014 only extract facts that appear in task_001's search results. Cite the source URL from task_001 for each language. If a language's advantage or criticism is not found in the results, state 'not found in search results' rather than inventing one. Output format: JSON array of objects with fields {rank, language, advantage, criticism, source_url}.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a structured list of exactly 5 programming languages, each with rank, name, advantage, criticism, and source_url field that references URLs from task_001's output",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Format and save numbered list",
+      "description": "You MUST call file_write to save the final results to a file named 'top_languages_2026.txt'. Format the data from task_002 as a numbered list where each entry shows: the language name, its key advantage, its common criticism, and the source URL. Use clear formatting with line breaks between entries. Example format:\n1. [Language Name]\n   Advantage: [advantage text]\n   Criticism: [criticism text]\n   Source: [URL]",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "A file named 'top_languages_2026.txt' is created containing a numbered list of 5 entries, each showing language name, advantage, criticism, and source URL",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "goal_type": "research_and_summarize",
+    "requires_web_search": true,
+    "output_file": "top_languages_2026.txt"
+  }
+}

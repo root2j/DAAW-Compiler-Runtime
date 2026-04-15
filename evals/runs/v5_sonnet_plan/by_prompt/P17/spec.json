@@ -1,0 +1,75 @@
+{
+  "id": "7440f9f7-0916-4e65-872e-238174bd765e",
+  "name": "GDP per Capita Analysis",
+  "description": "Research top 5 economies by GDP, find their populations, calculate GDP per capita, rank them, and save results to file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research GDP and Population Data",
+      "description": "You MUST call WebSearch to find the GDP and population of the top 5 economies in the world (2026 or latest available data). Search for 'top 5 economies by GDP 2026' and 'population of [country]' for each. Output the FULL raw search results verbatim including all URLs, titles, and snippets with the actual GDP values and population numbers. Do NOT summarize as 'data was found' \u2014 downstream tasks need the actual numerical data. Output format: For each of the 5 countries, include: country name, GDP value with units (USD billions/trillions), population value with units, and source URL.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains 5 country names with corresponding GDP values (in USD), population values (numerical), and at least one source URL from WebSearch results",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Calculate GDP per Capita",
+      "description": "You MUST call python_exec to calculate GDP per capita for each country. Extract the GDP and population data from task_001's output. Do NOT invent numbers \u2014 only use data explicitly present in task_001. Write Python code that: (1) parses the 5 countries with their GDP and population from task_001, (2) calculates GDP per capita = GDP / population for each, (3) sorts by GDP per capita highest to lowest, (4) outputs a formatted list. If any data is missing from task_001, output 'data not found for [country]'. Output format: Python code that prints ranked list like '1. [Country]: GDP per capita $X'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains Python execution results showing 5 countries ranked by GDP per capita with numerical values, sorted highest to lowest",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save Results to File",
+      "description": "You MUST call file_write to save the ranked GDP per capita analysis from task_002 to a file named 'gdp_analysis.txt'. The file content should include the ranked list of countries with their GDP per capita values. Use the exact output from task_002's Python execution.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "file_write tool successfully called with filename 'gdp_analysis.txt' containing the ranked GDP per capita data",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal_type": "research_and_analysis"
+  }
+}

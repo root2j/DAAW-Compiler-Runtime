@@ -1,0 +1,7 @@
+{
+  "id": "P20",
+  "category": "Automation Simulation",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Use Python to generate a random 16-character password containing uppercase, lowercase, digits, and special characters. Then search the web for current password security best practices. Write both the generated password and the security tips to \"password_guide.txt\"."
+}

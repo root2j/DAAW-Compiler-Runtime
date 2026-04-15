@@ -1,0 +1,72 @@
+{
+  "id": "a06d34aa-4e57-4c25-b308-2cfe64781d74",
+  "name": "Generate and Analyze Age Groups",
+  "description": "Create a CSV of 50 random people with ages, group by decade, and save analysis",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Random Names CSV",
+      "description": "You MUST call python_exec to execute Python code that: 1) Generates exactly 50 random names with random ages between 18-65 inclusive, 2) Saves as 'people.csv' with headers 'name,age'. Use a list of common names like ['Alice','Bob','Charlie','Diana','Eve','Frank','Grace','Henry','Ivy','Jack','Kate','Liam','Mia','Noah','Olivia','Paul','Quinn','Rose','Sam','Tina'] and random.randint(18,65) for ages. Output the FULL absolute path where the CSV was saved and confirm it contains exactly 50 rows.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete file path to people.csv and confirms 50 entries were created",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Analyze Age Groups by Decade",
+      "description": "You MUST call python_exec to execute Python code that: 1) Reads 'people.csv' from the path in task_001's output, 2) Groups ages into decades (Teens:18-19, Twenties:20-29, Thirties:30-39, Forties:40-49, Fifties:50-59, Sixties:60-65), 3) Counts how many people fall into each decade group. Output the COMPLETE analysis results verbatim with each decade label and its exact count. Do NOT summarize as 'analysis complete' \u2014 downstream task needs the actual text. Output format example: 'Teens (18-19): 3 people\\nTwenties (20-29): 12 people\\nThirties (30-39): 8 people\\n...'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the full text analysis showing all 6 age decade groups (Teens through Sixties) with their counts referenced from task_001's CSV",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save Analysis to age_groups.txt",
+      "description": "You MUST call file_write to save the age group analysis text from task_002's output into a file named 'age_groups.txt'. Extract the complete decade count text from task_002 (the lines showing 'Teens...', 'Twenties...', etc. with counts) and write it verbatim to the file. Do NOT modify, truncate, or summarize the analysis text.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms age_groups.txt was successfully created and contains the complete decade analysis text from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

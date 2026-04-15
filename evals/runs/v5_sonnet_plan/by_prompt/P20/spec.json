@@ -1,0 +1,77 @@
+{
+  "id": "6bb1718b-ef0c-4e7b-a91f-18fc1562b794",
+  "name": "Generate Password and Security Guide",
+  "description": "Generate a random 16-character password using Python, research current password security best practices via web search, and save both to a text file.",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Random Password",
+      "description": "You MUST call python_exec to generate a random 16-character password. Write Python code that: (1) imports random and string modules, (2) creates a character pool containing uppercase letters (A-Z), lowercase letters (a-z), digits (0-9), and special characters (!@#$%^&*()_+-=[]{}|;:,.<>?), (3) uses random.choice() to select exactly 16 characters from this pool, (4) prints ONLY the generated password string with no additional text. Output the EXACT password generated - do NOT summarize as 'password generated'. The downstream task needs the actual password string.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains a single 16-character string that includes at least one character from each category (uppercase, lowercase, digit, special character).",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search Password Security Best Practices",
+      "description": "You MUST call web_search (or WebSearch if web_search is unavailable) to find current password security best practices for 2026. Search query should be: 'password security best practices 2026'. Output the FULL raw search results verbatim including all URLs, titles, and snippets. Do NOT summarize as 'results were found' - the downstream task needs the actual data to extract security tips. Include at least 3-5 search results with complete information.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch",
+          "brave_search",
+          "google_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 complete search results with URLs starting with https://, titles, and description snippets about password security.",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write Password Guide File",
+      "description": "You MUST call file_write to create 'password_guide.txt'. Extract the password from task_001's output (it should be a 16-character string). Extract the key security tips from task_002's search results (summarize the main recommendations from the snippets, including tips about password length, complexity, storage, multi-factor authentication, etc.). Format the file as follows: First section titled 'Generated Password:' with the exact password from task_001 on the next line. Then a blank line. Then section titled 'Password Security Best Practices (2026):' followed by bullet points of the main tips extracted from task_002's search results. Include source URLs at the bottom.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'password_guide.txt' is created containing the 16-character password from task_001 and at least 5 security best practices extracted from task_002's search results, with source URLs included.",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal_type": "password_generation_and_research"
+  }
+}

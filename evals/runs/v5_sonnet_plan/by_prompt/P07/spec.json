@@ -1,0 +1,73 @@
+{
+  "id": "fcb91e23-c4a9-4784-ad76-d60997b7d633",
+  "name": "Employee Salary Analysis Workflow",
+  "description": "Create employee data, calculate salary statistics, and generate a summary report",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create employee JSON file",
+      "description": "You MUST call file_write to create a file named 'employees.json' containing exactly 5 employee records. Each record must have: name (string), department (string), and salary (number). Use valid JSON array format. Output the full path of the created file and confirm all 5 records were written.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains confirmation that employees.json was created with 5 employee records in valid JSON format",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Calculate salary statistics",
+      "description": "You MUST call file_read to read the employees.json file from task_001. Then you MUST call python_exec to calculate: (1) the average salary of all employees, (2) the name and salary of the highest-paid employee. Output the EXACT numerical results with employee name. Do NOT round or summarize. Output format: 'Average salary: $X, Highest paid: Name ($Y)'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a specific average salary number and identifies the highest-paid employee by name with their exact salary",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write salary report",
+      "description": "You MUST call file_write to create 'salary_report.txt' containing a summary report. The report must include: (1) total number of employees (5), (2) average salary from task_002, (3) highest-paid employee name and salary from task_002. Format it as a readable text report with clear section headers.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms that salary_report.txt was created and contains the average salary and highest-paid employee information from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

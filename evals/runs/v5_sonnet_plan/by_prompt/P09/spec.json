@@ -1,0 +1,75 @@
+{
+  "id": "6b33d77c-169b-4588-a9ce-b724c3d82c55",
+  "name": "Public APIs Animals Category Analysis",
+  "description": "Fetch public APIs list, filter Animals category, count and report",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Fetch Public APIs Data",
+      "description": "You MUST call http_request to fetch data from https://api.publicapis.org/entries. Output the FULL raw response body verbatim. Do NOT summarize as 'data fetched' \u2014 downstream tasks need the actual JSON data. Output format: complete JSON response.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "http_request"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains raw JSON data from the API endpoint with 'entries' field",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Filter and Count Animals Category",
+      "description": "You MUST call python_exec to process the JSON data from task_001. Write Python code that: 1) Parses the JSON from task_001's output, 2) Filters entries where Category == 'Animals', 3) Counts them, 4) Extracts their names (API field). Do NOT invent data. If no Animals category found, say 'not found'. Output format: JSON object with {count: number, names: [list of API names]}.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a count number and a list of API names from the Animals category referencing task_001's data",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Generate Final Report",
+      "description": "You MUST call file_write to save the results from task_002. Create a human-readable report that includes: 1) The count of APIs in Animals category from task_002, 2) A list of all their names. Save to 'animals_api_report.txt'. Format should be clear and readable with proper labels.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms file was written and contains the count and complete list of animal API names from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "goal": "Fetch and analyze public APIs to count and list Animals category entries"
+  }
+}

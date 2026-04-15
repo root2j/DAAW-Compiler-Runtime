@@ -1,0 +1,7 @@
+{
+  "id": "P17",
+  "category": "Multi-Step Research & Analysis",
+  "complexity": "Complex",
+  "characteristics": "Parallel + Linear",
+  "text": "Research the GDP of the top 5 economies in the world. For each country, also find their population. Use Python to calculate GDP per capita for each. Sort by GDP per capita (highest first) and save the ranked list to \"gdp_analysis.txt\"."
+}

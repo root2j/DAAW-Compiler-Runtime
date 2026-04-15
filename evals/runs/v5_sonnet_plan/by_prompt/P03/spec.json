@@ -1,0 +1,73 @@
+{
+  "id": "712a3a58-29eb-411e-bccb-766443886f8e",
+  "name": "Find Recent SpaceX Launches",
+  "description": "Search for the 3 most recent SpaceX launches, extract mission details, and save to file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for recent SpaceX launches",
+      "description": "You MUST call web_search to find the 3 most recent SpaceX launches in 2026. Use search query 'SpaceX launches 2026 recent' or 'latest SpaceX launches April 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data with launch names, dates, and success information.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains raw search results with at least 3 URLs and snippets mentioning SpaceX launches with dates and mission names",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract launch information",
+      "description": "Using ONLY the search results from task_001, extract information about the 3 most recent SpaceX launches. For each launch identify: (1) mission name, (2) launch date, (3) success status. Cite which search result snippet each fact came from. Do NOT invent mission names or dates not present in task_001 output. If fewer than 3 launches found, report available ones. Output format: Numbered list with mission name, date, and success status for each launch.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains up to 3 SpaceX launches, each with mission name, date, and success status clearly listed",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write results to file",
+      "description": "You MUST call file_write to save the SpaceX launch information from task_002 to a file. Use file_path='spacex_launches.txt' and format the content with clear headers showing the 3 most recent SpaceX launches with their mission name, date, and success status.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "file_write tool successfully called with file_path='spacex_launches.txt' containing formatted information for the SpaceX launches",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "goal": "Find 3 most recent SpaceX launches and save to file",
+    "created_at": "2026-04-15"
+  }
+}

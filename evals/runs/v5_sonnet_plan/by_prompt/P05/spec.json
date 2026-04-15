@@ -1,0 +1,49 @@
+{
+  "id": "d61f800e-575d-407f-9a5a-4cdbc296c440",
+  "name": "Fibonacci Script Generator",
+  "description": "Generate a Python script that creates the first 20 Fibonacci numbers and calculates their average",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate and Test Fibonacci Code",
+      "description": "You MUST call python_exec to write and execute Python code that generates the first 20 Fibonacci numbers and calculates their average. The code should: (1) Generate a list of the first 20 Fibonacci numbers starting with 0, 1, (2) Calculate the average of these numbers, (3) Print both the list and the average. Output the FULL Python code that was executed verbatim, followed by the execution results. Do NOT summarize - downstream tasks need the actual code. Output format: Complete Python code text, then a separator line, then execution output.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains complete Python code and execution results showing exactly 20 Fibonacci numbers and their calculated average",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Save Python Script to File",
+      "description": "You MUST call file_write to save the Python code from task_001's output as a file named 'fibonacci_script.py'. Extract only the Python code portion from task_001 (not the execution results or separator). The file should contain the complete, executable Python script. Do NOT invent new code - use exactly the code that was tested in task_001.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "A file named 'fibonacci_script.py' has been created containing valid Python code that matches the tested code from task_001",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

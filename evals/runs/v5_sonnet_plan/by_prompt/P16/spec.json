@@ -1,0 +1,98 @@
+{
+  "id": "0cbbd9e4-d2e7-477e-9d1f-9b2b0e16e422",
+  "name": "Excel Alternatives Research and Comparison",
+  "description": "Search for top 3 open-source Excel alternatives, gather version/license/feature details, and create a markdown comparison table",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for open-source Excel alternatives",
+      "description": "You MUST call web_search to find the top open-source alternatives to Microsoft Excel. Search for 'best open source spreadsheet software alternatives to Excel' or similar queries. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data including application names and descriptions.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains raw search results with at least 3 different open-source spreadsheet application names clearly mentioned with their URLs",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Gather version, license, and feature details",
+      "description": "You MUST call web_search multiple times to find information about the top 3 alternatives from task_001. For EACH of the 3 alternatives, search for: latest version number, license type, and one unique feature. Output the FULL raw search results verbatim for each search query, including URLs. Do NOT invent version numbers, licenses, or features \u2014 cite the source. If specific information is not found, say 'not found' for that field. Output format: clearly label which data belongs to which alternative.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains search results with version numbers, license types, and unique features for 3 alternatives, with source URLs cited",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Create markdown comparison table",
+      "description": "You MUST call python_exec to create a markdown table from task_002's data. Write Python code that extracts the 3 alternatives with their version, license, and unique feature from task_002's output, then formats them as a markdown table with columns: Name, Latest Version, License Type, Unique Feature. The code should print the complete markdown table including header row and 3 data rows. Use proper markdown table syntax with | separators and alignment dashes.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output is a valid markdown table with 4 columns (Name, Latest Version, License Type, Unique Feature) and 3 data rows",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save comparison table to file",
+      "description": "You MUST call file_write to save the markdown table from task_003 to a file named 'spreadsheet_alternatives.md'. Use the exact markdown table output from task_003 as the file content. The file path should be 'spreadsheet_alternatives.md'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'spreadsheet_alternatives.md' is created containing the markdown table from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "goal": "Search web for top 3 open-source Excel alternatives and create markdown comparison table",
+    "created_at": "2026-04-15"
+  }
+}

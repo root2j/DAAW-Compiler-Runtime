@@ -1,0 +1,16 @@
+# P18 — Multi-Step Research & Analysis
+# complexity: Complex
+# characteristics: Linear
+# prompt: Search the web for the 5 most popular Python web frameworks in 2026. For each framework, find its GitHub star count (search for it). Use Python to create a bar chart description (text-based, not image) ranking them by stars. Save everything to "python_frameworks_report.md".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 47.7s
+          · task_001: Search for popular Python web frameworks  [deps=-] [tools=WebSearch]
+          · task_002: Find GitHub star counts  [deps=task_001] [tools=WebSearch]
+          · task_003: Create text-based bar chart  [deps=task_002] [tools=python_exec]
+          · task_004: Save report to markdown file  [deps=task_003] [tools=file_write]
+[task success] task_001 (3.7s, 1 tool calls)
+[task failure] task_002 (1.3s, 0 tool calls)
+[critic PASS] task_001  — The output contains at least 5 distinct Python web framework names mentioned in 
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 62.3s  api_calls=5  tokens=2573

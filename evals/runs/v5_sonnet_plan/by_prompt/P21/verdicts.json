@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search Latest Tech News",
+    "verdict": "PASS",
+    "reasoning": "Output contains a JSON array with at least 5 tech news headlines, each having title, url, and snippet fields with actual URLs starting with https://"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Classify Headlines",
+    "verdict": "PASS",
+    "reasoning": "Output contains a valid JSON array with exactly 5 objects, each having headline, url, sentiment, and sector fields."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Write Results to File",
+    "verdict": "PASS",
+    "reasoning": "Task completed successfully and the output indicates the results were written to a file."
+  }
+]
