@@ -17,6 +17,9 @@ class ToolDefinition:
 class ToolRegistry:
     def __init__(self) -> None:
         self._tools: dict[str, ToolDefinition] = {}
+        # Invalidation flags reset by register(); recomputed lazily.
+        self._names_cache: frozenset[str] | None = None
+        self._lower_cache: dict[str, str] | None = None
 
     def register(
         self,
@@ -33,12 +36,32 @@ class ToolRegistry:
                 parameters=parameters or {"type": "object", "properties": {}},
                 handler=fn,
             )
+            self._names_cache = None  # invalidate
+            self._lower_cache = None
             return fn
 
         return decorator
 
     def get(self, name: str) -> ToolDefinition | None:
         return self._tools.get(name)
+
+    def names(self) -> frozenset[str]:
+        """Cached set of registered tool names — cheap in hot paths."""
+        if self._names_cache is None:
+            self._names_cache = frozenset(self._tools.keys())
+        return self._names_cache
+
+    def resolve_name(self, name: str) -> str | None:
+        """Find a tool by name, case-insensitively. Returns the canonical
+        registered name or None. LLMs frequently hallucinate capitalization
+        (Claude → ``WebSearch``, Llama → ``brave_search``), so the agent's
+        tool dispatcher uses this to map them back to real tools.
+        """
+        if name in self._tools:
+            return name
+        if self._lower_cache is None:
+            self._lower_cache = {n.lower(): n for n in self._tools}
+        return self._lower_cache.get(name.lower())
 
     def list_tools(self, allowed: list[str] | None = None) -> list[dict[str, Any]]:
         """Return OpenAI-style tool schemas, optionally filtered."""
