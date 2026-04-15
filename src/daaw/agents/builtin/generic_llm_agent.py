@@ -251,11 +251,32 @@ class GenericLLMAgent(BaseAgent):
                     tc_args = tc.arguments
                     tc_id = tc.id
 
-                if tools_allowed and tool_name not in tools_allowed:
-                    result_str = f"Tool '{tool_name}' is not allowed for this agent."
+                # Case-insensitive tool name resolution: LLMs hallucinate
+                # capitalization (Claude calls "WebSearch" instead of
+                # "web_search", Groq calls "brave_search"). Try exact
+                # match first, then lowercase, then known aliases.
+                resolved_name = tool_name
+                all_tools = {t.name for t in tool_registry._tools.values()}
+                if tool_name not in all_tools:
+                    # Try case-insensitive match.
+                    lower_map = {t.lower(): t for t in all_tools}
+                    if tool_name.lower() in lower_map:
+                        resolved_name = lower_map[tool_name.lower()]
+
+                if tools_allowed and resolved_name not in tools_allowed:
+                    # Also check case-insensitive against allowed list.
+                    allowed_lower = {t.lower() for t in tools_allowed}
+                    if resolved_name.lower() not in allowed_lower:
+                        result_str = f"Tool '{tool_name}' is not allowed for this agent."
+                    else:
+                        try:
+                            result = await tool_registry.execute(resolved_name, **tc_args)
+                            result_str = str(result)
+                        except Exception as e:
+                            result_str = f"Tool execution error: {e}"
                 else:
                     try:
-                        result = await tool_registry.execute(tool_name, **tc_args)
+                        result = await tool_registry.execute(resolved_name, **tc_args)
                         result_str = str(result)
                     except Exception as e:
                         result_str = f"Tool execution error: {e}"

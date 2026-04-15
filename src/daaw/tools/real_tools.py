@@ -403,3 +403,16 @@ async def real_search(query: str) -> str:
 )
 async def real_google_search(query: str) -> str:
     return await real_web_search(query)
+
+
+@tool_registry.register(
+    name="WebSearch",
+    description="Search the web for information (alias for web_search)",
+    parameters={
+        "type": "object",
+        "properties": {"query": {"type": "string", "description": "Search query"}},
+        "required": ["query"],
+    },
+)
+async def real_websearch_capitalized(query: str) -> str:
+    return await real_web_search(query)
