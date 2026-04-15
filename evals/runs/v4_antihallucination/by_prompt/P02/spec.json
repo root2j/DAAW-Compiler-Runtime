@@ -1,0 +1,73 @@
+{
+  "id": "4366a0af-3019-49a5-9e75-8d318d0d8f07",
+  "name": "Weather Comparison Workflow",
+  "description": "Research current weather in Tokyo, New York, and London and determine which is warmest/coldest",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search current weather data",
+      "description": "You MUST call web_search to find the current weather in Tokyo, New York, and London. Search for 'current weather Tokyo New York London temperature'. Output the FULL raw search results verbatim (URLs, titles, snippets, temperature values). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual temperature data. Output format: Include all snippets that mention temperature values for each city.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least one temperature value (in Celsius or Fahrenheit) for each of the three cities (Tokyo, New York, London) with URLs citing the sources",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Compare temperatures",
+      "description": "Extract the current temperature values for Tokyo, New York, and London from task_001's search results. Convert all temperatures to the same unit (Celsius) if needed. Compare the three values and determine which city is warmest and which is coldest. Do NOT invent temperatures \u2014 only use data from task_001. If a city's temperature is missing, say 'not found'. Output format: 'Tokyo: X\u00b0C, New York: Y\u00b0C, London: Z\u00b0C. Warmest: [city] at [temp]. Coldest: [city] at [temp].'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output explicitly states which city is warmest and which is coldest with actual temperature values cited from task_001",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save summary to file",
+      "description": "You MUST call file_write to save the temperature comparison summary from task_002 to a file named 'weather_comparison.txt'. The file content should be the complete comparison output from task_002.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File weather_comparison.txt is created and contains the comparison stating which city is warmest and coldest",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "goal": "Compare current weather temperatures across Tokyo, New York, and London"
+  }
+}

@@ -1,0 +1,17 @@
+# P17 — Multi-Step Research & Analysis
+# complexity: Complex
+# characteristics: Parallel + Linear
+# prompt: Research the GDP of the top 5 economies in the world. For each country, also find their population. Use Python to calculate GDP per capita for each. Sort by GDP per capita (highest first) and save the ranked list to "gdp_analysis.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 42.5s
+          · task_001: Research GDP and population data  [deps=-] [tools=WebSearch]
+          · task_002: Calculate GDP per capita  [deps=task_001] [tools=python_exec]
+          · task_003: Save ranked results to file  [deps=task_002] [tools=file_write]
+[task success] task_001 (29.7s, 6 tool calls)
+[task success] task_002 (40.7s, 3 tool calls)
+[task success] task_003 (7.0s, 1 tool calls)
+[critic PASS] task_001  — Output contains GDP values and population figures for at least 5 countries with 
+[critic PASS] task_002  — The task output contains calculated GDP per capita values for at least 5 countri
+[critic PASS] task_003  — The task has been completed successfully and the file 'gdp_analysis.txt' contain
+[DONE] total 122.5s  api_calls=11  tokens=11173

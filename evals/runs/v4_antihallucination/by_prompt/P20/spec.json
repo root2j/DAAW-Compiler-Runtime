@@ -1,0 +1,78 @@
+{
+  "id": "a63afabf-f53a-4089-8419-eef72c6f0e69",
+  "name": "Password Generation and Security Guide",
+  "description": "Generate a secure random password using Python and compile current password security best practices from web research into a guide file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate Random Password",
+      "description": "You MUST call python_exec to generate a random 16-character password. Write Python code using the 'secrets' module and 'string' module. The password must contain uppercase letters, lowercase letters, digits, and special characters (!@#$%^&*). Output ONLY the generated password string itself on a single line, nothing else. Example output format: 'aB3!xY7@qW9#mN2$'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains exactly one 16-character string with uppercase, lowercase, digits, and special characters",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search Password Security Best Practices",
+      "description": "You MUST call web_search with the query 'password security best practices 2026'. Output the FULL raw search results verbatim including all URLs, titles, and snippets. Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data with specific security recommendations. Output format: List each result with its URL, title, and complete snippet text.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 URLs starting with https:// and their associated text snippets containing password security recommendations",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write Password Guide File",
+      "description": "You MUST call file_write to create the file 'password_guide.txt'. Use the exact password string from task_001 output and the search results from task_002 output. File content structure: Line 1: 'Generated Password:' Line 2: [paste exact password from task_001] Line 3: blank Line 4: 'Password Security Best Practices:' Line 5+: Extract 5-8 specific security tips from task_002 search snippets and format as bulleted list with '- ' prefix. Do NOT invent tips - only use information present in task_002 output.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File password_guide.txt exists and contains the 16-character password from task_001 and at least 5 security tips extracted from task_002 search results",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal_type": "password_generation_and_research",
+    "parallel_tasks": [
+      "task_001",
+      "task_002"
+    ]
+  }
+}

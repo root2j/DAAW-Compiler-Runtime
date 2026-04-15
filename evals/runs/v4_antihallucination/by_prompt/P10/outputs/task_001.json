@@ -1,0 +1,35 @@
+{
+  "status": "success",
+  "output": "The raw JSON responses from the API are:\n\n```\n{\"type\":\"general\",\"setup\":\"What kind of shoes does a thief wear?\",\"punchline\":\"Sneakers\",\"id\":9}\n\n{\"type\":\"general\",\"setup\":\"What do you call a pig with three eyes?\",\"punchline\":\"Piiig\",\"id\":213}\n```",
+  "error_message": "",
+  "elapsed_seconds": 6.11,
+  "tool_calls": [
+    {
+      "tool": "http_request",
+      "args": {
+        "headers": {},
+        "json_body": {},
+        "method": "GET",
+        "params": {},
+        "url": "https://official-joke-api.appspot.com/random_joke"
+      },
+      "result": "HTTP 200 OK\nHeaders: {'content-type': 'application/json; charset=utf-8', 'vary': 'Accept-Encoding', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'etag': 'W/\"60-JNvlidJWQP0xvPkqg15yJc7egyg\"', 'content-encoding': 'gzip', 'x-cloud-trace-context': '26728a717269e93e577093337f502461', 'date': 'Wed, 15 Apr 2026 07:44:38 GMT', 'server': 'Google Frontend', 'alt-svc': 'h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000', 'transfer-encoding': 'chunked'}\nBody (96 chars):\n{\"type\":\"general\",\"setup\":\"What kind of shoes does a thief wear?\",\"punchline\":\"Sneakers\",\"id\":9}"
+    },
+    {
+      "tool": "http_request",
+      "args": {
+        "headers": {},
+        "json_body": {},
+        "method": "GET",
+        "params": {},
+        "url": "https://official-joke-api.appspot.com/random_joke"
+      },
+      "result": "HTTP 200 OK\nHeaders: {'content-type': 'application/json; charset=utf-8', 'vary': 'Accept-Encoding', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'etag': 'W/\"61-Yp5jAwXjYd2jmmqRViKh8QF5bL0\"', 'content-encoding': 'gzip', 'x-cloud-trace-context': 'd867ff00500ad786c0c5cf52c40a2de6', 'date': 'Wed, 15 Apr 2026 07:44:39 GMT', 'server': 'Google Frontend', 'alt-svc': 'h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000', 'transfer-encoding': 'chunked'}\nBody (97 chars):\n{\"type\":\"general\",\"setup\":\"What do you call a pig with three eyes?\",\"punchline\":\"Piiig\",\"id\":213}"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1087,
+    "completion_tokens": 72,
+    "total_tokens": 1159
+  }
+}

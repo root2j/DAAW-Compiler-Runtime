@@ -1,0 +1,95 @@
+{
+  "id": "3b78667f-3027-4201-8167-4f584ca8ac38",
+  "name": "Product Inventory CSV Creation and Analysis",
+  "description": "Create a CSV file with sample product data, read it back, calculate total inventory value, and save the result",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create CSV File",
+      "description": "You MUST call file_write to create a CSV file named 'products.csv' with exactly 10 sample products. The CSV must have a header row: name,price,quantity. Then add 10 product rows with realistic data (e.g., 'Laptop,899.99,5'). Do NOT summarize - write the complete CSV content. Output format: Confirmation message including the full file path.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output confirms CSV file was created and contains 10 product rows plus header",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read CSV File",
+      "description": "You MUST call file_read to read the 'products.csv' file created in task_001. Output the file contents verbatim - do NOT summarize as 'file was read successfully'. Downstream tasks need the actual CSV data. Output format: The complete CSV content including all rows.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete CSV content with header row and 10 product rows",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Calculate Inventory Value",
+      "description": "You MUST call python_exec to calculate the total inventory value from task_002's CSV data. Write Python code that: 1) Parses the CSV content, 2) For each product row, calculates price * quantity, 3) Sums all values, 4) Prints the result. Use the csv module or simple string parsing. Output format: Print statement showing 'Total Inventory Value: $XXXX.XX'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains a numeric total inventory value calculated from all 10 products",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Result",
+      "description": "You MUST call file_write to save the total inventory value from task_003 to a file named 'inventory_result.txt'. The file should contain a summary: the total value calculated and a brief note about the 10 products analyzed. Output format: Confirmation message with the file path.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms result file was created with the calculated inventory value",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

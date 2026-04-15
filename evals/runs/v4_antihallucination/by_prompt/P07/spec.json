@@ -1,0 +1,76 @@
+{
+  "id": "24a39f36-7628-42dd-8816-cc6660640c3a",
+  "name": "Employee Salary Analysis Workflow",
+  "description": "Create employee records, analyze salaries, and generate a summary report",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create Employee JSON File",
+      "description": "You MUST call file_write to create a file named 'employees.json'. The file MUST contain a JSON array of exactly 5 employee records. Each record MUST have three fields: 'name' (string), 'department' (string), and 'salary' (number). Use realistic employee data with varied salaries (between 40000 and 120000) and different departments (e.g., Engineering, Sales, Marketing, HR, Finance). Output format: Confirm the file was written and include the complete JSON content verbatim.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output confirms 'employees.json' was created and shows the complete JSON array with exactly 5 employee objects, each containing name, department, and salary fields",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read File and Calculate Salary Statistics",
+      "description": "You MUST call file_read to read 'employees.json' created in task_001. Then you MUST call python_exec to: (1) parse the JSON data, (2) calculate the average salary across all 5 employees, (3) identify the highest-paid employee (name, department, salary). Output the FULL calculation results verbatim, not a summary. Include: the complete employee list, the exact average salary (as a number), and the complete details of the highest-paid employee. Output format: JSON object with keys 'employees' (array), 'average_salary' (number), 'highest_paid_employee' (object with name, department, salary).",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the raw file contents from employees.json AND a JSON object with 'average_salary' as a number and 'highest_paid_employee' as an object with all three fields",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write Salary Report Summary",
+      "description": "You MUST call file_write to create 'salary_report.txt'. Use the calculation results from task_002 to write a human-readable summary report. The report MUST include: (1) Total number of employees analyzed, (2) Average salary formatted as currency, (3) Highest-paid employee's name, department, and salary formatted as currency. Format the report as clear, professional text with appropriate headers and formatting. Do NOT invent numbers \u2014 use only the exact values from task_002's output.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms 'salary_report.txt' was created and contains references to the average salary and highest-paid employee data from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "workflow_planner",
+    "goal_type": "data_processing_and_reporting"
+  }
+}

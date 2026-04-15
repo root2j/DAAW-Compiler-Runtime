@@ -1,0 +1,72 @@
+{
+  "id": "b7bb91a0-2c17-4fb3-a5ed-786c7d9311e8",
+  "name": "GDP Analysis Workflow",
+  "description": "Research GDP and population data for top 5 economies, calculate GDP per capita, and save ranked results",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research GDP and population data",
+      "description": "You MUST call WebSearch to find GDP and population data for the top 5 economies in the world in 2026 (USA, China, Japan, Germany, India). Search for current GDP figures and population statistics. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data with specific GDP values in USD/trillions and population numbers.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains GDP values and population figures for at least 5 countries with actual numbers extracted from search results",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Calculate GDP per capita",
+      "description": "You MUST call python_exec to calculate GDP per capita for each country from task_001's data. Extract the GDP (in USD) and population numbers from task_001's output. Write Python code that: 1) Parses the GDP and population data for each country, 2) Calculates GDP per capita as GDP divided by population, 3) Sorts countries by GDP per capita in descending order (highest first). Output the complete results with country name, GDP, population, and calculated GDP per capita for each.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains calculated GDP per capita values for at least 5 countries, sorted in descending order with all source data preserved",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Save ranked results to file",
+      "description": "You MUST call file_write to save the ranked list from task_002 to the file 'gdp_analysis.txt'. Format the output as a clear ranked list with: rank number, country name, GDP, population, and GDP per capita for each country. The list must be sorted by GDP per capita from highest to lowest.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'gdp_analysis.txt' exists and contains ranked GDP per capita data for at least 5 countries",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

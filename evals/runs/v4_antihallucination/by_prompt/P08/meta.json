@@ -1,0 +1,7 @@
+{
+  "id": "P08",
+  "category": "Data Processing & Computation",
+  "complexity": "Medium",
+  "characteristics": "Linear",
+  "text": "Generate a multiplication table (1-10) using Python, save it to a file, then read the file back and find which product appears most frequently in the table."
+}

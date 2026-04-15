@@ -1,0 +1,73 @@
+{
+  "id": "807c8743-fb8d-4487-945f-28353fbf1629",
+  "name": "SpaceX Recent Launches Research",
+  "description": "Find the 3 most recent SpaceX launches and save mission details to a file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for recent SpaceX launches",
+      "description": "You MUST call web_search with the query 'SpaceX launches 2026 recent missions'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Include at least 5-10 search results with complete snippets that mention launch dates, mission names, and outcomes.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 URLs starting with https:// and snippets mentioning SpaceX launch dates or mission names from 2025-2026",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Extract launch details",
+      "description": "From task_001's search results, identify the 3 MOST RECENT SpaceX launches by date. For each launch extract: (1) mission name, (2) exact launch date, (3) success status (successful/failed/partial). Do NOT invent launch details. If a field is unclear from search results, write 'not found'. Sort by date descending (newest first). Output format: numbered list with 'Mission: <name>, Date: <date>, Status: <status>' for each of the 3 launches. Cite which search result snippet each launch came from.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains exactly 3 launches, each with Mission, Date, and Status fields filled in, sorted by date with newest first",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Write results to file",
+      "description": "You MUST call file_write to save the launch information from task_002 to a file named 'spacex_launches.txt'. Use the exact content from task_002's output without modification. The file_path parameter must be 'spacex_launches.txt'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms file_write was called successfully with path 'spacex_launches.txt' and content from task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "goal_type": "research_and_save"
+  }
+}

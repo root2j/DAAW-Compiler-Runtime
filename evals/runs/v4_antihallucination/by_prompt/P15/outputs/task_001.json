@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "output": "Created app_config.json with 4 configuration fields.",
+  "error_message": "",
+  "elapsed_seconds": 1.39,
+  "tool_calls": [
+    {
+      "tool": "file_write",
+      "args": {
+        "content": "{\"database_host\": \"localhost:5433\", \"database_port\": 5432, \"cache_ttl_seconds\": 3600, \"feature_flags\": {\"enable_logging\": true, \"dark_mode\": false, \"new_feature\": true, \"testing_flag\": false}}",
+        "path": "app_config.json"
+      },
+      "result": "Wrote 192 characters to app_config.json"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 579,
+    "completion_tokens": 11,
+    "total_tokens": 590
+  }
+}

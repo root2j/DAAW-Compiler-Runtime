@@ -1,0 +1,8 @@
+{
+  "status": "failure",
+  "output": null,
+  "error_message": "Request timed out.",
+  "elapsed_seconds": 42.8,
+  "tool_calls": [],
+  "usage": null
+}

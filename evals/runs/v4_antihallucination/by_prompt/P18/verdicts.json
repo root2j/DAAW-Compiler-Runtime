@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for top 5 Python web frameworks",
+    "verdict": "PASS",
+    "reasoning": "The task produced relevant content addressing the goal, listing 5 Python web frameworks and including raw search results."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Find GitHub star counts for all frameworks",
+    "verdict": "FAIL",
+    "reasoning": "Only 2 out of 5 frameworks have numeric star counts, and one of them is empty."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Generate text-based bar chart with Python",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

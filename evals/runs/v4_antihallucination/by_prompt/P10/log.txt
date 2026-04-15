@@ -1,0 +1,17 @@
+# P10 — API Interaction & HTTP
+# complexity: Medium
+# characteristics: Linear
+# prompt: Fetch a random joke from https://official-joke-api.appspot.com/random_joke, then search the web for the comedian who originated that style of joke. Write both the joke and your research to "joke_research.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 42.4s
+          · task_001: Fetch random joke from API  [deps=-] [tools=http_request]
+          · task_002: Search for comedian and joke style  [deps=task_001] [tools=web_search, WebSearch]
+          · task_003: Write joke and research to file  [deps=task_001, task_002] [tools=file_write]
+[task success] task_001 (6.1s, 2 tool calls)
+[task success] task_002 (62.9s, 6 tool calls)
+[task success] task_003 (1.5s, 1 tool calls)
+[critic PASS] task_001  — Output contains raw JSON response with 'setup' and 'punchline' fields from the A
+[critic PASS] task_002  — Output contains search results with at least one URL starting with https:// and 
+[critic PASS] task_003  — The task output indicates that the file 'joke_research.txt' has been created wit
+[DONE] total 117.5s  api_calls=10  tokens=9663

@@ -1,0 +1,73 @@
+{
+  "id": "654cacfb-f662-4cb4-9c95-541b7e1a2283",
+  "name": "Config File Creation and Documentation",
+  "description": "Create a JSON configuration file with database and feature flag settings, validate its contents, and generate markdown documentation",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Create JSON configuration file",
+      "description": "You MUST call file_write to create a file named 'app_config.json'. The JSON content MUST include these exact fields: 'database_host' (string, e.g. 'localhost'), 'database_port' (integer, e.g. 5432), 'cache_ttl_seconds' (integer, e.g. 3600), and 'feature_flags' (object containing at least 2 boolean flags with descriptive names like 'enable_logging' and 'dark_mode'). Use realistic production-like values. After creating the file, output a confirmation message stating 'Created app_config.json with 4 configuration fields.'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output confirms app_config.json was created and explicitly mentions all 4 required field names: database_host, database_port, cache_ttl_seconds, and feature_flags",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read and validate configuration file",
+      "description": "You MUST call file_read to read 'app_config.json'. Output the FULL file contents verbatim (do NOT summarize as 'file was read'). Then you MUST call python_exec to write Python code that: 1) Parses the JSON string, 2) Validates that these required fields exist: database_host, database_port, cache_ttl_seconds, feature_flags, 3) Prints each field name, its type, and its value in a readable format. The Python code must print the validation results. Output format: First the raw JSON contents, then the Python validation output showing all field details.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read",
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete raw JSON file contents AND validation results explicitly showing all 4 field names (database_host, database_port, cache_ttl_seconds, feature_flags) with their actual values and types",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Generate documentation markdown file",
+      "description": "You MUST call file_write to create 'config_docs.md'. Using the configuration field details from task_002's validation output, write a markdown documentation page with: 1) A level-1 header '# Configuration Documentation', 2) One level-2 header section for each of the 4 settings (database_host, database_port, cache_ttl_seconds, feature_flags), 3) Each section must include: the field name in a code block, the data type, the current value from task_002, and a 1-2 sentence description of what the setting controls. Use proper markdown formatting. After writing, output: 'Created config_docs.md documenting 4 configuration settings.'",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output confirms config_docs.md was created and explicitly states it documents all 4 configuration fields identified in task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

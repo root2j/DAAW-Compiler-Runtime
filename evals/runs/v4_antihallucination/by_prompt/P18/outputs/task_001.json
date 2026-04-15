@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "output": "Here are the 5 framework names extracted from the search results:\n\n1. Reflex\n2. Django\n3. Flask\n4. Gradio\n5. Streamlit\n\nRaw tool results (auto-attached \u2014 agent summary was too vague):\n\n[web_search(query='top 5 most popular Python web frameworks 2026')]\nSearch results for 'top 5 most popular Python web frameworks 2026':\n1. Learn about the 5 most popular Python web frameworks of 2026!\n2. A comprehensive comparison of Reflex, Django, Flask, Gradio, Streamlit, Dash, and FastAPI\u2014the top Python web frameworks in 2026 for full-stack and data apps.\n3. Python web development 2026 continues to dominate modern web application development due to its flexibility, scalability, and speed. With powerful frameworks, a massive developer ecosystem, and enterprise-grade performance, Python remains a top choice for startups, SaaS platforms, and large organizations. From API-driven systems to full-stack enterprise platforms, modern Python web development ...\n4. CANVA Best Python Frameworks 2026 (Updated) Introduction Choosing the right Python framework can be the deciding factor between a project that is delivered on schedule and one that slowly turns ...\n5. Python has some of the most frequently used frameworks that have been chosen due to the simplicity of development and minimal learning curve. Based on the latest Stack Overflow 2020 poll, 66 percent of programmers are using the two of the most popular Python web frameworks, Django and Flask, and would want to continue using \u2026 Top 5 Python Frameworks in 2026 Read More \u00bb",
+  "error_message": "",
+  "elapsed_seconds": 10.19,
+  "tool_calls": [
+    {
+      "tool": "web_search",
+      "args": {
+        "query": "top 5 most popular Python web frameworks 2026"
+      },
+      "result": "Search results for 'top 5 most popular Python web frameworks 2026':\n1. Learn about the 5 most popular Python web frameworks of 2026!\n2. A comprehensive comparison of Reflex, Django, Flask, Gradio, Streamlit, Dash, and FastAPI\u2014the top Python web frameworks in 2026 for full-stack and data apps.\n3. Python web development 2026 continues to dominate modern web application development due to its flexibility, scalability, and speed. With powerful frameworks, a massive developer ecosystem, and enterprise-grade performance, Python remains a top choice for startups, SaaS platforms, and large organizations. From API-driven systems to full-stack enterprise platforms, modern Python web development ...\n4. CANVA Best Python Frameworks 2026 (Updated) Introduction Choosing the right Python framework can be the deciding factor between a project that is delivered on schedule and one that slowly turns ...\n5. Python has some of the most frequently used frameworks that have been chosen due to the simplicity of development and minimal learning curve. Based on the latest Stack Overflow 2020 poll, 66 percent of programmers are using the two of the most popular Python web frameworks, Django and Flask, and would want to continue using \u2026 Top 5 Python Frameworks in 2026 Read More \u00bb"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 795,
+    "completion_tokens": 35,
+    "total_tokens": 830
+  }
+}

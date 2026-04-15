@@ -1,0 +1,12 @@
+{
+  "status": "failure",
+  "output": "{\n  \"total_words\": 346,\n  \"total_sentences\": 9\n}",
+  "error_message": "Task had tools_allowed=['python_exec'] but zero tool calls were made. Output is unverified (likely hallucination). If the task genuinely doesn't need tools, set tools_allowed=[].",
+  "elapsed_seconds": 3.8,
+  "tool_calls": [],
+  "usage": {
+    "prompt_tokens": 370,
+    "completion_tokens": 19,
+    "total_tokens": 389
+  }
+}

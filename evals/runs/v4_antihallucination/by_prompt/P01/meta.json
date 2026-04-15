@@ -1,0 +1,7 @@
+{
+  "id": "P01",
+  "category": "Web Research & Summarization",
+  "complexity": "Simple",
+  "characteristics": "Linear",
+  "text": "Search the web for the top 5 programming languages in 2026 by popularity. For each language, find one key advantage and one common criticism. Present the results as a numbered list."
+}

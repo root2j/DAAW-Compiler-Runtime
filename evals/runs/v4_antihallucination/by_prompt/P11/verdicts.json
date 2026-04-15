@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Fetch Cat Fact",
+    "verdict": "PASS",
+    "reasoning": "Output contains the raw JSON response from catfact.ninja API with a 'fact' field"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Fetch Random Fact",
+    "verdict": "PASS",
+    "reasoning": "Output contains the raw JSON response from uselessfacts.jsph.pl API with fact text"
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Compare Fact Lengths",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

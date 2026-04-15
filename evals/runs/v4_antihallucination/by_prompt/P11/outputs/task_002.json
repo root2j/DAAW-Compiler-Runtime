@@ -1,0 +1,24 @@
+{
+  "status": "success",
+  "output": "{\"id\":\"d8ed6756b4a941d342f7371453fefba0\",\"text\":\"The airplane Buddy Holly died in was the \\\"American Pie.\\\" (Thus the name of the Don McLean song.)\",\"source\":\"djtech.net\",\"source_url\":\"http://www.djtech.net/humor/useless_facts.htm\",\"language\":\"en\",\"permalink\":\"https://uselessfacts.jsph.pl/api/v2/facts/d8ed6756b4a941d342f7371453fefba0\"}",
+  "error_message": "",
+  "elapsed_seconds": 13.94,
+  "tool_calls": [
+    {
+      "tool": "http_request",
+      "args": {
+        "headers": {},
+        "json_body": {},
+        "method": "GET",
+        "params": {},
+        "url": "https://uselessfacts.jsph.pl/api/v2/facts/random"
+      },
+      "result": "HTTP 200 OK\nHeaders: {'access-control-allow-headers': 'Accept, Content-Type, Content-Length, Accept-Encoding, Authorization', 'access-control-allow-methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS', 'access-control-allow-origin': '*', 'content-length': '338', 'content-type': 'application/json; charset=UTF-8', 'date': 'Wed, 15 Apr 2026 07:46:53 GMT', 'server': 'nginx'}\nBody (338 chars):\n{\"id\":\"d8ed6756b4a941d342f7371453fefba0\",\"text\":\"The airplane Buddy Holly died in was the \\\"American Pie.\\\" (Thus the name of the Don McLean song.)\",\"source\":\"djtech.net\",\"source_url\":\"http://www.djtech.net/humor/useless_facts.htm\",\"language\":\"en\",\"permalink\":\"https://uselessfacts.jsph.pl/api/v2/facts/d8ed6756b4a941d342f7371453fefba0\"}\n"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 831,
+    "completion_tokens": 111,
+    "total_tokens": 942
+  }
+}

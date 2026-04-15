@@ -1,0 +1,18 @@
+# P16 — Multi-Step Research & Analysis
+# complexity: Medium
+# characteristics: Linear
+# prompt: Search the web for the top 3 open-source alternatives to Microsoft Excel. For each, find the latest version number, license type, and one unique feature. Create a markdown comparison table and save it to "spreadsheet_alternatives.md".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 4 tasks in 56.8s
+          · task_001: Search for Excel alternatives  [deps=-] [tools=WebSearch]
+          · task_002: Get detailed information  [deps=task_001] [tools=WebSearch]
+          · task_003: Create markdown table  [deps=task_002] [tools=python_exec]
+          · task_004: Save to file  [deps=task_003] [tools=file_write]
+[task success] task_001 (9.9s, 4 tool calls)
+[task success] task_002 (192.8s, 9 tool calls)
+[task failure] task_003 (47.3s, 0 tool calls)
+[critic PASS] task_001  — Output contains at least 3 URLs from WebSearch results and mentions at least 3 s
+[critic PASS] task_002  — The output contains search results with version numbers, license information, an
+[critic FAIL] task_003  — Task 'task_003' failed — automatic retry.
+[DONE] total 307.6s  api_calls=17  tokens=29164

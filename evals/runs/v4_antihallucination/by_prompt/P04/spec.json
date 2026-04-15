@@ -1,0 +1,97 @@
+{
+  "id": "5dd4ee6f-d688-4048-b169-512bc1219aed",
+  "name": "Paris vs Rome Tourist Attractions Comparison",
+  "description": "Research top 3 tourist attractions in Paris and Rome, compare them side by side, and save to travel_comparison.md",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Research Paris Attractions",
+      "description": "You MUST call web_search to find the top 3 tourist attractions in Paris, France. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data with attraction names and descriptions. Search query: 'top 3 must visit tourist attractions Paris France'. Output format: List of attraction names with their descriptions from search results.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 Paris tourist attraction names with descriptions and source URLs from web_search results",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Research Rome Attractions",
+      "description": "You MUST call web_search to find the top 3 tourist attractions in Rome, Italy. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data with attraction names and descriptions. Search query: 'top 3 must visit tourist attractions Rome Italy'. Output format: List of attraction names with their descriptions from search results.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 Rome tourist attraction names with descriptions and source URLs from web_search results",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Format Side-by-Side Comparison",
+      "description": "Using the Paris attractions from task_001 and Rome attractions from task_002, create a side-by-side markdown comparison. Extract exactly the top 3 attractions from each city based on the search results. Do NOT invent attraction names or descriptions \u2014 only use data from task_001 and task_002 outputs. Format as markdown with: Title '# Paris vs Rome: Top Tourist Attractions', then '## Paris' section with 3 numbered attractions (name + 2-3 sentence description each), then '## Rome' section with 3 numbered attractions (name + 2-3 sentence description each). Cite which task provided each fact.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        },
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output is valid markdown with a title, Paris section containing exactly 3 attractions with descriptions, and Rome section containing exactly 3 attractions with descriptions, all sourced from task_001 and task_002",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save Comparison to File",
+      "description": "You MUST call file_write to save the markdown comparison from task_003. Use filename 'travel_comparison.md' (exact name). The content parameter must be the complete markdown text from task_003 output. Do NOT modify the content.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "file_write tool successfully called with filename='travel_comparison.md' and content matches task_003 output",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-04-15",
+    "output_file": "travel_comparison.md"
+  }
+}

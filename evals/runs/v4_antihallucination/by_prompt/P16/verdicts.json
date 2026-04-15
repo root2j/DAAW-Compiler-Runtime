@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Search for Excel alternatives",
+    "verdict": "PASS",
+    "reasoning": "Output contains at least 3 URLs from WebSearch results and mentions at least 3 specific open-source spreadsheet application names"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Get detailed information",
+    "verdict": "PASS",
+    "reasoning": "The output contains search results with version numbers, license information, and feature details for LibreOffice Calc, with at least 3 URLs total."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Create markdown table",
+    "verdict": "FAIL",
+    "reasoning": "Task 'task_003' failed \u2014 automatic retry."
+  }
+]

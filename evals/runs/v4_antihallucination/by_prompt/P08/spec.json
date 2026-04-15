@@ -1,0 +1,74 @@
+{
+  "id": "ae8af3af-59e6-4054-b916-6595bda64db5",
+  "name": "Multiplication Table Frequency Analysis",
+  "description": "Generate a 1-10 multiplication table, save it, read it back, and find the most frequent product",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Generate and Save Multiplication Table",
+      "description": "You MUST call python_exec to generate a multiplication table from 1 to 10. Create a 10x10 multiplication table where each cell is the product of its row and column numbers. Then you MUST call file_write to save the table to 'multiplication_table.txt'. Format the table as rows with products separated by spaces or tabs. Output the FULL table contents that were saved.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains a 10x10 table with products from 1x1=1 to 10x10=100, saved to multiplication_table.txt",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Read Multiplication Table File",
+      "description": "You MUST call file_read to read the contents of 'multiplication_table.txt' that was created in task_001. Output the FULL file contents verbatim. Do NOT summarize as 'file was read' \u2014 downstream tasks need the actual data.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_read"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains the complete multiplication table data from the file",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Find Most Frequent Product",
+      "description": "You MUST call python_exec to analyze the multiplication table from task_002 and find which product appears most frequently. Write Python code that: 1) Parses the table data, 2) Counts the frequency of each product value, 3) Identifies the product(s) with the highest frequency. Then you MUST call file_write to save the analysis result to 'frequency_analysis.txt'. Output format: 'Most frequent product: [value], appearing [count] times'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec",
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output states the most frequent product and its count, and the result is saved to frequency_analysis.txt",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {}
+}

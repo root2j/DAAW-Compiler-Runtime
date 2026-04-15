@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Fetch random joke from API",
+    "verdict": "PASS",
+    "reasoning": "Output contains raw JSON response with 'setup' and 'punchline' fields from the API"
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Search for comedian and joke style",
+    "verdict": "PASS",
+    "reasoning": "Output contains search results with at least one URL starting with https:// and a description of the joke style when a specific comedian is not found."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Write joke and research to file",
+    "verdict": "PASS",
+    "reasoning": "The task output indicates that the file 'joke_research.txt' has been created with the requested information."
+  }
+]

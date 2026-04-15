@@ -1,0 +1,14 @@
+# P05 — Data Processing & Computation
+# complexity: Simple
+# characteristics: Linear
+# prompt: Write a Python script that generates a list of the first 20 Fibonacci numbers, then calculate their average. Print the list and the average.
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 2 tasks in 36.1s
+          · task_001: Write and test Fibonacci script  [deps=-] [tools=python_exec]
+          · task_002: Save script to file  [deps=task_001] [tools=file_write]
+[task success] task_001 (2.0s, 1 tool calls)
+[task failure] task_002 (1.3s, 0 tool calls)
+[critic PASS] task_001  — The task output contains the full Python script code and execution results showi
+[critic FAIL] task_002  — Task 'task_002' failed — automatic retry.
+[DONE] total 39.8s  api_calls=5  tokens=2742

@@ -1,0 +1,101 @@
+{
+  "id": "36b87bee-03d2-4c52-955f-0d1950d518dc",
+  "name": "Python Web Frameworks GitHub Stars Analysis 2026",
+  "description": "Search for the 5 most popular Python web frameworks in 2026, retrieve their GitHub star counts, create a text-based bar chart ranking, and save the complete report to markdown",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Search for top 5 Python web frameworks",
+      "description": "You MUST call web_search with the query 'top 5 most popular Python web frameworks 2026'. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual framework names. Extract and list the 5 framework names explicitly. Output format: First list the 5 framework names, then include the complete search results with URLs and snippets.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains exactly 5 Python framework names (e.g., Django, Flask, FastAPI) and includes raw search results with at least 3 URLs",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Find GitHub star counts for all frameworks",
+      "description": "You MUST call web_search multiple times (once per framework) to find GitHub star counts. For each of the 5 frameworks from task_001, search '<framework_name> github stars 2026' or '<framework_name> github repository'. Output the FULL raw search results for each framework. Do NOT invent star counts \u2014 extract them from search result snippets. If no star count found, write 'not found'. Output format: For each framework, write 'Framework: <name>, Stars: <number>, Source: <URL>' followed by the raw search snippets.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains numeric star counts for at least 4 of the 5 frameworks, each with a cited source URL from the search results",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Generate text-based bar chart with Python",
+      "description": "You MUST call python_exec to create a text-based bar chart. Write Python code that: (1) parses task_002 output to extract framework names and star counts as integers, (2) sorts frameworks by stars descending, (3) generates a text bar chart using '\u2588' characters scaled to the highest count, (4) formats output as 'FrameworkName: \u2588\u2588\u2588\u2588\u2588\u2588 (123,456 stars)' with one framework per line. The code must print the complete chart. Do NOT use matplotlib or images \u2014 text output only.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output is a text-based bar chart with 5 lines, each showing framework name, visual bars using \u2588 characters, and star count in parentheses, sorted from highest to lowest stars",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Save complete report to markdown file",
+      "description": "You MUST call file_write to save to 'python_frameworks_report.md'. Combine all previous task outputs into a markdown document with: (1) title '# Python Web Frameworks Popularity Report 2026', (2) section '## Rankings' with the bar chart from task_003, (3) section '## Detailed Data' with framework names, GitHub URLs, and exact star counts from task_002. The file_path parameter must be exactly 'python_frameworks_report.md'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File python_frameworks_report.md exists and contains markdown with a title, the bar chart visualization, and data table showing all 5 frameworks with their star counts",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_date": "2026-04-15",
+    "workflow_type": "web_research_data_analysis",
+    "expected_output": "python_frameworks_report.md"
+  }
+}

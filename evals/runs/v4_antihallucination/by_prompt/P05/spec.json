@@ -1,0 +1,53 @@
+{
+  "id": "4e001752-bbd1-446d-8265-84dfd23e43e1",
+  "name": "fibonacci_script_generation",
+  "description": "Generate and save a Python script that computes the first 20 Fibonacci numbers and their average",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Write and test Fibonacci script",
+      "description": "You MUST call python_exec to write and test Python code. Write a Python script that: (1) generates the first 20 Fibonacci numbers in a list, (2) calculates the average of those 20 numbers, (3) prints the list with clear labeling, (4) prints the average with clear labeling. Execute the code to verify it works. Output the COMPLETE working Python code verbatim - do NOT summarize it as 'code was written'. The next task needs the full script text.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains the full Python script code AND execution results showing exactly 20 Fibonacci numbers and a calculated average value",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Save script to file",
+      "description": "You MUST call file_write to save the working Python script from task_001. Extract the complete Python code from task_001's output (NOT the execution results, just the script code itself). Save it to a file named 'fibonacci_script.py'. Use the exact code from task_001 - do NOT modify or rewrite it.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'fibonacci_script.py' is created and contains valid Python code with Fibonacci generation and average calculation logic",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "goal_type": "script_generation",
+    "programming_language": "python",
+    "output_file": "fibonacci_script.py"
+  }
+}

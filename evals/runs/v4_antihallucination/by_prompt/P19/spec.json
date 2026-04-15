@@ -1,0 +1,97 @@
+{
+  "id": "bd1becb3-1fa1-45ca-9e52-fc8e060bcb55",
+  "name": "Today in History Finder",
+  "description": "Get current date, search for historical events on this day, and save 3 interesting events to a file",
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "Get current date and time",
+      "description": "You MUST call python_exec to execute Python code that gets the current date and time. Use datetime.now() and format it as 'Month Day' (e.g., 'April 15'). Output the formatted date string verbatim. Example code: from datetime import datetime; print(datetime.now().strftime('%B %d'))",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "python_exec"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [],
+      "input_filter": [],
+      "success_criteria": "Output contains a date string in format 'Month Day'",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_002",
+      "name": "Search web for historical events",
+      "description": "You MUST call web_search (or WebSearch if web_search fails) with the query 'what happened on [DATE] in history' where [DATE] is the exact date from task_001's output. Output the FULL raw search results verbatim (URLs, titles, snippets). Do NOT summarize as 'results were found' \u2014 downstream tasks need the actual data. Include all search results returned.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "web_search",
+          "WebSearch"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_001",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains at least 3 URLs with snippets about historical events that reference task_001's date",
+      "timeout_seconds": 300,
+      "max_retries": 2
+    },
+    {
+      "id": "task_003",
+      "name": "Extract 3 interesting historical events",
+      "description": "From task_002's search results, extract exactly 3 interesting historical events that happened on this day in history. For each event, include: the year, what happened, and cite the source URL from task_002. Format as: 'YEAR: Event description (Source: URL)'. Do NOT invent events or URLs. If fewer than 3 distinct events are found in the search results, say 'Only N events found' where N is the actual count.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_002",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "Output contains exactly 3 events with years and source URLs from task_002, or explains why fewer events were found",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    },
+    {
+      "id": "task_004",
+      "name": "Write events to file",
+      "description": "You MUST call file_write to save the 3 historical events from task_003's output to the file 'today_in_history.txt'. Write the exact content from task_003 without modification. The file path should be 'today_in_history.txt'.",
+      "agent": {
+        "role": "generic_llm",
+        "model_config_override": null,
+        "tools_allowed": [
+          "file_write"
+        ],
+        "system_prompt_override": null
+      },
+      "dependencies": [
+        {
+          "task_id": "task_003",
+          "output_key": null
+        }
+      ],
+      "input_filter": [],
+      "success_criteria": "File 'today_in_history.txt' is created with content from task_003",
+      "timeout_seconds": 120,
+      "max_retries": 2
+    }
+  ],
+  "metadata": {
+    "created_by": "compiler",
+    "goal": "Check what the current date and time is using Python. Then search the web for what happened on this day in history and write 3 interesting historical events to today_in_history.txt"
+  }
+}

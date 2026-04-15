@@ -1,0 +1,13 @@
+# P14 — File Operations & Text Processing
+# complexity: Medium
+# characteristics: Linear
+# prompt: Write a Python script that generates 50 random names with ages (18-65) as a CSV file. Then read the CSV, group by age decade (teens, twenties, thirties, etc.), and count how many people are in each group. Save the analysis as "age_groups.txt".
+
+[compile] provider=groq model=llama-3.1-8b-instant
+[compile OK] 3 tasks in 55.4s
+          · task_001: Generate Random Names CSV  [deps=-] [tools=python_exec, file_write]
+          · task_002: Analyze Age Groups  [deps=task_001] [tools=file_read, python_exec]
+          · task_003: Save Analysis Results  [deps=task_002] [tools=file_write]
+[task failure] task_001 (5.0s, 0 tool calls)
+[critic FAIL] task_001  — Task 'task_001' failed — automatic retry.
+[DONE] total 60.4s  api_calls=2  tokens=701

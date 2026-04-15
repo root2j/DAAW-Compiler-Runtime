@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "task_001",
+    "task_name": "Create Employee JSON File",
+    "verdict": "PASS",
+    "reasoning": "The task output confirms the creation of 'employees.json' with a JSON array of 5 employee records, each containing 'name', 'department', and 'salary' fields."
+  },
+  {
+    "task_id": "task_002",
+    "task_name": "Read File and Calculate Salary Statistics",
+    "verdict": "PASS",
+    "reasoning": "Output contains the raw file contents and the required JSON object with 'average_salary' and 'highest_paid_employee'."
+  },
+  {
+    "task_id": "task_003",
+    "task_name": "Write Salary Report Summary",
+    "verdict": "PASS",
+    "reasoning": "The output confirms the creation of 'salary_report.txt' and includes references to average salary and highest-paid employee data from task_002."
+  }
+]

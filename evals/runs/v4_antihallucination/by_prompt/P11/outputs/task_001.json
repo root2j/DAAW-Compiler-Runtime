@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "output": "{\"fact\":\"Researchers are unsure exactly how a cat purrs. Most veterinarians believe that a cat purrs by vibrating vocal folds deep in the throat. To do this, a muscle in the larynx opens and closes the air passage about 25 times per second.\",\"length\":231}",
+  "error_message": "",
+  "elapsed_seconds": 4.55,
+  "tool_calls": [
+    {
+      "tool": "http_request",
+      "args": {
+        "headers": {
+          "User-Agent": "Mozilla/5.0"
+        },
+        "method": "GET",
+        "params": {},
+        "url": "https://catfact.ninja/fact"
+      },
+      "result": "HTTP 200 OK\nHeaders: {'date': 'Wed, 15 Apr 2026 07:46:54 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'server': 'cloudflare', 'cache-control': 'no-cache, private', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '99', 'access-control-allow-origin': '*', 'set-cookie': 'XSRF-TOKEN=eyJpdiI6IkhPU1RRVk9NcHB5SVFyenU1TURScVE9PSIsInZhbHVlIjoiSTNvMFJQSUlVQkhxdnZBSWJybzJZNEhQWE5hWVhSRldCK0tBQko0WXpoenFMb3VuRWZlTWdwaDRzdjlFNjB1SDlYSHFsamFiLzV6Mlk0MVUrTzRPTHJaN1cyQ2FoaWJ2SUl0aks2d1RxaVNEbjBWU3J2T0liakdXUVNVWWJ6VTMiLCJtYWMiOiJhOTFhNzRkMzIwOWM1ZTE3MTcxMTNlNGYyZmUyZjIyODc1MjMyOGRlMTc3ODZhMTEyMjI4OTYyOWRmOWE5ZmZjIiwidGFnIjoiIn0%3D; expires=Wed, 15-Apr-2026 09:46:54 GMT; Max-Age=7200; path=/; secure; samesite=lax, catfacts_session=eyJpdiI6IkN0OWduaEwxQzNqbDNGRXF2ZzdaaGc9PSIsInZhbHVlIjoiNmdFS29Vd2tVWVh6R0dkSDlRL2VuUHA3emNnaldaNlhDWHc4QnY0Tm5uZk9BTWZIWlNRV0hBcFk0WVlkbFZ2U05paVpaSzk4enJNcExNQTdTZ1NXRkluMjZZRk5tNFM1MnRpRk1PWS9jV05JTGpCM0RQUDFwSnNhV1lpcGszbW0iLCJtYWMiOiJkMTY1NDk5MjYwZWI2NjIyYTU4NTE0YmYwZmVmMGFkZjNjMDAwMzg5NDdlNjJhY2Q1MWVmZDgwZWNhMTEyMGVlIiwidGFnIjoiIn0%3D; expires=Wed, 15-Apr-2026 09:46:54 GMT; Max-Age=7200; path=/; secure; httponly; samesite=lax, MCMDjdc94S5ZrUaEBzUkwfvZ9V76S5HvGRr59teN=eyJpdiI6IjJaOWwrcEIxUzRWZjFXVEE3Z3NVOEE9PSIsInZhbHVlIjoic0czcTBUUitKb0daUjlGU2hxb0pJWG5TV0ZlWFFMQktkc3N4cFFUZ2IvdnQxWnNzMG9jdnRTS0MyQ0lUNm02dTFFbDNzZERVcXRwMXBnNEtTcnBjSlVyV0pYdnU5TU1FR1I5RkNkMmJRYzdjTW5kZk16K1REY2VXTFdHdEk3R0w2a2VSMjVJSHFnT0FUTUUrWUZvTkxvWFZXWW9kb2Q0TkFvQS9FN1lSakxmYjBYQ2NmdkZIZFBKbjF2czNOQzhoSEpady9mSGpOYnQ2WGxvbDNkRzlWSkNuV05uYVp1UytwOWxnZHNNczdTZTZES3NvL2F4dVlZK0F5TTlqdWw1SnNyN0RMdzJ0OGNqYmVMQURBdEhPeUhFK21ubGpaQTcwYVU3UmNZbjR0eWV6Q0xqSk1KNmZBczNYMEZRbFBEQWg4YjBEait4R3o1b29PTC81LzJOY1VRM1BQczJCMEtMU2lqNTZjdEJoSVg5cDlza0YzQ2xDeklFb0RrNW42S21FIiwibWFjIjoiNjY1YjM0NGFhMTBhMGJmOGE4OWUyZWUzZmMzNzA2YjRiM2ZiZTVmZDU0MmVhZGEzMGU5Y2QzMWM3ZmI3OTI2ZCIsInRhZyI6IiJ9; expires=Wed, 15-Apr-2026 09:46:54 GMT; Max-Age=7200; p"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2192,
+    "completion_tokens": 60,
+    "total_tokens": 2252
+  }
+}
