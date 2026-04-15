@@ -114,6 +114,9 @@ class Turn:
     verdicts: list[dict] = field(default_factory=list)
     elapsed: float = 0.0
     hitl_request: Any = None           # InteractionRequest when waiting for user
+    # Cached once when the turn transitions to "done" so we don't re-scan
+    # the sandbox directory on every Streamlit rerun.
+    output_files: list[str] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -527,19 +530,24 @@ def _render_turn(turn: Turn, is_live: bool = False):
                     st.markdown(str(out)[:4000])
                 turn.content = str(out)[:4000]
 
-            # File output hint
-            import os
-            sandbox = os.environ.get(
-                "DAAW_SANDBOX_DIR",
-                os.path.join(os.getcwd(), ".daaw_sandbox"),
-            )
-            if os.path.isdir(sandbox):
-                files = os.listdir(sandbox)
-                if files:
-                    st.caption(
-                        f"Files saved to `{sandbox}/`: "
-                        + ", ".join(f"`{f}`" for f in sorted(files)[-5:])
-                    )
+            # File output hint — cached on the Turn so we don't re-scan
+            # the sandbox on every Streamlit rerun.
+            if not turn.output_files:
+                import os
+                sandbox = os.environ.get(
+                    "DAAW_SANDBOX_DIR",
+                    os.path.join(os.getcwd(), ".daaw_sandbox"),
+                )
+                if os.path.isdir(sandbox):
+                    try:
+                        turn.output_files = sorted(os.listdir(sandbox))[-5:]
+                    except OSError:
+                        turn.output_files = []
+            if turn.output_files:
+                st.caption(
+                    "Files saved: "
+                    + ", ".join(f"`{f}`" for f in turn.output_files)
+                )
 
             # Details expander: spec + verdicts + per-task outputs.
             with st.expander("Details"):
@@ -738,9 +746,15 @@ def main():
             if changed:
                 st.rerun()
         else:
-            # Keep pumping the queue on a timer.
-            time.sleep(0.25)
-            st.rerun()
+            # Poll for more events. If anything actually changed this
+            # cycle, rerun immediately so the UI reflects the update.
+            # Otherwise wait a beat — avoids hammering CPU at 4 Hz with
+            # zero data changes during long LLM calls.
+            if changed:
+                st.rerun()
+            else:
+                time.sleep(0.5)
+                st.rerun()
 
     # Input
     prompt = st.chat_input("What would you like DAAW to do?")

@@ -17,6 +17,36 @@ from daaw.tools.registry import tool_registry
 DEFAULT_PROVIDER = "groq"
 MAX_TOOL_ROUNDS = 10
 
+# Thresholds for the data-preservation safety net. When an agent used a
+# research-style tool (web_search / http_request) but wrote a lazy
+# summary, we auto-append the raw tool results to the output.
+_VAGUE_MIN_CHARS = 200    # content shorter than this is auto-augmented
+_VAGUE_MAX_CHARS = 500    # content shorter than this IS augmented if vague markers present
+_MAX_TOOL_RESULTS_IN_OUTPUT = 5
+_MAX_TOOL_RESULT_PREVIEW = 2000
+
+# Set of tools whose output is data-heavy enough to warrant the safety net.
+# Math/file ops can legitimately have short final answers — don't pad them.
+_RESEARCH_TOOLS = frozenset({
+    "web_search", "http_request", "brave_search",
+    "search", "google_search", "WebSearch",
+})
+
+# Phrases the 8B executor emits instead of real data after a research
+# tool call. Triggers the safety-net augmentation.
+_VAGUE_MARKERS = (
+    "results were found", "results contain",
+    "search was performed", "information is available",
+    "publicly available", "search results for",
+)
+
+# Regex for pseudo-tool-call text (the 8B model writing out what a tool
+# call WOULD look like instead of invoking it).
+_FAKE_TOOL_CALL_RE = re.compile(
+    r"<(web_search|http_request|python_exec|file_read|"
+    r"file_write|shell_command|WebSearch|brave_search)[\s>]",
+)
+
 DEFAULT_SYSTEM_PROMPT = (
     "You are a task execution agent. Complete the given task thoroughly and concisely. "
     "Use the provided tools when helpful. "
@@ -211,11 +241,7 @@ class GenericLLMAgent(BaseAgent):
                 # Anti-hallucination check: detect pseudo-tool-call syntax
                 # the 8B model loves to emit as text instead of a real call
                 # (e.g. "<web_search query=\"...\">" appearing in content).
-                fake_tool_pattern = re.search(
-                    r"<(web_search|http_request|python_exec|file_read|"
-                    r"file_write|shell_command|WebSearch|brave_search)[\s>]",
-                    resp.content or "",
-                )
+                fake_tool_pattern = _FAKE_TOOL_CALL_RE.search(resp.content or "")
 
                 # Enforcement: if the task was assigned tools but never
                 # actually called any, the output is almost certainly
@@ -255,28 +281,20 @@ class GenericLLMAgent(BaseAgent):
                 # research tools since math/file ops can legitimately
                 # have short final answers.
                 final_content = resp.content or ""
-                _research_tools = {
-                    "web_search", "http_request", "brave_search",
-                    "search", "google_search", "WebSearch",
-                }
                 used_research_tool = any(
-                    tr["tool"] in _research_tools for tr in tool_results_log
-                )
-                vague_markers = (
-                    "results were found", "results contain",
-                    "search was performed", "information is available",
-                    "publicly available", "search results for",
+                    tr["tool"] in _RESEARCH_TOOLS for tr in tool_results_log
                 )
                 content_lower = final_content.lower()
+                stripped_len = len(final_content.strip())
                 looks_vague = (
-                    len(final_content.strip()) < 200
-                    or any(m in content_lower for m in vague_markers)
-                    and len(final_content.strip()) < 500
+                    stripped_len < _VAGUE_MIN_CHARS
+                    or any(m in content_lower for m in _VAGUE_MARKERS)
+                    and stripped_len < _VAGUE_MAX_CHARS
                 )
                 if used_research_tool and looks_vague:
                     raw_results = "\n\n---\n".join(
                         f"[{tr['tool']}({', '.join(f'{k}={v!r}' for k,v in (tr.get('args') or {}).items())[:120]})]\n{tr['result']}"
-                        for tr in tool_results_log[-5:]  # last 5 tool calls
+                        for tr in tool_results_log[-_MAX_TOOL_RESULTS_IN_OUTPUT:]
                     )
                     final_content = (
                         (final_content + "\n\n" if final_content.strip() else "")
@@ -327,29 +345,18 @@ class GenericLLMAgent(BaseAgent):
                     tc_args = tc.arguments
                     tc_id = tc.id
 
-                # Case-insensitive tool name resolution: LLMs hallucinate
-                # capitalization (Claude calls "WebSearch" instead of
-                # "web_search", Groq calls "brave_search"). Try exact
-                # match first, then lowercase, then known aliases.
-                resolved_name = tool_name
-                all_tools = {t.name for t in tool_registry._tools.values()}
-                if tool_name not in all_tools:
-                    # Try case-insensitive match.
-                    lower_map = {t.lower(): t for t in all_tools}
-                    if tool_name.lower() in lower_map:
-                        resolved_name = lower_map[tool_name.lower()]
+                # Case-insensitive tool name resolution (see ToolRegistry.
+                # resolve_name): LLMs hallucinate capitalization — Claude
+                # calls "WebSearch", Llama calls "brave_search". Registry
+                # caches the lowercase map so this is O(1), not O(n) per
+                # tool call.
+                resolved_name = tool_registry.resolve_name(tool_name) or tool_name
 
-                if tools_allowed and resolved_name not in tools_allowed:
-                    # Also check case-insensitive against allowed list.
-                    allowed_lower = {t.lower() for t in tools_allowed}
-                    if resolved_name.lower() not in allowed_lower:
-                        result_str = f"Tool '{tool_name}' is not allowed for this agent."
-                    else:
-                        try:
-                            result = await tool_registry.execute(resolved_name, **tc_args)
-                            result_str = str(result)
-                        except Exception as e:
-                            result_str = f"Tool execution error: {e}"
+                allowed_lower = (
+                    {t.lower() for t in tools_allowed} if tools_allowed else None
+                )
+                if allowed_lower is not None and resolved_name.lower() not in allowed_lower:
+                    result_str = f"Tool '{tool_name}' is not allowed for this agent."
                 else:
                     try:
                         result = await tool_registry.execute(resolved_name, **tc_args)
@@ -360,7 +367,7 @@ class GenericLLMAgent(BaseAgent):
                 tool_results_log.append({
                     "tool": tool_name,
                     "args": tc_args,
-                    "result": result_str[:2000],
+                    "result": result_str[:_MAX_TOOL_RESULT_PREVIEW],
                 })
                 messages.append(LLMMessage(
                     role="tool",
