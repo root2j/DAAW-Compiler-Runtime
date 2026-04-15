@@ -135,19 +135,29 @@ class TestExecutorWithTools:
         import daaw.agents.builtin.generic_llm_agent as mod
         monkeypatch.setattr(mod, "tool_registry", test_tool_registry)
 
-        # Both tasks: tool call then answer (interleaved by asyncio.gather)
-        mock_llm_client.chat.side_effect = [
-            # Task A, round 1
-            LLMResponse(content="", model="t", raw=None,
-                       tool_calls=[ToolCall(id="c1", name="multiply", arguments={"a": 2, "b": 5})]),
-            # Task B, round 1
-            LLMResponse(content="", model="t", raw=None,
-                       tool_calls=[ToolCall(id="c2", name="multiply", arguments={"a": 3, "b": 3})]),
-            # Task A, round 2
-            LLMResponse(content="A=10", model="t", tool_calls=[]),
-            # Task B, round 2
-            LLMResponse(content="B=9", model="t", tool_calls=[]),
-        ]
+        # Route responses by task content so asyncio interleaving order
+        # doesn't flake the test. Each task gets its own sequence.
+        call_counts = {"a": 0, "b": 0}
+
+        async def _route(provider, messages, **kw):
+            user_msg = next(
+                (m.content for m in messages if m.role == "user"), ""
+            )
+            # Identify task by its description in the user prompt.
+            tid = "a" if "2*5" in user_msg else "b"
+            idx = call_counts[tid]
+            call_counts[tid] += 1
+            if idx == 0:
+                args = {"a": 2, "b": 5} if tid == "a" else {"a": 3, "b": 3}
+                return LLMResponse(content="", model="t", raw=None,
+                    tool_calls=[ToolCall(id=f"c_{tid}", name="multiply",
+                                         arguments=args)])
+            return LLMResponse(
+                content=f"{tid.upper()}={'10' if tid == 'a' else '9'}",
+                model="t", tool_calls=[],
+            )
+
+        mock_llm_client.chat.side_effect = _route
 
         executor, store = _make_executor(mock_llm_client)
         spec = WorkflowSpec(
