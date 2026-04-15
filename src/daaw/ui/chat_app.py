@@ -49,39 +49,495 @@ from daaw.ui._streaming_display import prettify_partial_json
 
 
 # ---------------------------------------------------------------------------
-# Styling
+# Styling — Swiss editorial: warm paper, deep ink, one vermilion accent,
+# Fraunces display + IBM Plex Sans body. Flight-deck status for tasks,
+# choreographed stage transitions with CSS width animations.
 # ---------------------------------------------------------------------------
 C = {
-    "bg": "#0B0D12",
-    "card": "#14171F",
-    "border": "#232836",
-    "text": "#E6E8EC",
-    "muted": "#8D94A3",
-    "accent": "#60A5FA",      # blue for assistant
-    "user": "#A78BFA",        # violet for user
-    "success": "#34D399",
-    "warn": "#FBBF24",
-    "danger": "#F87171",
+    "paper":   "#F5F3EE",   # warm off-white
+    "paper_2": "#FFFEFA",   # card / raised surface
+    "ink":     "#1A1815",   # warm near-black
+    "ink_2":   "#4A4638",   # body muted
+    "ink_3":   "#8A8470",   # meta / secondary
+    "rule":    "#D8D1BF",   # hairline
+    "accent":  "#D84315",   # vermilion (one and only)
+    "accent_soft": "#FBEBE4",
+    "success": "#3D5F3A",   # forest (not bright)
+    "fail":    "#8B2421",   # oxblood (not bright)
+    "warn":    "#9C6F1E",   # antique gold
+    "muted":   "#8A8470",   # alias for ink_3 (kept for convenience)
+    "border":  "#D8D1BF",   # alias for rule
+    "text":    "#1A1815",   # alias for ink
+    "card":    "#FFFEFA",   # alias for paper_2
+    "danger":  "#8B2421",   # alias for fail
 }
 
 _CSS = f"""
 <style>
-  .stApp {{ background: {C['bg']}; color: {C['text']}; }}
-  .block-container {{ padding-top: 1.2rem; max-width: 880px; }}
-  .hdr {{ display:flex; align-items:center; justify-content:space-between;
-         padding:.25rem 0 1rem; border-bottom: 1px solid {C['border']};
-         margin-bottom: 1rem; }}
-  .hdr-title {{ font-family: 'Sora', sans-serif; font-size: 1.1rem;
-               font-weight:700; color:{C['text']}; }}
-  .hdr-ver {{ font-family: 'JetBrains Mono', monospace; font-size:.72rem;
-             color:{C['muted']}; }}
-  .stage-pill {{ display:inline-block; font-family:'JetBrains Mono',
-                monospace; font-size:.68rem; padding:.1rem .45rem;
-                border-radius:4px; margin-right:.4rem;
-                background:{C['border']}; color:{C['muted']}; }}
-  .stage-pill.active {{ color:{C['accent']}; background:{C['accent']}22; }}
-  .stage-pill.ok {{ color:{C['success']}; background:{C['success']}22; }}
-  .stage-pill.fail {{ color:{C['danger']}; background:{C['danger']}22; }}
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  /* ---------- canvas ---------- */
+  .stApp {{
+    background: {C['paper']};
+    color: {C['ink']};
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    font-feature-settings: 'ss01', 'ss02';
+  }}
+  .block-container {{
+    padding-top: 2.5rem !important;
+    padding-bottom: 6rem !important;
+    max-width: 780px;
+  }}
+  p, div, span {{ color: {C['ink']}; }}
+
+  /* ---------- editorial typography ---------- */
+  h1, h2, h3 {{ font-family: 'Fraunces', Georgia, serif !important; font-weight: 400 !important; letter-spacing: -0.01em; }}
+
+  /* ---------- masthead ---------- */
+  .masthead {{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    padding: 0.5rem 0 2.5rem;
+    border-bottom: 1px solid {C['rule']};
+    margin-bottom: 3rem;
+    position: relative;
+  }}
+  .masthead::after {{
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -5px;
+    height: 1px;
+    background: {C['rule']};
+  }}
+  .masthead-title {{
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 2.1rem;
+    font-weight: 300;
+    font-variation-settings: 'opsz' 144, 'SOFT' 50;
+    letter-spacing: -0.03em;
+    color: {C['ink']};
+    line-height: 1;
+  }}
+  .masthead-title em {{
+    font-style: italic;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    color: {C['accent']};
+    font-weight: 400;
+  }}
+  .masthead-meta {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: {C['ink_3']};
+    text-align: right;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+  }}
+  .masthead-meta strong {{ color: {C['ink']}; font-weight: 500; }}
+
+  /* ---------- small labels (section headers, categories) ---------- */
+  .label {{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: {C['ink_3']};
+  }}
+  .label-accent {{ color: {C['accent']}; }}
+
+  /* ---------- stage bar (flight-deck pipeline) ---------- */
+  .stage-bar {{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid {C['rule']};
+    background: {C['paper_2']};
+    margin: 1rem 0 2rem;
+    position: relative;
+    overflow: hidden;
+  }}
+  .stage-bar::before {{
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: var(--progress, 0%);
+    background: {C['accent']};
+    transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: 0;
+  }}
+  .stage-seg {{
+    padding: 0.7rem 1rem;
+    border-right: 1px solid {C['rule']};
+    position: relative;
+    z-index: 1;
+    transition: color 0.4s ease;
+  }}
+  .stage-seg:last-child {{ border-right: none; }}
+  .stage-seg-num {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: {C['ink_3']};
+    display: block;
+    margin-bottom: 0.15rem;
+  }}
+  .stage-seg-label {{
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: {C['ink_2']};
+  }}
+  .stage-seg.past .stage-seg-num,
+  .stage-seg.past .stage-seg-label {{ color: {C['paper']}; }}
+  .stage-seg.active .stage-seg-label {{
+    color: {C['accent']};
+    font-weight: 500;
+    font-style: italic;
+  }}
+  .stage-seg.active .stage-seg-num {{ color: {C['accent']}; }}
+  .stage-seg.active::after {{
+    content: '';
+    display: inline-block;
+    width: 0.4em;
+    height: 0.9em;
+    background: {C['accent']};
+    margin-left: 0.3em;
+    vertical-align: text-bottom;
+    animation: blink 1s steps(1) infinite;
+  }}
+  @keyframes blink {{ 50% {{ opacity: 0; }} }}
+
+  /* ---------- task row (flight-deck status) ---------- */
+  .task-row {{
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    column-gap: 1.2rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid {C['rule']};
+    position: relative;
+    animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }}
+  .task-row:last-child {{ border-bottom: 1px solid {C['rule']}; }}
+  .task-row.running {{
+    background: linear-gradient(90deg, {C['accent_soft']} 0%, transparent 60%);
+    box-shadow: inset 3px 0 0 {C['accent']};
+  }}
+  @keyframes slideIn {{
+    from {{ opacity: 0; transform: translateX(-8px); }}
+    to {{ opacity: 1; transform: translateX(0); }}
+  }}
+  .task-num {{
+    font-family: 'Fraunces', serif;
+    font-size: 1.9rem;
+    font-weight: 300;
+    font-variation-settings: 'opsz' 144;
+    color: {C['ink_3']};
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }}
+  .task-row.success .task-num {{ color: {C['ink']}; }}
+  .task-row.failure .task-num {{ color: {C['fail']}; }}
+  .task-row.running .task-num {{ color: {C['accent']}; }}
+  .task-title {{
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: {C['ink']};
+    line-height: 1.3;
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.005em;
+  }}
+  .task-meta {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    color: {C['ink_3']};
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+  }}
+  .task-meta strong {{ color: {C['ink_2']}; font-weight: 500; }}
+  .task-status {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    white-space: nowrap;
+    padding-top: 0.6rem;
+  }}
+  .task-status.pending {{ color: {C['ink_3']}; }}
+  .task-status.running {{ color: {C['accent']}; }}
+  .task-status.success {{ color: {C['success']}; }}
+  .task-status.failure {{ color: {C['fail']}; }}
+  .task-status .dot {{
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+  }}
+  .task-status.pending .dot {{ background: {C['ink_3']}; }}
+  .task-status.running .dot {{ background: {C['accent']}; animation: pulse 1.4s ease-in-out infinite; }}
+  .task-status.success .dot {{ background: {C['success']}; }}
+  .task-status.failure .dot {{ background: {C['fail']}; }}
+  @keyframes pulse {{
+    0%, 100% {{ opacity: 1; transform: scale(1); }}
+    50% {{ opacity: 0.4; transform: scale(0.8); }}
+  }}
+
+  /* ---------- editorial prompt ( user message ) ---------- */
+  .prompt-block {{
+    padding: 1rem 0 2rem;
+    border-top: 2px solid {C['ink']};
+    margin-top: 2.5rem;
+    position: relative;
+  }}
+  .prompt-label {{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: {C['ink_3']};
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }}
+  .prompt-text {{
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    font-variation-settings: 'opsz' 144, 'SOFT' 50;
+    color: {C['ink']};
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }}
+  .prompt-text::first-letter {{
+    font-size: 2.4em;
+    float: left;
+    line-height: 0.9;
+    padding: 0.08em 0.1em 0 0;
+    font-weight: 400;
+    font-style: italic;
+    color: {C['accent']};
+  }}
+
+  /* ---------- assistant response frame ---------- */
+  .response-block {{ padding: 0.5rem 0 1rem; }}
+  .response-label {{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: {C['accent']};
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }}
+  .response-label-right {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: {C['ink_3']};
+    letter-spacing: 0.08em;
+    text-transform: none;
+    font-weight: 400;
+  }}
+
+  /* ---------- compile stream — editorial drafting frame ---------- */
+  .compile-frame {{
+    border: 1px solid {C['rule']};
+    background: {C['paper_2']};
+    padding: 0.5rem 0.9rem;
+    margin: 0.8rem 0 1.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    line-height: 1.55;
+    color: {C['ink_2']};
+    position: relative;
+  }}
+  .compile-frame-label {{
+    position: absolute;
+    top: -0.55rem;
+    left: 0.8rem;
+    background: {C['paper']};
+    padding: 0 0.4rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: {C['ink_3']};
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+  }}
+
+  /* ---------- final answer (editorial body treatment) ---------- */
+  .final-answer {{
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: {C['ink']};
+    padding: 1.2rem 0;
+    border-top: 1px solid {C['rule']};
+    margin-top: 1.5rem;
+  }}
+  .final-answer h1, .final-answer h2, .final-answer h3 {{ font-size: 1.15rem !important; }}
+
+  /* ---------- HITL prompt — inline editorial callout ---------- */
+  .hitl-callout {{
+    border-left: 3px solid {C['accent']};
+    padding: 0.8rem 1rem;
+    margin: 1.2rem 0;
+    background: {C['accent_soft']};
+  }}
+  .hitl-callout-label {{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: {C['accent']};
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }}
+
+  /* ---------- chat input ---------- */
+  [data-testid="stChatInput"] {{
+    background: {C['paper']} !important;
+    border-top: 2px solid {C['ink']} !important;
+  }}
+  [data-testid="stChatInput"] textarea {{
+    font-family: 'Fraunces', serif !important;
+    font-size: 1.15rem !important;
+    font-weight: 400 !important;
+    background: {C['paper']} !important;
+    color: {C['ink']} !important;
+    border: none !important;
+  }}
+  [data-testid="stChatInput"] textarea::placeholder {{
+    color: {C['ink_3']} !important;
+    font-style: italic;
+  }}
+
+  /* ---------- streamlit chat_message restyle ---------- */
+  [data-testid="stChatMessageAvatarUser"],
+  [data-testid="stChatMessageAvatarAssistant"] {{ display: none !important; }}
+  [data-testid="stChatMessage"] {{
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }}
+  [data-testid="stChatMessage"] > div:first-child {{ display: none !important; }}
+
+  /* ---------- sidebar (editorial pamphlet) ---------- */
+  [data-testid="stSidebar"] {{
+    background: {C['paper_2']} !important;
+    border-right: 1px solid {C['rule']} !important;
+  }}
+  [data-testid="stSidebar"] .stRadio label {{
+    font-family: 'Fraunces', serif !important;
+    font-size: 0.95rem !important;
+    color: {C['ink']} !important;
+  }}
+  [data-testid="stSidebar"] p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] div {{
+    color: {C['ink_2']} !important;
+  }}
+  [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{
+    color: {C['ink_3']} !important;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }}
+
+  /* ---------- buttons ---------- */
+  .stButton > button {{
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    border: 1px solid {C['ink']} !important;
+    background: {C['paper']} !important;
+    color: {C['ink']} !important;
+    border-radius: 0 !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease !important;
+  }}
+  .stButton > button:hover {{
+    background: {C['ink']} !important;
+    color: {C['paper']} !important;
+  }}
+
+  /* ---------- expanders ---------- */
+  [data-testid="stExpander"] {{
+    border: 1px solid {C['rule']} !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0.5rem 0 !important;
+  }}
+  [data-testid="stExpander"] summary {{
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.15em !important;
+    text-transform: uppercase !important;
+    color: {C['ink_2']} !important;
+    font-weight: 500 !important;
+  }}
+
+  /* ---------- status captions ---------- */
+  .status-whisper {{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: {C['ink_3']};
+    padding: 0.4rem 0;
+    font-weight: 300;
+  }}
+  .status-whisper::before {{
+    content: '—  ';
+    color: {C['accent']};
+    font-style: normal;
+  }}
+
+  /* ---------- files saved footer ---------- */
+  .files-saved {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    color: {C['ink_3']};
+    padding: 0.6rem 0;
+    border-top: 1px solid {C['rule']};
+    margin-top: 0.8rem;
+    letter-spacing: 0.03em;
+  }}
+  .files-saved strong {{ color: {C['ink_2']}; font-weight: 500; }}
+
+  /* ---------- verdict row ---------- */
+  .verdict-row {{
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    padding: 0.5rem 0;
+    border-top: 1px solid {C['rule']};
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }}
+  .verdict-row:last-child {{ border-bottom: 1px solid {C['rule']}; }}
+  .verdict-tag {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }}
+  .verdict-tag.pass {{ color: {C['success']}; }}
+  .verdict-tag.fail {{ color: {C['fail']}; }}
+  .verdict-body {{ color: {C['ink_2']}; }}
+  .verdict-body code {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    background: {C['rule']};
+    padding: 0 0.3em;
+    color: {C['ink']};
+  }}
 </style>
 """
 
@@ -376,68 +832,117 @@ _STAGE_LABEL = {"compile": "Planning", "execute": "Executing",
                 "hitl_prompt": "Waiting for input"}
 
 
-def _render_stage_pills(current: str):
-    bits = []
+def _render_stage_bar(current: str):
+    """Flight-deck progress bar. The accent fill animates across as stages advance."""
     current_idx = _STAGES.index(current) if current in _STAGES else -1
+    # Fill % = (current_idx + 1) / len(_STAGES). "done" fills 100%.
+    if current == "done":
+        progress = 100
+    elif current == "error":
+        # Fill up to the stage that failed, in muted tone.
+        progress = int((max(current_idx, 0) + 0.5) * 100 / len(_STAGES))
+    elif current == "hitl_prompt":
+        # Treat as paused mid-execute.
+        progress = int(1.5 * 100 / len(_STAGES))
+    else:
+        progress = int((current_idx + 0.5) * 100 / len(_STAGES)) if current_idx >= 0 else 0
+
+    segments = []
     for i, s in enumerate(_STAGES):
-        cls = "ok" if (current_idx > i or s == "done" and current == "done") else ""
-        if s == current and current != "done":
+        if current == "done":
+            cls = "past"
+        elif current_idx > i:
+            cls = "past"
+        elif current_idx == i and current != "done":
             cls = "active"
-        if current == "error":
-            cls = "fail" if i <= max(0, current_idx) else ""
-        bits.append(
-            f'<span class="stage-pill {cls}">{_STAGE_LABEL[s]}</span>'
+        else:
+            cls = ""
+        segments.append(
+            f'<div class="stage-seg {cls}">'
+            f'<span class="stage-seg-num">0{i+1}</span>'
+            f'<span class="stage-seg-label">{_STAGE_LABEL[s]}</span>'
+            f'</div>'
         )
-    st.markdown(" ".join(bits), unsafe_allow_html=True)
-
-
-def _render_task(task: TaskTrace):
-    icon = {
-        "pending": "·", "running": "●",
-        "success": "✓", "failure": "✗",
-    }.get(task.status, "·")
-    color = {
-        "pending": C["muted"], "running": C["accent"],
-        "success": C["success"], "failure": C["danger"],
-    }.get(task.status, C["muted"])
-    tc = f" · {task.tool_calls} tool calls" if task.tool_calls else ""
-    elapsed = f" · {task.elapsed:.1f}s" if task.elapsed else ""
     st.markdown(
-        f'<div style="display:flex;align-items:center;gap:.5rem;'
-        f'margin:.3rem 0;padding:.3rem .5rem;background:{C["card"]};'
-        f'border-radius:6px;border-left:3px solid {color}">'
-        f'<span style="color:{color};font-weight:700;font-size:1rem">'
-        f'{icon}</span>'
-        f'<div><strong style="color:{C["text"]}">{task.name}</strong>'
-        f'<span style="color:{C["muted"]};font-size:.75rem;margin-left:.5rem">'
-        f'{task.task_id}{elapsed}{tc}</span></div>'
-        f'</div>', unsafe_allow_html=True,
+        f'<div class="stage-bar" style="--progress: {progress}%">'
+        + "".join(segments) +
+        '</div>',
+        unsafe_allow_html=True,
     )
-    # Live streaming body during run.
+
+
+def _render_task(task: TaskTrace, index: int):
+    """Flight-deck status row: numbered entry, title, live metadata, status."""
+    status_label = {
+        "pending": "AWAITING",
+        "running": "IN FLIGHT",
+        "success": "COMPLETE",
+        "failure": "FAILED",
+    }.get(task.status, task.status.upper())
+
+    elapsed_str = f"{task.elapsed:.1f}s" if task.elapsed else "—"
+    tools_str = f"{task.tool_calls} calls" if task.tool_calls else "no tools"
+
+    st.markdown(
+        f'<div class="task-row {task.status}" style="animation-delay: {index * 60}ms">'
+        f'  <div class="task-num">{index + 1:02d}</div>'
+        f'  <div>'
+        f'    <div class="task-title">{_esc(task.name)}</div>'
+        f'    <div class="task-meta">'
+        f'      <strong>{task.task_id}</strong> &nbsp;·&nbsp; '
+        f'      {elapsed_str} &nbsp;·&nbsp; {tools_str}'
+        f'    </div>'
+        f'  </div>'
+        f'  <div class="task-status {task.status}">'
+        f'    <span class="dot"></span>{status_label}'
+        f'  </div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Live streaming body during run — inline code frame, editorial-scoped.
     if task.status == "running" and task.streaming_text:
-        st.code(task.streaming_text[-1200:], language="text")
-    elif task.status == "running":
-        st.caption("Running...")
-    # Tool call log (shown for completed tasks that used tools).
+        preview = task.streaming_text[-1000:]
+        st.markdown(
+            f'<div class="compile-frame" style="margin-top:-.2rem">'
+            f'<div class="compile-frame-label">Streaming</div>'
+            f'<pre style="margin:0; white-space:pre-wrap; '
+            f'font-family:inherit; color:inherit;">{_esc(preview)}</pre>'
+            f'</div>', unsafe_allow_html=True,
+        )
+
+    # Tool call log — only shown if the task used tools.
     if task.tool_events:
-        with st.expander(f"Tool calls ({len(task.tool_events)})", expanded=False):
+        with st.expander(f"Tool transcript · {len(task.tool_events)} call{'s' if len(task.tool_events) != 1 else ''}", expanded=False):
             for te in task.tool_events:
                 st.code(te, language="text")
-    # Final output.
+
+    # Final output (compact expander; the hero answer is rendered separately).
     if task.status == "success" and task.output is not None:
         out = task.output
-        if isinstance(out, (dict, list)):
-            with st.expander("Output", expanded=False):
+        with st.expander("Task output", expanded=False):
+            if isinstance(out, (dict, list)):
                 st.json(out)
-        else:
-            with st.expander("Output", expanded=False):
+            else:
                 st.markdown(str(out)[:3000])
     elif task.status == "failure" and task.error:
-        st.error(task.error[:500])
+        st.markdown(
+            f'<div style="padding:.5rem .8rem;border-left:2px solid {C["fail"]};'
+            f'background:#FDF5F4;font-family:\'JetBrains Mono\',monospace;'
+            f'font-size:.72rem;color:{C["fail"]};margin:.4rem 0;">'
+            f'{_esc(task.error[:500])}</div>',
+            unsafe_allow_html=True,
+        )
+
+
+def _esc(text) -> str:
+    """HTML-escape helper for editorial-styled rendering."""
+    import html
+    return html.escape(str(text))
 
 
 def _render_hitl_form(turn: Turn) -> bool:
-    """Render an inline HITL prompt form. Returns True on submit."""
+    """Editorial callout for a pending HITL prompt. Returns answer on submit."""
     req = turn.hitl_request
     if req is None:
         return False
@@ -447,25 +952,26 @@ def _render_hitl_form(turn: Turn) -> bool:
     agent_id = getattr(req, "agent_id", "agent")
 
     st.markdown(
-        f'<div style="background:{C["card"]};border:1px solid {C["border"]};'
-        f'border-left:4px solid {C["warn"]};border-radius:8px;'
-        f'padding:.8rem 1rem;margin:.5rem 0">'
-        f'<strong style="color:{C["warn"]}">Input needed</strong>'
-        f' <span style="color:{C["muted"]};font-size:.75rem">'
-        f'from {agent_id}</span></div>',
+        f'<div class="hitl-callout">'
+        f'<div class="hitl-callout-label">Query &mdash; from {_esc(agent_id)}</div>'
+        f'<div style="font-family:\'Fraunces\',serif;font-size:1.05rem;'
+        f'line-height:1.35;color:{C["ink"]};font-weight:400;">'
+        f'{_esc(prompt_text)}</div>'
+        + (f'<div style="font-family:\'IBM Plex Sans\',sans-serif;'
+           f'font-size:.78rem;color:{C["ink_2"]};margin-top:.4rem;'
+           f'font-style:italic;">{_esc(hint)}</div>' if hint else '') +
+        f'</div>',
         unsafe_allow_html=True,
     )
     with st.form(f"hitl_{id(req)}", clear_on_submit=True):
-        st.markdown(f"**{prompt_text}**")
-        if hint:
-            st.caption(hint)
         choice_val = None
         if choices:
             choice_val = st.radio("Pick one:", choices, horizontal=True,
                                   key=f"hitl_r_{id(req)}")
         freeform = st.text_area("Your answer:", key=f"hitl_t_{id(req)}",
-                                height=100)
-        submitted = st.form_submit_button("Submit", use_container_width=True)
+                                height=100, label_visibility="collapsed",
+                                placeholder="Type your response…")
+        submitted = st.form_submit_button("Respond", use_container_width=True)
     if submitted:
         answer = (freeform or "").strip() or (choice_val or "")
         return answer  # type: ignore[return-value]
@@ -473,99 +979,172 @@ def _render_hitl_form(turn: Turn) -> bool:
 
 
 def _render_turn(turn: Turn, is_live: bool = False):
+    # User prompt: editorial quote block with oversized drop-cap.
     if turn.role == "user":
-        with st.chat_message("user", avatar="👤"):
-            st.markdown(turn.content)
+        st.markdown(
+            f'<div class="prompt-block">'
+            f'<div class="prompt-label">You &nbsp;&mdash;&nbsp; Prompt</div>'
+            f'<div class="prompt-text">{_esc(turn.content)}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
         return
 
-    with st.chat_message("assistant", avatar="💬"):
-        _render_stage_pills(turn.stage)
+    # Assistant turn — full editorial treatment.
+    # Right-side byline shows elapsed time and agent identity.
+    elapsed_hint = (
+        f"Elapsed {turn.elapsed:.1f}s" if turn.elapsed else "Working"
+    )
+    st.markdown(
+        f'<div class="response-block">'
+        f'<div class="response-label">'
+        f'<span>DAAW &nbsp;&mdash;&nbsp; Response</span>'
+        f'<span class="response-label-right">{elapsed_hint}</span>'
+        f'</div></div>',
+        unsafe_allow_html=True,
+    )
 
-        if turn.error:
-            st.error(turn.error)
-            return
+    _render_stage_bar(turn.stage)
 
-        # Live compile view
-        if turn.stage == "compile" and turn.compile_stream:
+    if turn.error:
+        st.markdown(
+            f'<div style="padding:1rem;border:1px solid {C["fail"]};'
+            f'background:#FDF5F4;font-family:\'Fraunces\',serif;'
+            f'color:{C["fail"]};font-style:italic;">'
+            f'{_esc(turn.error)}</div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    # ---- Compile phase ----
+    if turn.stage == "compile":
+        if turn.compile_stream:
             rendered, lang = prettify_partial_json(turn.compile_stream)
-            st.caption("Planning the workflow...")
-            st.code(rendered, language=lang)
-        elif turn.stage == "compile":
-            st.caption("Compiling plan...")
-
-        # Execution progress header
-        if turn.stage == "execute" and turn.tasks:
-            done_count = sum(1 for t in turn.tasks
-                            if t.status in ("success", "failure"))
-            st.caption(f"Executing tasks... ({done_count}/{len(turn.tasks)} complete)")
-
-        # HITL prompt
-        if turn.stage == "hitl_prompt":
-            # Rendered in the main loop, not here — just show status.
-            st.caption("Waiting for your input...")
-
-        # Task list — always shown once spec is known.
-        if turn.tasks:
-            for t in turn.tasks:
-                _render_task(t)
-
-        # Critic phase indicator
-        if turn.stage == "critic":
-            st.caption("Evaluating results...")
-
-        # Final synthesis: the last task's output is the headline answer.
-        if turn.stage == "done":
-            final_task = next(
-                (t for t in reversed(turn.tasks) if t.status == "success"
-                 and t.output is not None),
-                None,
+            st.markdown(
+                f'<div class="compile-frame">'
+                f'<div class="compile-frame-label">Plan &mdash; live draft</div>'
+                f'<pre style="margin:0; white-space:pre-wrap; '
+                f'font-family:inherit; color:inherit;">{_esc(rendered)}</pre>'
+                f'</div>', unsafe_allow_html=True,
             )
-            if final_task is not None:
-                st.markdown("---")
-                st.markdown("**Answer**")
-                out = final_task.output
-                if isinstance(out, (dict, list)):
-                    st.json(out)
-                else:
-                    st.markdown(str(out)[:4000])
-                turn.content = str(out)[:4000]
+        else:
+            st.markdown(
+                '<div class="status-whisper">Drafting the workflow&hellip;</div>',
+                unsafe_allow_html=True,
+            )
 
-            # File output hint — cached on the Turn so we don't re-scan
-            # the sandbox on every Streamlit rerun.
-            if not turn.output_files:
-                import os
-                sandbox = os.environ.get(
-                    "DAAW_SANDBOX_DIR",
-                    os.path.join(os.getcwd(), ".daaw_sandbox"),
-                )
-                if os.path.isdir(sandbox):
-                    try:
-                        turn.output_files = sorted(os.listdir(sandbox))[-5:]
-                    except OSError:
-                        turn.output_files = []
-            if turn.output_files:
-                st.caption(
-                    "Files saved: "
-                    + ", ".join(f"`{f}`" for f in turn.output_files)
-                )
+    # ---- Execute phase ----
+    if turn.stage == "execute" and turn.tasks:
+        done_count = sum(1 for t in turn.tasks
+                         if t.status in ("success", "failure"))
+        st.markdown(
+            f'<div class="status-whisper">'
+            f'Executing &nbsp;<span style="font-family:\'JetBrains Mono\',monospace;'
+            f'color:{C["ink_2"]};font-style:normal;">'
+            f'{done_count:02d} &nbsp;/&nbsp; {len(turn.tasks):02d}'
+            f'</span></div>',
+            unsafe_allow_html=True,
+        )
 
-            # Details expander: spec + verdicts + per-task outputs.
-            with st.expander("Details"):
-                if turn.verdicts:
-                    st.markdown("**Critic verdicts**")
-                    for v in turn.verdicts:
-                        color = (C["success"] if v["verdict"] == "PASS"
-                                 else C["danger"])
-                        st.markdown(
-                            f'<span style="color:{color}">'
-                            f'{v["verdict"]}</span> · `{v["task_id"]}` '
-                            f'{v["task_name"]} — {v.get("reasoning", "")[:200]}',
-                            unsafe_allow_html=True,
-                        )
-                if turn.spec_json:
-                    st.markdown("**WorkflowSpec**")
-                    st.json(json.loads(turn.spec_json))
-                st.caption(f"Total elapsed: {turn.elapsed:.1f}s")
+    # ---- HITL paused ----
+    if turn.stage == "hitl_prompt":
+        st.markdown(
+            '<div class="status-whisper">Paused &mdash; your input is needed below.</div>',
+            unsafe_allow_html=True,
+        )
+
+    # ---- Task list — always shown once spec is known ----
+    if turn.tasks:
+        st.markdown(
+            '<div class="label" style="margin:1.2rem 0 .2rem;">Tasks</div>',
+            unsafe_allow_html=True,
+        )
+        for i, t in enumerate(turn.tasks):
+            _render_task(t, i)
+
+    # ---- Critic phase ----
+    if turn.stage == "critic":
+        st.markdown(
+            '<div class="status-whisper">Reviewing outputs against success criteria&hellip;</div>',
+            unsafe_allow_html=True,
+        )
+
+    # ---- Final answer (editorial body) ----
+    if turn.stage == "done":
+        final_task = next(
+            (t for t in reversed(turn.tasks) if t.status == "success"
+             and t.output is not None),
+            None,
+        )
+        if final_task is not None:
+            out = final_task.output
+            st.markdown(
+                '<div class="label label-accent" style="margin-top:1.5rem;">'
+                'Answer</div>',
+                unsafe_allow_html=True,
+            )
+            if isinstance(out, (dict, list)):
+                st.markdown('<div class="final-answer">',
+                            unsafe_allow_html=True)
+                st.json(out)
+                st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                text = str(out)[:4000]
+                st.markdown(
+                    f'<div class="final-answer">{text}</div>',
+                    unsafe_allow_html=True,
+                )
+            turn.content = str(out)[:4000]
+
+        # Cached sandbox listing.
+        if not turn.output_files:
+            import os
+            sandbox = os.environ.get(
+                "DAAW_SANDBOX_DIR",
+                os.path.join(os.getcwd(), ".daaw_sandbox"),
+            )
+            if os.path.isdir(sandbox):
+                try:
+                    turn.output_files = sorted(os.listdir(sandbox))[-5:]
+                except OSError:
+                    turn.output_files = []
+        if turn.output_files:
+            files_html = " &middot; ".join(
+                f'<strong>{_esc(f)}</strong>' for f in turn.output_files
+            )
+            st.markdown(
+                f'<div class="files-saved">'
+                f'Files written &nbsp;→&nbsp; {files_html}</div>',
+                unsafe_allow_html=True,
+            )
+
+        # Details — verdicts + spec (editorial treatment).
+        with st.expander("Details", expanded=False):
+            if turn.verdicts:
+                st.markdown(
+                    '<div class="label" style="margin-bottom:.5rem;">Verdicts</div>',
+                    unsafe_allow_html=True,
+                )
+                for v in turn.verdicts:
+                    cls = "pass" if v["verdict"] == "PASS" else "fail"
+                    reasoning = v.get("reasoning", "")[:200]
+                    st.markdown(
+                        f'<div class="verdict-row">'
+                        f'<div class="verdict-tag {cls}">{v["verdict"]}</div>'
+                        f'<div class="verdict-body">'
+                        f'<code>{_esc(v["task_id"])}</code> '
+                        f'{_esc(v["task_name"])} &nbsp;&mdash;&nbsp; '
+                        f'<em>{_esc(reasoning)}</em>'
+                        f'</div></div>',
+                        unsafe_allow_html=True,
+                    )
+            if turn.spec_json:
+                st.markdown(
+                    '<div class="label" style="margin:1rem 0 .5rem;">'
+                    'WorkflowSpec</div>',
+                    unsafe_allow_html=True,
+                )
+                st.json(json.loads(turn.spec_json))
 
 
 # ---------------------------------------------------------------------------
@@ -575,12 +1154,18 @@ def main():
     st.markdown(_CSS, unsafe_allow_html=True)
     _init_state()
 
-    # Header
+    # Editorial masthead — like a magazine issue number.
+    from datetime import datetime as _dt
+    today = _dt.now().strftime("%d.%m.%Y")
     st.markdown(
-        f'<div class="hdr">'
-        f'<div class="hdr-title">DAAW · Chat</div>'
-        f'<div class="hdr-ver">v{_VER} · {_BT}</div>'
-        f'</div>', unsafe_allow_html=True,
+        f'<div class="masthead">'
+        f'  <div class="masthead-title">DAAW <em>chat</em></div>'
+        f'  <div class="masthead-meta">'
+        f'    <strong>v{_VER}</strong> &nbsp;&middot;&nbsp; {_BT}<br>'
+        f'    Issue &nbsp; {today}'
+        f'  </div>'
+        f'</div>',
+        unsafe_allow_html=True,
     )
 
     # Sidebar: 4 simple modes
