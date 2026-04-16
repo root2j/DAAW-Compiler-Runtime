@@ -400,22 +400,61 @@ _CSS = f"""
     margin-bottom: 0.3rem;
   }}
 
-  /* ---------- chat input ---------- */
+  /* ---------- chat input — clean editorial bar ---------- */
   [data-testid="stChatInput"] {{
     background: {C['paper']} !important;
     border-top: 2px solid {C['ink']} !important;
+    border-radius: 0 !important;
+    padding: 0.8rem 0 !important;
+  }}
+  [data-testid="stChatInput"] > div {{
+    background: {C['paper_2']} !important;
+    border: 1px solid {C['rule']} !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }}
   [data-testid="stChatInput"] textarea {{
     font-family: 'Fraunces', serif !important;
-    font-size: 1.15rem !important;
+    font-size: 1.05rem !important;
     font-weight: 400 !important;
-    background: {C['paper']} !important;
+    background: transparent !important;
     color: {C['ink']} !important;
     border: none !important;
+    border-radius: 0 !important;
+    padding: 0.6rem 0.9rem !important;
   }}
   [data-testid="stChatInput"] textarea::placeholder {{
     color: {C['ink_3']} !important;
     font-style: italic;
+    font-family: 'Fraunces', serif !important;
+  }}
+  /* Send button */
+  [data-testid="stChatInput"] button {{
+    background: {C['ink']} !important;
+    color: {C['paper']} !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }}
+  [data-testid="stChatInput"] button:hover {{
+    background: {C['accent']} !important;
+  }}
+  [data-testid="stChatInput"] button svg {{
+    fill: {C['paper']} !important;
+  }}
+
+  /* ---------- streamlit top bar / header override ---------- */
+  [data-testid="stHeader"] {{
+    background: {C['paper']} !important;
+    border-bottom: 1px solid {C['rule']} !important;
+  }}
+  /* Hide the deploy button / hamburger in top bar */
+  [data-testid="stHeader"] [data-testid="stToolbar"] {{
+    display: none !important;
+  }}
+
+  /* ---------- bottom padding for fixed chat input ---------- */
+  [data-testid="stBottomBlockContainer"] {{
+    background: {C['paper']} !important;
   }}
 
   /* ---------- streamlit chat_message restyle ---------- */
