@@ -1,21 +1,15 @@
 # Tool & Agent Proposals
 
-**Status:** proposal (no code yet) · **Target:** DAAW v0.4
+**Status:** partially implemented · **Current:** DAAW v0.5.2
 
-Eight concrete additions to DAAW's tool/agent surface. Each entry has: what it
-is, why it fits DAAW specifically, dependencies, complexity (S/M/L), and
-priority. Ranked by impact-per-effort.
+Eight proposed additions. Two are now shipped; six remain.
 
-Context — what DAAW already has today:
+Current tool surface (v0.5.2):
 
-- **Tools** (`@tool_registry.register`): `web_search`, `file_write`,
-  `file_read`, `shell_command`, `notify` (webhook).
-- **Agents** (`@register_agent`): `generic_llm` (only worker; per-task
-  specialization via `tools_allowed` + `system_prompt_override`), plus
-  pipeline-role agents `planner` / `pm` / `breakdown` / `user_proxy` /
-  `critic`.
-
-Everything below slots into those two registries — no framework changes.
+- **Tools**: `web_search`, `file_write`, `file_read`, `shell_command`,
+  `notify`, **`http_request`** (shipped v0.5.0), **`python_exec`** (shipped v0.5.0).
+  Plus aliases: `brave_search`, `search`, `google_search`, `WebSearch`.
+- **Agents**: `generic_llm`, `planner`, `pm`, `breakdown`, `user_proxy`, `critic`.
 
 ---
 
