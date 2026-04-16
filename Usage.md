@@ -19,7 +19,7 @@
 
    # Local LLM via Ollama / LM Studio / vLLM (no API key needed)
    GATEWAY_URL=http://localhost:11434/v1
-   GATEWAY_MODEL=gemma4:e4b
+   GATEWAY_MODEL=gemma4:e2b-it-q4_K_M
 
    # Optional: webhook notifications
    # NOTIFY_WEBHOOK_URL=https://discord.com/api/webhooks/...
@@ -126,6 +126,28 @@ python -m daaw demo --port 8503
 **Demo Walkthrough** mode: 12-step clickable walkthrough with Next/Back/Play All controls.
 
 **Live Mode**: real compilation and execution with any provider.
+
+---
+
+### `chat` -- Chat UI (Recommended)
+
+A clean ChatGPT/Claude-style interface with Swiss editorial design:
+
+```bash
+python -m daaw chat
+python -m daaw chat --port 8503
+```
+
+**Features:**
+
+- **4 modes**: Groq (free/fast), Local (Ollama), Claude + Groq (recommended), Claude (full)
+- **Advanced override**: separate provider/model selection for planner and executor
+- **Streaming compile**: live JSON tokens as the plan is being written
+- **Flight-deck task cards**: numbered status rows with live elapsed timers and tool-call counts
+- **Stage pipeline**: animated vermilion progress bar (Planning → Executing → Reviewing → Done)
+- **HITL prompts**: inline forms when an agent needs user input mid-execution
+- **Anti-hallucination**: tasks fail visibly if tools_allowed was set but no tool was actually called
+- **File output hint**: shows which files were saved to `.daaw_sandbox/` after completion
 
 ---
 
