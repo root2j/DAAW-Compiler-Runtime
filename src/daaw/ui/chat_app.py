@@ -39,6 +39,7 @@ st.set_page_config(
     page_icon="💬",
     layout="centered",
     initial_sidebar_state="collapsed",
+    menu_items={"About": "DAAW Compiler-Runtime — Autonomous Workflow Orchestration"},
 )
 
 from daaw.config import reset_config as _reset_config
@@ -442,20 +443,41 @@ _CSS = f"""
     fill: {C['paper']} !important;
   }}
 
-  /* ---------- streamlit top bar / header override ---------- */
-  [data-testid="stHeader"] {{
+  /* ---------- streamlit chrome overrides (kill all dark bars) ---------- */
+  [data-testid="stHeader"],
+  header[data-testid="stHeader"] {{
     background: {C['paper']} !important;
     border-bottom: 1px solid {C['rule']} !important;
   }}
-  /* Hide the deploy button / hamburger in top bar */
   [data-testid="stHeader"] [data-testid="stToolbar"] {{
     display: none !important;
   }}
-
-  /* ---------- bottom padding for fixed chat input ---------- */
-  [data-testid="stBottomBlockContainer"] {{
+  [data-testid="stBottomBlockContainer"],
+  [data-testid="stBottom"],
+  div[data-testid="stBottom"] > div {{
+    background: {C['paper']} !important;
+    background-color: {C['paper']} !important;
+  }}
+  /* Kill the dark footer bar Streamlit adds */
+  footer, .stDeployButton, [data-testid="stDecoration"],
+  [data-testid="stStatusWidget"],
+  div[class*="StatusWidget"],
+  div[class*="stBottom"] {{
+    background: {C['paper']} !important;
+    background-color: {C['paper']} !important;
+    color: {C['ink_3']} !important;
+  }}
+  footer a {{ color: {C['ink_3']} !important; }}
+  footer {{ border-top: 1px solid {C['rule']} !important; }}
+  /* Force ALL containers to paper background */
+  .stApp > div, .stApp > div > div,
+  [data-testid="stAppViewContainer"],
+  [data-testid="stAppViewBlockContainer"],
+  section[data-testid="stSidebar"] > div {{
     background: {C['paper']} !important;
   }}
+  /* Streamlit dark mode top decoration bar */
+  [data-testid="stDecoration"] {{ display: none !important; }}
 
   /* ---------- streamlit chat_message restyle ---------- */
   [data-testid="stChatMessageAvatarUser"],
